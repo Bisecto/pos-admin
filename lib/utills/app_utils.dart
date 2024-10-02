@@ -8,11 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:pos_admin/utills/shared_preferences.dart';
-import 'package:pos_admin/view/landing_page.dart';
+import 'package:pos_admin/view/app_screens/landing_page.dart';
 
 import '../res/app_router.dart';
 import '../res/sharedpref_key.dart';
-import '../view/auth/sign_in_screen.dart';
 import 'app_navigator.dart';
 
 
@@ -34,14 +33,14 @@ class AppUtils {
 
 
   openApp(context) async {
-    bool isFirstOpen =
-        (await SharedPref.getBool(SharedPrefKey.isFirstOpenKey)) ?? true;
-    String userData = await SharedPref.getString(SharedPrefKey.userDataKey);
-    String password = await SharedPref.getString(SharedPrefKey.passwordKey);
-    String firstame = await SharedPref.getString(SharedPrefKey.firstNameKey);
-    print(userData);
-    print(password);
-    print(8);
+    // bool isFirstOpen =
+    //     (await SharedPref.getBool(SharedPrefKey.isFirstOpenKey)) ?? true;
+    // String userData = await SharedPref.getString(SharedPrefKey.userDataKey);
+    // String password = await SharedPref.getString(SharedPrefKey.passwordKey);
+    // String firstame = await SharedPref.getString(SharedPrefKey.firstNameKey);
+    // print(userData);
+    // print(password);
+    // print(8);
 
     Future.delayed(const Duration(seconds: 3), () {
       AppNavigator.pushAndRemovePreviousPages(context,

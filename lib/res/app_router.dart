@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../view/auth/sign_in_screen.dart';
+import '../view/app_screens/auth/sign_in_screen.dart';
 import '../view/important_pages/not_found_page.dart';
-import '../view/landing_page.dart';
+import '../view/app_screens/landing_page.dart';
 import '../view/splash_screen.dart';
-
 
 class AppRouter {
   ///All route name
@@ -18,16 +17,12 @@ class AppRouter {
   /// AUTH SCREENS
   static const String signInScreen = "/sign-in-page";
 
-
   static const String noInternetScreen = "/no-internet";
 
   ///LANDING PAGE LandingPage
   static const String landingPage = "/landing-page";
 
   // static const String homePage = "/home-page";
-
-
-
 
   //static const String airtime = '/airtime';
 
@@ -41,9 +36,8 @@ class AppRouter {
 
       case landingPage:
         return MaterialPageRoute(
-          builder: (_) => LandingPage(),
+          builder: (_) => const LandingPage(),
         );
-
 
       default:
         return MaterialPageRoute(builder: (_) => const NotFoundPage());

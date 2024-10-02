@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import '../../utills/app_validator.dart';
-import '../../utills/custom_theme.dart';
-import '../../utills/enums/toast_mesage.dart';
-import '../important_pages/not_found_page.dart';
-import '../widgets/form_button.dart';
-import '../widgets/form_input.dart';
+
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -32,7 +27,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Provider.of<CustomThemeState>(context).adaptiveThemeMode;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
