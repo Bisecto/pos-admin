@@ -132,7 +132,7 @@ class _DropDownState extends State<DropDown> {
                     padding: const EdgeInsets.only(left: 12),
                     child: Text(
                       data,
-                      style: TextStyle(fontSize: widget.textSize,color: AppColors.white),
+                      style: TextStyle(fontSize: widget.textSize,color: AppColors.textColor2),
                     ),
                   ),
                 );
@@ -143,4 +143,5 @@ class _DropDownState extends State<DropDown> {
       ],
     );
   }
+
 }
