@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/product_table.dart';
 import 'package:pos_admin/view/widgets/drop_down.dart';
+import 'package:pos_admin/view/widgets/form_button.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../res/app_colors.dart';
 import '../../../widgets/app_custom_text.dart';
@@ -31,16 +33,18 @@ class _MainProductScreenState extends State<MainProductScreen> {
   void initState() {
     super.initState();
     // Sample data
-    allProducts = List.generate(15, (index) => {
-      'id': index,
-      'sku': '10239$index',
-      'name': 'Product $index',
-      'quantity': '10',
-      'price': '199.99 Php',
-      'location': 'Talavera',
-      'brand': index % 2 == 0 ? 'Brand A' : 'Brand B',
-      'category': index % 2 == 0 ? 'Category A' : 'Category B'
-    });
+    allProducts = List.generate(
+        15,
+        (index) => {
+              'id': index,
+              'sku': '10239$index',
+              'name': 'Product $index',
+              'quantity': '10',
+              'price': '199.99 Php',
+              'location': 'Talavera',
+              'brand': index % 2 == 0 ? 'Brand A' : 'Brand B',
+              'category': index % 2 == 0 ? 'Category A' : 'Category B'
+            });
     filteredProducts = allProducts; // Initially display all products
   }
 
@@ -49,12 +53,13 @@ class _MainProductScreenState extends State<MainProductScreen> {
       filteredProducts = allProducts.where((product) {
         // Apply search query
         bool matchesSearch = searchTextEditingController.text.isEmpty ||
-            product['name'].toLowerCase().contains(
-                searchTextEditingController.text.toLowerCase());
+            product['name']
+                .toLowerCase()
+                .contains(searchTextEditingController.text.toLowerCase());
 
         // Apply brand and category filter
-        bool matchesBrand = selectedBrand == 'Brand' ||
-            product['brand'] == selectedBrand;
+        bool matchesBrand =
+            selectedBrand == 'Brand' || product['brand'] == selectedBrand;
         bool matchesCategory = selectedCategory == 'Category' ||
             product['category'] == selectedCategory;
 
@@ -65,20 +70,101 @@ class _MainProductScreenState extends State<MainProductScreen> {
 
   // Simulated method to add a new product
   void _addProduct() {
-    setState(() {
-      int newProductId = allProducts.length + 1;
-      allProducts.add({
-        'id': newProductId,
-        'sku': 'New1023$newProductId',
-        'name': 'New Product $newProductId',
-        'quantity': '5',
-        'price': '299.99 Php',
-        'location': 'Manila',
-        'brand': 'Brand A',
-        'category': 'Category A'
-      });
-      _filterProducts(); // Update displayed products
-    });
+    final TextEditingController skuController = TextEditingController();
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController quantityController = TextEditingController();
+    final TextEditingController priceController = TextEditingController();
+    final TextEditingController locationController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: TextStyles.textHeadings(
+              textValue: 'Add New Product',
+              textSize: 20,
+              textColor: AppColors.white),
+          backgroundColor: AppColors.darkModeBackgroundContainerColor,
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                CustomTextFormField(
+                  controller: skuController,
+                  label: 'SKU',
+                  width: 250,
+                  hint: 'Enter sku',
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                CustomTextFormField(
+                  controller: nameController,
+                  label: 'Product Name',
+                  width: 250,
+                  hint: 'Enter product name',
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                CustomTextFormField(
+                  controller: quantityController,
+                  label: 'Quantity',
+                  width: 250,
+                  hint: 'Enter product name',
+                  textInputType: TextInputType.number,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                CustomTextFormField(
+                  controller: priceController,
+                  label: 'Price',
+                  width: 250,
+                  hint: 'Enter product name',
+                  textInputType: TextInputType.number,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                CustomTextFormField(
+                    controller: locationController,
+                    label: 'Location',
+                    width: 250,
+                    hint: 'Enter product name'),
+              ],
+            ),
+          ),
+          actions: [
+            FormButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              bgColor: AppColors.red,
+              textColor: AppColors.white,
+              width: 120,
+              text: "Discard",
+              iconWidget: Icons.clear,
+              borderRadius: 20,
+            ),
+            FormButton( onPressed: () {
+              setState(() {
+                filteredProducts.add({
+                  "id": filteredProducts.length + 101, // Auto-increment ID
+                  "sku": skuController.text,
+                  "name": nameController.text,
+                  "quantity": int.tryParse(quantityController.text) ?? 0,
+                  "price": priceController.text,
+                  "location": locationController.text
+                });
+              });
+              Navigator.of(context).pop();
+            },text: "Add",iconWidget: Icons.add, bgColor: AppColors.green,
+              textColor: AppColors.white,
+              width: 120,borderRadius: 20,)
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -153,7 +239,11 @@ class _MainProductScreenState extends State<MainProductScreen> {
                             selectedValue: selectedCategory,
                             borderRadius: 20,
                             hint: "Category",
-                            items: const ['Category', 'Category A', 'Category B'],
+                            items: const [
+                              'Category',
+                              'Category A',
+                              'Category B'
+                            ],
                             onChanged: (value) {
                               setState(() {
                                 selectedCategory = value!;
@@ -200,7 +290,8 @@ class _MainProductScreenState extends State<MainProductScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              ProductTableScreen(products: filteredProducts) // Pass filtered products
+              ProductTableScreen(products: filteredProducts)
+              // Pass filtered products
             ],
           ),
         ),
