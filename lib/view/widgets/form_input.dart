@@ -28,6 +28,7 @@ class CustomTextFormField extends StatefulWidget {
   final bool isPasswordField;
   final int? maxLength;
   final double borderRadius;
+  final double width;
 
   final Widget? widget;
   final Widget? suffixIcon;
@@ -43,6 +44,7 @@ class CustomTextFormField extends StatefulWidget {
     this.maxLength,
     this.maxLines = 1,
     this.borderRadius = 10,
+    required this.width,
     this.textInputType = TextInputType.text,
     this.widget,
     this.suffixIcon,
@@ -76,16 +78,12 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Provider.of<CustomThemeState>(context).adaptiveThemeMode;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomText(
           text: widget.label,
-          color: theme.isDark
-              ? AppColors.darkModeBackgroundMainTextColor
-              : AppColors.textColor2,
+          color: AppColors.darkModeBackgroundMainTextColor,
           size: 12,
         ),
         if (widget.label != '')
@@ -93,10 +91,9 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             height: 10,
           ),
         Container(
+          width: widget.width,
           decoration: BoxDecoration(
-            color: theme.isDark
-                ? AppColors.darkModeBackgroundColor
-                : AppColors.white,
+            color: AppColors.scaffoldBackgroundColor,
             border: Border.all(
               color: widget.borderColor,
               width: 1.0,
@@ -122,7 +119,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                     enabled: widget.enabled,
                     style: TextStyle(
                       fontSize: 14,
-                      color: theme.isDark ? AppColors.white : AppColors.black,
+                      color: AppColors.white,
                     ),
                     decoration: InputDecoration(
                       prefixIcon: widget.widget != null
@@ -157,9 +154,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                       hintText: widget.hint,
                       hintStyle: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: theme.isDark
-                            ? AppColors.darkModeBackgroundDisableColor
-                            : AppColors.lightDivider,
+                        color: AppColors.textColor2,
                       ),
                       border: InputBorder.none,
                       contentPadding:
@@ -169,7 +164,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                     validator: widget.validator,
                     maxLines: widget.maxLines,
                     maxLength: widget.maxLength,
-                    obscureText: widget.isPasswordField?_obscureText:false,
+                    obscureText: widget.isPasswordField ? _obscureText : false,
                     onFieldSubmitted: (val) {
                       widget.onFieldSubmitted?.call(val);
                     },

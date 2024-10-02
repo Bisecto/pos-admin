@@ -5,6 +5,7 @@ import 'package:cross_connectivity/cross_connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pos_admin/res/app_images.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/page_selector.dart';
 import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
 
@@ -31,16 +32,14 @@ class _LandingPageState extends State<LandingPage> {
 
   StreamSubscription<ConnectivityStatus>? _connectivitySubscription;
   bool isNotification = false;
+
   @override
   void initState() {
     // TODO: implement initState
 
-
-
     // _checkConnectivity();
     // _connectivitySubscription =
     //     Connectivity().onConnectivityChanged.listen(_handleConnectivity);
-
 
     super.initState();
   }
@@ -64,7 +63,6 @@ class _LandingPageState extends State<LandingPage> {
   //   }
   // }
 
-
   // @override
   // void dispose() {
   //   _connectivitySubscription?.cancel();
@@ -79,39 +77,36 @@ class _LandingPageState extends State<LandingPage> {
 
     return _connected
         ? Scaffold(
-      key: _key,
-      appBar: isSmallScreen
-          ? AppBar(
-        backgroundColor: canvasColor,
-        title: Text(_getTitleByIndex(_controller.selectedIndex)),
-        leading: IconButton(
-          onPressed: () {
-            // if (!Platform.isAndroid && !Platform.isIOS) {
-            //   _controller.setExtended(true);
-            // }
-            _key.currentState?.openDrawer();
-          },
-          icon: const Icon(Icons.menu),
-        ),
-      )
-          : null,
-      drawer: ExampleSidebarX(controller: _controller),
-      body: Row(
-        children: [
-          if (!isSmallScreen) ExampleSidebarX(controller: _controller),
-          Expanded(
-            child: Center(
-              child: _ScreensExample(
-                controller: _controller,
-              ),
+            key: _key,
+            appBar: isSmallScreen
+                ? AppBar(
+                    backgroundColor: AppColors.canvasColor,
+                    title: Text(_getTitleByIndex(_controller.selectedIndex)),
+                    leading: IconButton(
+                      onPressed: () {
+                        // if (!Platform.isAndroid && !Platform.isIOS) {
+                        //   _controller.setExtended(true);
+                        // }
+                        _key.currentState?.openDrawer();
+                      },
+                      icon: const Icon(Icons.menu),
+                    ),
+                  )
+                : null,
+            drawer: ExampleSidebarX(controller: _controller),
+            body: Row(
+              children: [
+                if (!isSmallScreen) ExampleSidebarX(controller: _controller),
+                Expanded(
+                  child: Center(child: PageSelector(controller: _controller)),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-    )
-        : Container();//No_internet_Page(onRetry: _checkConnectivity);
+          )
+        : Container(); //No_internet_Page(onRetry: _checkConnectivity);
   }
 }
+
 class ExampleSidebarX extends StatelessWidget {
   const ExampleSidebarX({
     Key? key,
@@ -124,17 +119,17 @@ class ExampleSidebarX extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: scaffoldBackgroundColor,
+      color: AppColors.scaffoldBackgroundColor,
       child: SafeArea(
         child: SidebarX(
           controller: _controller,
           theme: SidebarXTheme(
             margin: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: canvasColor,
+              color: AppColors.canvasColor,
               borderRadius: BorderRadius.circular(20),
             ),
-            hoverColor: scaffoldBackgroundColor,
+            hoverColor: AppColors.scaffoldBackgroundColor,
             textStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
             selectedTextStyle: const TextStyle(color: Colors.white),
             hoverTextStyle: const TextStyle(
@@ -145,15 +140,15 @@ class ExampleSidebarX extends StatelessWidget {
             selectedItemTextPadding: const EdgeInsets.only(left: 30),
             itemDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: canvasColor),
+              border: Border.all(color: AppColors.canvasColor),
             ),
             selectedItemDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: actionColor.withOpacity(0.37),
+                color: AppColors.actionColor.withOpacity(0.37),
               ),
               gradient: const LinearGradient(
-                colors: [accentCanvasColor, canvasColor],
+                colors: [AppColors.accentCanvasColor, AppColors.canvasColor],
               ),
               boxShadow: [
                 BoxShadow(
@@ -174,10 +169,10 @@ class ExampleSidebarX extends StatelessWidget {
           extendedTheme: const SidebarXTheme(
             width: 200,
             decoration: BoxDecoration(
-              color: canvasColor,
+              color: AppColors.canvasColor,
             ),
           ),
-            footerDivider: divider,
+          footerDivider: AppColors.divider,
           headerBuilder: (context, extended) {
             return SizedBox(
               height: 100,
@@ -231,52 +226,6 @@ class ExampleSidebarX extends StatelessWidget {
     );
   }
 }
-class _ScreensExample extends StatelessWidget {
-  const _ScreensExample({
-    Key? key,
-    required this.controller,
-  }) : super(key: key);
-
-  final SidebarXController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: scaffoldBackgroundColor,
-      body: SafeArea(
-        bottom: true,
-        child: AnimatedBuilder(
-          animation: controller,
-          builder: (context, child) {
-            final pageTitle = _getTitleByIndex(controller.selectedIndex);
-            switch (controller.selectedIndex) {
-              case 0:
-                return ListView.builder(
-                  padding: const EdgeInsets.only(top: 10),
-                  itemBuilder: (context, index) => Container(
-                    height: 100,
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 10, right: 10, left: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color:AppColors.lightGreen, //Theme.of(context).canvasColor,
-                      boxShadow: const [BoxShadow()],
-                    ),
-                  ),
-                );
-              default:
-                return Text(
-                  pageTitle,
-                  style: theme.textTheme.headlineSmall,
-                );
-            }
-          },
-        ),
-      ),
-    );
-  }
-}
 
 String _getTitleByIndex(int index) {
   switch (index) {
@@ -298,11 +247,3 @@ String _getTitleByIndex(int index) {
       return 'Not found page';
   }
 }
-
-const primaryColor = Color(0xFF685BFF);
-const canvasColor = Color(0xFF2E2E48);
-const scaffoldBackgroundColor = Color(0xFF464667);
-const accentCanvasColor = Color(0xFF3E3E61);
-const white = Colors.white;
-final actionColor = const Color(0xFF5F5FA7).withOpacity(0.6);
-final divider = Divider(color: white.withOpacity(0.3), height: 1);

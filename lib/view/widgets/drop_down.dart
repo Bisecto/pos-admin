@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../res/app_colors.dart';
 import '../../utills/app_utils.dart';
 import 'app_custom_text.dart';
-
 class DropDown extends StatefulWidget {
   final String selectedValue;
   final String label;
@@ -21,7 +20,7 @@ class DropDown extends StatefulWidget {
   final bool showIcon;
   final bool showBorder;
   final double borderRadius;
-  final ValueChanged<String> onChanged; // New callback for value change
+  final ValueChanged<String> onChanged;
 
   const DropDown({
     Key? key,
@@ -41,7 +40,7 @@ class DropDown extends StatefulWidget {
     this.borderRadius = 4,
     this.dropIconColor,
     this.textSize = 12,
-    required this.onChanged, // Add callback parameter
+    required this.onChanged,
   }) : super(key: key);
 
   @override
@@ -91,60 +90,53 @@ class _DropDownState extends State<DropDown> {
                   ? Border.all(color: widget.borderColor ?? Colors.black12)
                   : null,
             ),
-            child: SizedBox(
-              width: AppUtils.deviceScreenSize(context).width*1,
-              child: DropdownButton<String>(
-
-                iconEnabledColor: widget.dropIconColor ?? Colors.black54,
-                menuWidth: AppUtils.deviceScreenSize(context).width*1.8,
-                icon: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Icon(
-                    Icons.expand_more,
-                    size: 22,
-                    color: widget.borderColor,
-                  ),
+            child: DropdownButton<String>(
+              iconEnabledColor: widget.dropIconColor ?? Colors.black54,
+              icon: Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Icon(
+                  Icons.expand_more,
+                  size: 22,
+                  color: widget.borderColor,
                 ),
-                isExpanded: true,
-                iconSize: 24,
-                focusColor: Colors.black12,
-                alignment: Alignment.bottomCenter,
-                elevation: 3,
-                underline: Container(color: Colors.transparent),
-                value: widget.items.contains(_selectedValue)
-                    ? _selectedValue
-                    : null,
-                onChanged: (newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      _selectedValue = newValue;
-                    });
-                    widget.onChanged(newValue); // Call the parent callback
-                  }
-                },
-                hint: Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      widget.hint,
-                      style: const TextStyle(color: Colors.grey, fontSize: 14),
-                    ),
-                  ),
-                ),
-                items: widget.items.map((data) {
-                  return DropdownMenuItem<String>(
-                    value: data,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: Text(
-                        data,
-                        style: TextStyle(fontSize: widget.textSize),
-                      ),
-                    ),
-                  );
-                }).toList(),
               ),
+              isExpanded: true,
+              iconSize: 24,
+              alignment: Alignment.bottomCenter,
+              underline: Container(color: Colors.transparent),
+              value: widget.items.contains(_selectedValue)
+                  ? _selectedValue
+                  : null,
+              onChanged: (newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _selectedValue = newValue;
+                  });
+                  widget.onChanged(newValue);
+                }
+              },
+              hint: Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    widget.hint,
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                ),
+              ),
+              items: widget.items.map((data) {
+                return DropdownMenuItem<String>(
+                  value: data,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Text(
+                      data,
+                      style: TextStyle(fontSize: widget.textSize,color: AppColors.white),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ),
