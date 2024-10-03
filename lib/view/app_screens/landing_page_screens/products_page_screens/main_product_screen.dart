@@ -197,6 +197,9 @@ class _MainProductScreenState extends State<MainProductScreen> {
                             controller: searchTextEditingController,
                             hint: 'Search',
                             label: '',
+                            onChanged: (val){
+                              _filterProducts();
+                            },
                             widget: IconButton(
                               icon: const Icon(
                                 Icons.search,

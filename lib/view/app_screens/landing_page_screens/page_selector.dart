@@ -4,6 +4,7 @@ import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_sc
 import 'package:sidebarx/sidebarx.dart';
 
 import '../../widgets/app_custom_text.dart';
+import 'brands_page_screens/main_brand_screen.dart';
 
 class PageSelector extends StatefulWidget {
   final SidebarXController controller;
@@ -33,7 +34,8 @@ class _PageSelectorState extends State<PageSelector> {
               final pageTitle = _getTitleByIndex(widget.controller.selectedIndex);
               switch (widget.controller.selectedIndex) {
                 case 0:
-                  return const MainProductScreen();
+                  return const MainProductScreen();case 1:
+                  return const MainBrandScreen();
                 default:
                   return TextStyles.textHeadings(
                     textValue:pageTitle,
