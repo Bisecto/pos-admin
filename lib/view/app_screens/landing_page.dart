@@ -206,7 +206,7 @@ class ExampleSidebarX extends StatelessWidget {
             ),
             const SidebarXItem(
               iconWidget: FlutterLogo(size: 20),
-              label: 'Suppliers',
+              label: 'Roles',
             ),
           ],
         ),
@@ -238,7 +238,7 @@ String _getTitleByIndex(int index) {
     case 3:
       return 'Invoices';
     case 4:
-      return 'Suppliers';
+      return 'Roles';
     case 5:
       return 'Profile';
     case 6:

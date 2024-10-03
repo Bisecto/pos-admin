@@ -66,7 +66,7 @@ String _getTitleByIndex(int index) {
     case 3:
       return 'Invoices';
     case 4:
-      return 'Suppliers';
+      return 'Roles';
     case 5:
       return 'Profile';
     case 6:
