@@ -5,11 +5,12 @@ import 'package:sidebarx/sidebarx.dart';
 
 import '../../widgets/app_custom_text.dart';
 import 'brands_page_screens/main_brand_screen.dart';
+import 'category_page_screens/main_category_screen.dart';
 
 class PageSelector extends StatefulWidget {
   final SidebarXController controller;
 
-  const PageSelector({super.key,required this.controller});
+  const PageSelector({super.key, required this.controller});
 
   @override
   State<PageSelector> createState() => _PageSelectorState();
@@ -31,15 +32,18 @@ class _PageSelectorState extends State<PageSelector> {
           child: AnimatedBuilder(
             animation: widget.controller,
             builder: (context, child) {
-              final pageTitle = _getTitleByIndex(widget.controller.selectedIndex);
+              final pageTitle =
+                  _getTitleByIndex(widget.controller.selectedIndex);
               switch (widget.controller.selectedIndex) {
                 case 0:
-                  return const MainProductScreen();case 1:
-                  return const MainBrandScreen();
+                  return const MainProductScreen();
+                case 1:
+                  return const MainBrandScreen(); case 2:
+                  return const MainCategoryScreen();
                 default:
                   return TextStyles.textHeadings(
-                    textValue:pageTitle,
-                    textSize: 25,textColor: AppColors.white,
+                    textValue: pageTitle,
+                    textSize: 25, textColor: AppColors.white,
                     //style: theme.textTheme.headlineSmall,
                   );
               }
@@ -47,10 +51,11 @@ class _PageSelectorState extends State<PageSelector> {
           ),
         ),
       ),
-    );  }
+    );
+  }
 }
-String _getTitleByIndex(int index) {
 
+String _getTitleByIndex(int index) {
   switch (index) {
     case 0:
       return 'Products';
