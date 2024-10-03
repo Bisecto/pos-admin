@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pos_admin/res/app_images.dart';
 import 'package:pos_admin/utills/app_utils.dart';
+import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
 import '../../../../res/app_colors.dart';
 
@@ -60,9 +61,10 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Product'),
-          content: Text(
-              'Are you sure you want to delete ${widget.products[index]['name']}?'),
+          backgroundColor: AppColors.darkModeBackgroundContainerColor,
+          title: TextStyles.textSubHeadings(textValue: 'Delete Product',textColor: AppColors.white),
+          content: CustomText(
+              text:'Are you sure you want to delete ${widget.products[index]['name']}?',color: AppColors.white),
           actions: [
             TextButton(
               child: Text('Cancel'),
