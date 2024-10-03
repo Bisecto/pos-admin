@@ -19,7 +19,7 @@ class MSG {
     }
   }
 
-  static errorSnackBar(BuildContext context, String message, {String title = 'Error massage'}) {
+  static errorSnackBar(String message,BuildContext context,  {String title = 'Error massage'}) {
     // if (Get.isSnackbarOpen) {
     //   Get.closeAllSnackbars();
     // }

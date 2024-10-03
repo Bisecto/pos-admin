@@ -12,6 +12,7 @@ import 'package:pos_admin/view/app_screens/landing_page.dart';
 
 import '../res/app_router.dart';
 import '../res/sharedpref_key.dart';
+import '../view/app_screens/auth/sign_in_screen.dart';
 import 'app_navigator.dart';
 
 
@@ -44,7 +45,7 @@ class AppUtils {
 
     Future.delayed(const Duration(seconds: 3), () {
       AppNavigator.pushAndRemovePreviousPages(context,
-          page: const LandingPage());
+          page: const SignInScreen());
     });
   }
 
