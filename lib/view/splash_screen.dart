@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
 import '../res/app_colors.dart';
 import '../res/app_images.dart';
@@ -23,47 +24,34 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.darkGreen,
-        body: Container(
-            height: AppUtils.deviceScreenSize(context).height,
-            width: AppUtils.deviceScreenSize(context).width,
-          decoration: const BoxDecoration(
-              color: AppColors.darkGreen,
+        backgroundColor: AppColors.scaffoldBackgroundColor,
+        body: Center(
+          child: Container(
+            // height: AppUtils.deviceScreenSize(context).height,
+            // width: AppUtils.deviceScreenSize(context).width,
+            decoration: const BoxDecoration(
+              color: AppColors.scaffoldBackgroundColor,
 
-             // image: DecorationImage(image: AssetImage(AppImages.splashLogo,),fit: BoxFit.fill)
+              // image: DecorationImage(image: AssetImage(AppImages.splashLogo,),fit: BoxFit.fill)
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  AppImages.posTerminal,
+                  width: 100,
+                  height: 100,
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextStyles.textHeadings(
+                    textValue: "CHECKPOINT ADMIN POS",
+                    textSize: 20,
+                    textColor: AppColors.white)
+              ],
+            ),
           ),
-          child: const Icon(Icons.access_time_outlined,size: 70,),
-        )
-        // Image.asset(
-        //   AppImages.splashLogo,
-        //   height: AppUtils.deviceScreenSize(context).height,
-        //   width: AppUtils.deviceScreenSize(context).width+50,
-        // )
-        // SvgPicture.asset(
-        //   AppIcons.splashScreen,
-        //   height: AppUtils.deviceScreenSize(context).height,
-        //   width: AppUtils.deviceScreenSize(context).width,
-        // ),
-        // Container(
-        //   height: AppUtils.deviceScreenSize(context).height,
-        //   width: AppUtils.deviceScreenSize(context).width,
-        //   decoration:  BoxDecoration(
-        //       gradient: const LinearGradient(
-        //         colors: [
-        //           AppColors.lightGreen,
-        //           AppColors.darkGreen,
-        //           AppColors.lightGreen
-        //         ],
-        //         begin: Alignment.bottomLeft,
-        //         end: Alignment.topRight,
-        //       ),
-        //       // image: DecorationImage(
-        //       //     image: const AssetImage(
-        //       //       AppImages.splashScreenFrame,
-        //       //     ),
-        //       //     fit: BoxFit.values[0])),
-        //   child: Center(child:Image.asset(AppImages.fullLogo)),
-        // )
-        );
+        ));
   }
 }

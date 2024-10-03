@@ -162,7 +162,7 @@ class ExampleSidebarX extends StatelessWidget {
               size: 20,
             ),
             selectedIconTheme: const IconThemeData(
-              color: Colors.white,
+              color: Colors.blue,
               size: 20,
             ),
           ),
@@ -205,7 +205,7 @@ class ExampleSidebarX extends StatelessWidget {
               onTap: () => _showDisabledAlert(context),
             ),
             const SidebarXItem(
-              iconWidget: FlutterLogo(size: 20),
+              icon: Icons.people,
               label: 'Roles',
             ),
           ],
