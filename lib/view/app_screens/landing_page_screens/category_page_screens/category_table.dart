@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pos_admin/model/category_model.dart';
 import 'package:pos_admin/res/app_images.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
@@ -6,9 +7,9 @@ import 'package:pos_admin/view/widgets/app_custom_text.dart';
 import '../../../../res/app_colors.dart';
 
 class CategoryTableScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> categorys;
+  final List<Category> categoryList;
 
-  CategoryTableScreen({required this.categorys});
+  CategoryTableScreen({required this.categoryList});
 
   @override
   _CategoryTableScreenState createState() => _CategoryTableScreenState();
@@ -18,12 +19,12 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
   int rowsPerPage = 10; // Control pagination size
   int currentPage = 1;
 
-  int get totalItems => widget.categorys.length;
+  int get totalItems => widget.categoryList.length;
 
-  List<Map<String, dynamic>> get paginatedcategorys {
+  List<Category> get paginatedcategorys {
     final start = (currentPage - 1) * rowsPerPage;
     final end = start + rowsPerPage;
-    return widget.categorys.sublist(start, end > totalItems ? totalItems : end);
+    return widget.categoryList.sublist(start, end > totalItems ? totalItems : end);
   }
 
   // Method to handle edit action
@@ -32,7 +33,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Category ${widget.categorys[index]['CategoryName']}'),
+          title: Text('Edit Category ${widget.categoryList[index].categoryName}'),
           content: const Text('Edit form could be placed here.'),
           actions: [
             TextButton(
@@ -45,7 +46,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
               child: const Text('Save'),
               onPressed: () {
                 // Handle saving changes
-                print('Category ${widget.categorys[index]['categoryName']} edited');
+                print('Category ${widget.categoryList[index].categoryName} edited');
                 Navigator.of(context).pop();
               },
             ),
@@ -64,7 +65,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
           backgroundColor: AppColors.darkModeBackgroundContainerColor,
           title: TextStyles.textSubHeadings(textValue: 'Delete Category',textColor: AppColors.white),
           content: CustomText(
-              text:'Are you sure you want to delete ${widget.categorys[index]['categoryName']}?',color: AppColors.white),
+              text:'Are you sure you want to delete ${widget.categoryList[index].categoryName}?',color: AppColors.white),
           actions: [
             TextButton(
               child: const Text('Cancel'),
@@ -76,9 +77,9 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
               child: const Text('Delete'),
               onPressed: () {
                 setState(() {
-                  widget.categorys.removeAt(index); // Remove Category from the list
+                  widget.categoryList.removeAt(index); // Remove Category from the list
                 });
-                print('Category ${widget.categorys[index]['categoryName']} deleted');
+                print('Category ${widget.categoryList[index].categoryName} deleted');
                 Navigator.of(context).pop();
               },
             ),
@@ -113,9 +114,9 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                   final categoryIndex = (currentPage - 1) * rowsPerPage + index;
                   return DataRow(cells: [
 
-                    DataCell(Text(paginatedcategorys[index]['index'].toString(), style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(paginatedcategorys[index]['categoryId'], style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(paginatedcategorys[index]['categoryName'].toString(), style: const TextStyle(color: Colors.white))),
+                    DataCell(Text((index+1).toString(), style: const TextStyle(color: Colors.white))),
+                    DataCell(Text(paginatedcategorys[index].categoryId, style: const TextStyle(color: Colors.white))),
+                    DataCell(Text(paginatedcategorys[index].categoryName.toString(), style: const TextStyle(color: Colors.white))),
 
                     DataCell(Row(
                       children: [
