@@ -5,6 +5,7 @@ abstract class CategoryState {}
 
 final class CategoryInitial extends CategoryState {}
 class CategoryLoadingState extends CategoryState {}
+class AddCategoryLoadingState extends CategoryState {}
 class CategoryErrorState extends CategoryState {
   final String error;
 

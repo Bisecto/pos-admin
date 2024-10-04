@@ -64,128 +64,88 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
       }).toList();
 
       // Debug statement to check if filteredCategorys is being updated
-      print("Filtered categories: ${filteredCategorys.length }dgdghb");
+      print("Filtered categories: ${filteredCategorys.length}dgdghb");
     });
   }
 
+  void _addCategory() {
+    final TextEditingController categoryNameController =
+    TextEditingController();
 
-  // Simulated method to add a new product
-  // void _addCategory() {
-  //   final TextEditingController skuController = TextEditingController();
-  //   final TextEditingController nameController = TextEditingController();
-  //   final TextEditingController quantityController = TextEditingController();
-  //   final TextEditingController priceController = TextEditingController();
-  //   final TextEditingController locationController = TextEditingController();
-  //
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: TextStyles.textHeadings(
-  //             textValue: 'Add New Category',
-  //             textSize: 20,
-  //             textColor: AppColors.white),
-  //         backgroundColor: AppColors.darkModeBackgroundContainerColor,
-  //         content: SingleChildScrollView(
-  //           child: Column(
-  //             children: [
-  //               CustomTextFormField(
-  //                 controller: skuController,
-  //                 label: 'SKU',
-  //                 width: 250,
-  //                 hint: 'Enter sku',
-  //               ),
-  //               SizedBox(
-  //                 height: 10,
-  //               ),
-  //               CustomTextFormField(
-  //                 controller: nameController,
-  //                 label: 'Product Name',
-  //                 width: 250,
-  //                 hint: 'Enter product name',
-  //               ),
-  //               SizedBox(
-  //                 height: 10,
-  //               ),
-  //               CustomTextFormField(
-  //                 controller: quantityController,
-  //                 label: 'Quantity',
-  //                 width: 250,
-  //                 hint: 'Enter product name',
-  //                 textInputType: TextInputType.number,
-  //               ),
-  //               SizedBox(
-  //                 height: 10,
-  //               ),
-  //               CustomTextFormField(
-  //                 controller: priceController,
-  //                 label: 'Price',
-  //                 width: 250,
-  //                 hint: 'Enter product name',
-  //                 textInputType: TextInputType.number,
-  //               ),
-  //               SizedBox(
-  //                 height: 10,
-  //               ),
-  //               CustomTextFormField(
-  //                   controller: locationController,
-  //                   label: 'Location',
-  //                   width: 250,
-  //                   hint: 'Enter product name'),
-  //             ],
-  //           ),
-  //         ),
-  //         actions: [
-  //           FormButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             bgColor: AppColors.red,
-  //             textColor: AppColors.white,
-  //             width: 120,
-  //             text: "Discard",
-  //             iconWidget: Icons.clear,
-  //             borderRadius: 20,
-  //           ),
-  //           FormButton(
-  //             onPressed: () {
-  //               setState(() {
-  //                 filteredCategorys.add({
-  //                   "id": filteredCategorys.length + 101, // Auto-increment ID
-  //                   "sku": skuController.text,
-  //                   "name": nameController.text,
-  //                   "quantity": int.tryParse(quantityController.text) ?? 0,
-  //                   "price": priceController.text,
-  //                   "location": locationController.text
-  //                 });
-  //               });
-  //               Navigator.of(context).pop();
-  //             },
-  //             text: "Add",
-  //             iconWidget: Icons.add,
-  //             bgColor: AppColors.green,
-  //             textColor: AppColors.white,
-  //             width: 120,
-  //             borderRadius: 20,
-  //           )
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: TextStyles.textHeadings(
+              textValue: 'Add New Category',
+              textSize: 20,
+              textColor: AppColors.white),
+          backgroundColor: AppColors.darkModeBackgroundContainerColor,
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                CustomTextFormField(
+                  controller: categoryNameController,
+                  label: 'Category Name',
+                  width: 250,
+                  hint: 'Enter category name',
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            FormButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              bgColor: AppColors.red,
+              textColor: AppColors.white,
+              width: 120,
+              text: "Discard",
+              iconWidget: Icons.clear,
+              borderRadius: 20,
+            ),
+            FormButton(
+              onPressed: () {
+                if (categoryNameController.text.isNotEmpty) {
+                  categoryBloc.add(
+                      AddCategoryEvent(categoryNameController.text.trim()));
+                } else {
+                  MSG.warningSnackBar(
+                      context, "Category name cannot be empty.");
+                }
+                Navigator.of(context).pop();
+              },
+              text: "Add",
+              iconWidget: Icons.add,
+              bgColor: AppColors.green,
+              textColor: AppColors.white,
+              width: 120,
+              borderRadius: 20,
+            )
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final isSmallScreen = MediaQuery
+        .of(context)
+        .size
+        .width < 600;
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackgroundColor,
       body: BlocConsumer<CategoryBloc, CategoryState>(
           bloc: categoryBloc,
-          // listenWhen: (previous, current) =>
-          // current is! CourseRegistrationInitial,
-          buildWhen: (previous, current) => current is GetCategorySuccessState,
+          listenWhen: (previous, current) =>
+          current is CategoryLoadingState,
+          buildWhen: (previous, current) => current is! CategoryLoadingState|| current is GetCategorySuccessState,
           listener: (context, state) {
             print(state);
             if (state is CategoryErrorState) {
@@ -195,121 +155,125 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
           },
           builder: (context, state) {
             switch (state.runtimeType) {
-              // case PostsFetchingState:
-              //   return const Center(
-              //     child: CircularProgressIndicator(),
-              //   );
+            // case PostsFetchingState:
+            //   return const Center(
+            //     child: CircularProgressIndicator(),
+            //   );
               case GetCategorySuccessState:
                 final getCategories = state as GetCategorySuccessState;
                 //print(getCategories.categoryList);
                 allCategorys = getCategories.categoryList;
                 filteredCategorys = allCategorys.where((category) {
-                  final matchesSearch = searchTextEditingController.text.isEmpty ||
-                      category.categoryName
-                          .toLowerCase()
-                          .contains(searchTextEditingController.text.toLowerCase());
+                  final matchesSearch =
+                      searchTextEditingController.text.isEmpty ||
+                          category.categoryName.toLowerCase().contains(
+                              searchTextEditingController.text.toLowerCase());
 
                   return matchesSearch;
                 }).toList();
 
                 // Debug statement to check if filteredCategorys is being updated
-                print("Filtered categories: ${filteredCategorys.length }dgdghb");
+                print("Filtered categories: ${filteredCategorys.length}dgdghb");
                 print('All Categories: ${allCategorys.length}');
                 print('Filtered Categories: ${filteredCategorys.length}');
 
-
-                if (getCategories.categoryList.isEmpty) {
-                  return Center(
-                    child: CustomText(
-                      text: "No categories have been added yet.",
-                      weight: FontWeight.bold,
-                      color: AppColors.white,
-                      maxLines: 3,
-                      size: 12,
-                    ),
-                  );
-                } else {
-                  return Container(
-                    //height: 200,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            // Search and Title Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      if (!isSmallScreen)
-                                        TextStyles.textHeadings(
-                                          textValue: "Categories",
-                                          textSize: 25,
-                                          textColor: AppColors.white,
-                                        ),
-                                      const SizedBox(width: 20),
-                                      Expanded(
-                                        child: CustomTextFormField(
-                                          controller: searchTextEditingController,
-                                          hint: 'Search',
-                                          label: '',
-                                          onChanged: (val) {
-                                            _filterCategorys();
-                                          },
-                                          widget: const Icon(
-                                            Icons.search,
-                                            color: AppColors.white,
-                                          ),
-                                          width: 250,
-                                        ),
+                return Container(
+                  //height: 200,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // Search and Title Row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    if (!isSmallScreen)
+                                      TextStyles.textHeadings(
+                                        textValue: "Categories",
+                                        textSize: 25,
+                                        textColor: AppColors.white,
                                       ),
-                                    ],
-                                  ),
+                                    const SizedBox(width: 20),
+                                    Expanded(
+                                      child: CustomTextFormField(
+                                        controller: searchTextEditingController,
+                                        hint: 'Search',
+                                        label: '',
+                                        onChanged: (val) {
+                                          _filterCategorys();
+                                        },
+                                        widget: const Icon(
+                                          Icons.search,
+                                          color: AppColors.white,
+                                        ),
+                                        width: 250,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 20.0),
-                                  child: GestureDetector(
-                                    // Add category logic here
-                                    child: Container(
-                                      width: 150,
-                                      height: 45,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: AppColors.purple,
-                                      ),
-                                      child: const Padding(
-                                        padding: EdgeInsets.all(0.0),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.add, color: AppColors.white),
-                                            CustomText(
-                                              text: "  Category",
-                                              size: 18,
-                                              color: AppColors.white,
-                                            )
-                                          ],
-                                        ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _addCategory();
+                                  },
+                                  child: Container(
+                                    width: 150,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: AppColors.purple,
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(0.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.add,
+                                              color: AppColors.white),
+                                          CustomText(
+                                            text: "  Category",
+                                            size: 18,
+                                            color: AppColors.white,
+                                          )
+                                        ],
                                       ),
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          if (getCategories.categoryList.isEmpty)
+                            const Center(
+                              child: CustomText(
+                                text: "No categories have been added yet.",
+                                weight: FontWeight.bold,
+                                color: AppColors.white,
+                                maxLines: 3,
+                                size: 12,
+                              ),
                             ),
-                            const SizedBox(height: 20),
+                          if (getCategories.categoryList.isNotEmpty)
+
                             CategoryTableScreen(
-                              categoryList: filteredCategorys, // Display filtered list
+                              categoryList:
+                              filteredCategorys, // Display filtered list
                             ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
-                  );
-                }
+                  ),
+                );
 
-              case CategoryLoadingState:
+              case CategoryLoadingState || AddCategoryLoadingState:
                 return const Center(
                   child: AppLoadingPage("Getting Categories..."),
                 );

@@ -36,7 +36,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: event.userData, password: event.password);
       User? user = userCredential.user;
-      if (user!.email!.isNotEmpty) {
+       FirebaseAuth.instance.tenantId='';
+      // await user!.updateProfile(        'tenantId': newTenantId,
+      // );
+      print(user!.tenantId);
+      print(user.uid);
+      if (user.email!.isNotEmpty) {
         emit(SuccessState("Successfully Signed in"));
       } else {
         emit(ErrorState(
