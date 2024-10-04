@@ -1,14 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_admin/res/app_images.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
+import '../../../../bloc/brand_bloc/brand_bloc.dart';
+import '../../../../model/brand_model.dart';
 import '../../../../res/app_colors.dart';
+import '../../../important_pages/dialog_box.dart';
+import '../../../widgets/form_button.dart';
+import '../../../widgets/form_input.dart';
 
 class BrandTableScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> brands;
+  final List<Brand> brandList;
 
-  BrandTableScreen({required this.brands});
+  BrandTableScreen({required this.brandList});
 
   @override
   _BrandTableScreenState createState() => _BrandTableScreenState();
@@ -18,53 +25,156 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
   int rowsPerPage = 10; // Control pagination size
   int currentPage = 1;
 
-  int get totalItems => widget.brands.length;
-
-  List<Map<String, dynamic>> get paginatedbrands {
-    final start = (currentPage - 1) * rowsPerPage;
-    final end = start + rowsPerPage;
-    return widget.brands.sublist(start, end > totalItems ? totalItems : end);
+  @override
+  void initState() {
+    super.initState();
+    print(
+        "Brand table received list of length: ${widget.brandList.length}");
   }
 
-  // Method to handle edit action
+  int get totalItems => widget.brandList.length;
+
+  List<Brand> get paginatedbrands {
+    final start = (currentPage - 1) * rowsPerPage;
+    final end = start + rowsPerPage;
+    return widget.brandList.sublist(start,
+        end > widget.brandList.length ? widget.brandList.length : end);
+  }
+
+  @override
+  void didUpdateWidget(covariant BrandTableScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print(
+        "Brand table updated with list of length: ${widget.brandList.length}");
+  }
+
+  BrandBloc brandBloc = BrandBloc();
+
   void _editBrand(int index) {
+    final TextEditingController brandNameController =
+    TextEditingController();
+    brandNameController.text = widget.brandList[index].brandName!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Brand ${widget.brands[index]['brandName']}'),
-          content: const Text('Edit form could be placed here.'),
+          title: TextStyles.textHeadings(
+              textValue: 'Edit Brand',
+              textSize: 20,
+              textColor: AppColors.white),
+          backgroundColor: AppColors.darkModeBackgroundContainerColor,
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                CustomTextFormField(
+                  controller: brandNameController,
+                  label: 'Brand Name',
+                  width: 250,
+                  hint: 'Enter brand name',
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
+          ),
           actions: [
-            TextButton(
-              child: const Text('Cancel'),
+            FormButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
+              bgColor: AppColors.red,
+              textColor: AppColors.white,
+              width: 120,
+              text: "Discard",
+              iconWidget: Icons.clear,
+              borderRadius: 20,
             ),
-            TextButton(
-              child: const Text('Save'),
+            FormButton(
               onPressed: () {
-                // Handle saving changes
-                print('Brand ${widget.brands[index]['brandName']} edited');
+                String? userId = FirebaseAuth.instance.currentUser!.uid;
+
+                if (brandNameController.text.isNotEmpty) {
+                  Brand newBrand = Brand(
+                    brandName: brandNameController.text,
+                    updatedBy: userId,
+                    createdAt: widget.brandList[index].createdAt,
+                    updatedAt: Timestamp.fromDate(DateTime.now()),
+                    brandId: widget.brandList[index].brandId, createdBy: widget.brandList[index].createdBy,
+                  );
+                  FirebaseFirestore.instance
+                      .collection('Enrolled Entities')
+                      .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+                      .collection('Brand')
+                      .doc(widget.brandList[index].brandId)
+                      .update(newBrand.toFirestore());
+                  setState(() {
+                    widget.brandList[index].brandName =
+                        brandNameController.text;
+                  });
+                  print(
+                      'Brand ${widget.brandList[index].brandName} edited');
+                } else {
+                  MSG.warningSnackBar(
+                      context, "Brand name cannot be empty.");
+                }
                 Navigator.of(context).pop();
               },
-            ),
+              text: "Update",
+              iconWidget: Icons.add,
+              bgColor: AppColors.green,
+              textColor: AppColors.white,
+              width: 120,
+              borderRadius: 20,
+            )
           ],
         );
       },
     );
   }
 
-  // Method to handle delete action
-  void _deleteBrand(int index) {
+  // void _editBrand(int index) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title:
+  //             Text('Edit Brand ${widget.brandList[index].brandName}'),
+  //         content: const Text('Edit form could be placed here.'),
+  //         actions: [
+  //           TextButton(
+  //             child: const Text('Cancel'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //           TextButton(
+  //             child: const Text('Save'),
+  //             onPressed: () {
+  //               // Handle saving changes
+  //               print(
+  //                   'Brand ${widget.brandList[index].brandName} edited');
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  void _deleteBrand(int index, String brandId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: AppColors.darkModeBackgroundContainerColor,
-          title: TextStyles.textSubHeadings(textValue: 'Delete Brand',textColor: AppColors.white),
+          title: TextStyles.textSubHeadings(
+              textValue: 'Delete Brand', textColor: AppColors.white),
           content: CustomText(
-              text:'Are you sure you want to delete ${widget.brands[index]['brandName']}?',color: AppColors.white),
+              text:
+              'Are you sure you want to delete ${widget.brandList[index].brandName}?',
+              color: AppColors.white),
           actions: [
             TextButton(
               child: const Text('Cancel'),
@@ -74,11 +184,23 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
             ),
             TextButton(
               child: const Text('Delete'),
-              onPressed: () {
+              onPressed: () async {
                 setState(() {
-                  widget.brands.removeAt(index); // Remove brand from the list
+                  widget.brandList
+                      .removeAt(index); // Remove Brand from the list
                 });
-                print('Brand ${widget.brands[index]['brandName']} deleted');
+                try {
+                  print(brandId);
+                  FirebaseFirestore.instance
+                      .collection('Enrolled Entities')
+                      .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+                      .collection('Brand')
+                      .doc(brandId)
+                      .delete();
+                } catch (e) {
+                  print(e);
+                }
+                print('Brand deleted');
                 Navigator.of(context).pop();
               },
             ),
@@ -104,22 +226,31 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 columns: const [
-                  DataColumn(label: Text('INDEX', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('BRAND ID', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('BRAND NAME', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('ACTIONS', style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label:
+                      Text('INDEX', style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label: Text('CATEGORY ID',
+                          style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label: Text('CATEGORY NAME',
+                          style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label: Text('ACTIONS',
+                          style: TextStyle(color: Colors.white))),
                 ],
                 rows: List.generate(paginatedbrands.length, (index) {
                   final brandIndex = (currentPage - 1) * rowsPerPage + index;
                   return DataRow(cells: [
-
-                    DataCell(Text(paginatedbrands[index]['index'].toString(), style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(paginatedbrands[index]['brandId'], style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(paginatedbrands[index]['brandName'].toString(), style: const TextStyle(color: Colors.white))),
-
+                    DataCell(Text((index + 1).toString(),
+                        style: const TextStyle(color: Colors.white))),
+                    DataCell(Text(paginatedbrands[index].brandId!,
+                        style: const TextStyle(color: Colors.white))),
+                    DataCell(Text(
+                        paginatedbrands[index].brandName.toString(),
+                        style: const TextStyle(color: Colors.white))),
                     DataCell(Row(
                       children: [
-
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.blue),
                           onPressed: () {
@@ -129,7 +260,8 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
-                            _deleteBrand(brandIndex);
+                            _deleteBrand(brandIndex,
+                                paginatedbrands[index].brandId!);
                           },
                         ),
                       ],
@@ -159,13 +291,17 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 4.0),
                     padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: currentPage == (index + 1) ? Colors.purple : Colors.white,
+                      color: currentPage == (index + 1)
+                          ? Colors.purple
+                          : Colors.white,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
                       '${index + 1}',
                       style: TextStyle(
-                        color: currentPage == (index + 1) ? Colors.white : Colors.black,
+                        color: currentPage == (index + 1)
+                            ? Colors.white
+                            : Colors.black,
                       ),
                     ),
                   ),
