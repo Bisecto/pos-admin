@@ -52,20 +52,22 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
   }
 
   void _filterCategorys() {
+    print(12345);
     setState(() {
       filteredCategorys = allCategorys.where((category) {
-        // Apply search query
-        bool matchesSearch = searchTextEditingController.text.isEmpty ||
+        final matchesSearch = searchTextEditingController.text.isEmpty ||
             category.categoryName
                 .toLowerCase()
                 .contains(searchTextEditingController.text.toLowerCase());
 
-        // Apply Category and category filter
-
         return matchesSearch;
       }).toList();
+
+      // Debug statement to check if filteredCategorys is being updated
+      print("Filtered categories: ${filteredCategorys.length }dgdghb");
     });
   }
+
 
   // Simulated method to add a new product
   // void _addCategory() {
@@ -185,6 +187,7 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
           // current is! CourseRegistrationInitial,
           buildWhen: (previous, current) => current is GetCategorySuccessState,
           listener: (context, state) {
+            print(state);
             if (state is CategoryErrorState) {
               MSG.warningSnackBar(context, state.error);
               //Navigator.pop(context);
@@ -198,18 +201,27 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
               //   );
               case GetCategorySuccessState:
                 final getCategories = state as GetCategorySuccessState;
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  setState(() {
-                    allCategorys=getCategories.categoryList;
-                    filteredCategorys=allCategorys;
-                  });
-                });
+                //print(getCategories.categoryList);
+                allCategorys = getCategories.categoryList;
+                filteredCategorys = allCategorys.where((category) {
+                  final matchesSearch = searchTextEditingController.text.isEmpty ||
+                      category.categoryName
+                          .toLowerCase()
+                          .contains(searchTextEditingController.text.toLowerCase());
+
+                  return matchesSearch;
+                }).toList();
+
+                // Debug statement to check if filteredCategorys is being updated
+                print("Filtered categories: ${filteredCategorys.length }dgdghb");
+                print('All Categories: ${allCategorys.length}');
+                print('Filtered Categories: ${filteredCategorys.length}');
 
 
                 if (getCategories.categoryList.isEmpty) {
                   return Center(
                     child: CustomText(
-                      text: "No categories has been added yet.",
+                      text: "No categories have been added yet.",
                       weight: FontWeight.bold,
                       color: AppColors.white,
                       maxLines: 3,
@@ -218,7 +230,7 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
                   );
                 } else {
                   return Container(
-                    height: 200,
+                    //height: 200,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SingleChildScrollView(
@@ -233,15 +245,14 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
                                     children: [
                                       if (!isSmallScreen)
                                         TextStyles.textHeadings(
-                                          textValue: "Categorys",
+                                          textValue: "Categories",
                                           textSize: 25,
                                           textColor: AppColors.white,
                                         ),
                                       const SizedBox(width: 20),
                                       Expanded(
                                         child: CustomTextFormField(
-                                          controller:
-                                              searchTextEditingController,
+                                          controller: searchTextEditingController,
                                           hint: 'Search',
                                           label: '',
                                           onChanged: (val) {
@@ -260,24 +271,20 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 20.0),
                                   child: GestureDetector(
-                                   // onTap: _addCategory,
+                                    // Add category logic here
                                     child: Container(
                                       width: 150,
                                       height: 45,
                                       decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          color: AppColors.purple),
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: AppColors.purple,
+                                      ),
                                       child: const Padding(
                                         padding: EdgeInsets.all(0.0),
                                         child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Icon(
-                                              Icons.add,
-                                              color: AppColors.white,
-                                            ),
+                                            Icon(Icons.add, color: AppColors.white),
                                             CustomText(
                                               text: "  Category",
                                               size: 18,
@@ -293,14 +300,15 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
                             ),
                             const SizedBox(height: 20),
                             CategoryTableScreen(
-                              categoryList: filteredCategorys,
-                            )
+                              categoryList: filteredCategorys, // Display filtered list
+                            ),
                           ],
                         ),
                       ),
                     ),
                   );
                 }
+
               case CategoryLoadingState:
                 return const Center(
                   child: AppLoadingPage("Getting Categories..."),

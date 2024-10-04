@@ -18,16 +18,24 @@ class CategoryTableScreen extends StatefulWidget {
 class _CategoryTableScreenState extends State<CategoryTableScreen> {
   int rowsPerPage = 10; // Control pagination size
   int currentPage = 1;
-
+  @override
+  void initState() {
+    super.initState();
+    print("Category table received list of length: ${widget.categoryList.length}");
+  }
   int get totalItems => widget.categoryList.length;
 
   List<Category> get paginatedcategorys {
     final start = (currentPage - 1) * rowsPerPage;
     final end = start + rowsPerPage;
-    return widget.categoryList.sublist(start, end > totalItems ? totalItems : end);
+    return widget.categoryList.sublist(start, end > widget.categoryList.length ? widget.categoryList.length : end);
   }
 
-  // Method to handle edit action
+  @override
+  void didUpdateWidget(covariant CategoryTableScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print("Category table updated with list of length: ${widget.categoryList.length}");
+  }
   void _editCategory(int index) {
     showDialog(
       context: context,
@@ -56,7 +64,6 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
     );
   }
 
-  // Method to handle delete action
   void _deleteCategory(int index) {
     showDialog(
       context: context,
@@ -79,7 +86,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                 setState(() {
                   widget.categoryList.removeAt(index); // Remove Category from the list
                 });
-                print('Category ${widget.categoryList[index].categoryName} deleted');
+                print('Category deleted');
                 Navigator.of(context).pop();
               },
             ),
