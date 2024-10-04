@@ -56,7 +56,7 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
     setState(() {
       filteredCategorys = allCategorys.where((category) {
         final matchesSearch = searchTextEditingController.text.isEmpty ||
-            category.categoryName
+            category.categoryName!
                 .toLowerCase()
                 .contains(searchTextEditingController.text.toLowerCase());
 
@@ -166,7 +166,7 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
                 filteredCategorys = allCategorys.where((category) {
                   final matchesSearch =
                       searchTextEditingController.text.isEmpty ||
-                          category.categoryName.toLowerCase().contains(
+                          category.categoryName!.toLowerCase().contains(
                               searchTextEditingController.text.toLowerCase());
 
                   return matchesSearch;

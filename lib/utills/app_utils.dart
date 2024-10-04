@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/src/foundation/key.dart' as kk;
@@ -48,7 +49,9 @@ class AppUtils {
           page: const SignInScreen());
     });
   }
-
+  String generateFirestoreUniqueId() {
+    return FirebaseFirestore.instance.collection('dummy').doc().id;
+  }
   logout(context) async {
     SharedPref.remove(SharedPrefKey.passwordKey);
     SharedPref.remove(SharedPrefKey.emailKey);

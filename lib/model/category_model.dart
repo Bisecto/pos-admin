@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Category {
-  String categoryId;
-  String categoryName;
-  Timestamp createdAt;
-  String createdBy;
+  String? categoryId;
+  String? categoryName;
+  Timestamp? createdAt;
+  String? createdBy;
   String updatedBy;
   Timestamp updatedAt;
 
