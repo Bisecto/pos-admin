@@ -101,8 +101,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                     children: [
                                       CustomTextFormField(
                                         hint:
-                                            'Enter School E-mail or Reg Number',
-                                        label: 'School E-mail/Reg Number',
+                                            'Please enter Email',
+                                        label: 'Email',
                                         borderColor: AppColors.purple,
                                         controller: _emailController,
                                         backgroundColor: AppColors

@@ -118,7 +118,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                   controller: skuController,
                   label: 'SKU(optional)',
                   width: 250,
-                  hint: 'Enter sku',
+                  hint: 'Enter product sku',
                 ),
                 SizedBox(
                   height: 10,
@@ -136,7 +136,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                   controller: quantityController,
                   label: 'Quantity(optional)',
                   width: 250,
-                  hint: 'Enter product name',
+                  hint: 'Enter qty of product',
                   textInputType: TextInputType.number,
                 ),
                 SizedBox(
@@ -146,7 +146,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                   controller: priceController,
                   label: 'Price',
                   width: 250,
-                  hint: 'Enter product name',
+                  hint: 'Enter price',
                   textInputType: TextInputType.number,
                 ),
                 DropDown(
