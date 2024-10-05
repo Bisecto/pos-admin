@@ -30,6 +30,24 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
   int rowsPerPage = 10;
   int currentPage = 1;
 
+  String? _getBrandName(String brandId) {
+    // Check if any brand matches the given brandId
+    if (widget.brandList.any((b) => b.brandId == brandId)) {
+      return widget.brandList.firstWhere((b) => b.brandId == brandId).brandName;
+    }
+    // Return a default message if no match is found
+    return 'Unknown';
+  }
+
+  String? _getCategoryName(String categoryId) {
+    // Check if any category matches the given categoryId
+    if (widget.categoryList.any((c) => c.categoryId == categoryId)) {
+      return widget.categoryList.firstWhere((c) => c.categoryId == categoryId).categoryName;
+    }
+    // Return a default message if no match is found
+    return 'Unknown';
+  }
+
   List<Product> get paginatedProducts {
     final start = (currentPage - 1) * rowsPerPage;
     final end = start + rowsPerPage;
@@ -42,32 +60,37 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
     final TextEditingController skuController = TextEditingController();
     //final TextEditingController quantityController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
-    final TextEditingController selectedCategoryName = TextEditingController();
-    final TextEditingController selectedBrandName = TextEditingController();
-    final TextEditingController selectedCategoryId = TextEditingController();
-    final TextEditingController selectedBrandId = TextEditingController();
+    // final TextEditingController selectedCategoryName = TextEditingController();
+    // final TextEditingController selectedBrandName = TextEditingController();
+    // final TextEditingController selectedCategoryId = TextEditingController();
+    // final TextEditingController selectedBrandId = TextEditingController();
     productNameController.text = widget.productList[index].productName ?? '';
     skuController.text = widget.productList[index].sku ?? '';
     //quantityController.text = widget.productList[index].qu ?? '';
     priceController.text = widget.productList[index].price.toString() ?? '';
-
-    List<String> brands = [];
-    List<String> ids = [];
-    for (int i = 0; i < widget.brandList.length; i++) {
-      brands.add(widget.brandList[i].brandName.toString());
-      ids.add(widget.brandList[i].brandId.toString());
-    }
-    List<String> categories = [];
-    List<String> categoriesIds = [];
-    for (int i = 0; i < widget.categoryList.length; i++) {
-      categories.add(widget.categoryList[i].categoryName.toString());
-      categoriesIds.add(widget.categoryList[i].categoryId.toString());
-    }
+    // selectedBrandId.text=widget.productList[index].brandId;
+    // selectedCategoryId.text=widget.productList[index].categoryId;
+    //selectedBrandName.text=widget.productList[index].;
+    // List<String> brands = [];
+    // List<String> ids = [];
+    // for (int i = 0; i < widget.brandList.length; i++) {
+    //   brands.add(widget.brandList[i].brandName.toString());
+    //   ids.add(widget.brandList[i].brandId.toString());
+    // }
+    // List<String> categories = [];
+    // List<String> categoriesIds = [];
+    // for (int i = 0; i < widget.categoryList.length; i++) {
+    //   categories.add(widget.categoryList[i].categoryName.toString());
+    //   categoriesIds.add(widget.categoryList[i].categoryId.toString());
+    // }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: TextStyles.textHeadings(textValue:'Edit Product',textSize: 22,textColor: AppColors.white),
+          title: TextStyles.textHeadings(
+              textValue: 'Edit Product',
+              textSize: 22,
+              textColor: AppColors.white),
           backgroundColor: AppColors.darkModeBackgroundContainerColor,
           content: SingleChildScrollView(
             child: Column(
@@ -109,36 +132,36 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                   hint: 'Enter product name',
                   textInputType: TextInputType.number,
                 ),
-                DropDown(
-                  width: 250,
-                  borderColor: AppColors.white,
-                  borderRadius: 10,
-                  hint: "Brand(optional)",
-                  selectedValue: selectedBrandName.text,
-                  items: brands,
-                  onChanged: (value) {
-                    int index = brands.indexOf(value);
-
-                    setState(() {
-                      selectedBrandId.text = categoriesIds[index];
-                    });
-                  },
-                ),
-                DropDown(
-                  width: 250,
-                  borderColor: AppColors.white,
-                  selectedValue: selectedCategoryName.text,
-                  borderRadius: 10,
-                  hint: "Category*",
-                  items: categories,
-                  onChanged: (value) {
-                    int index = categories.indexOf(value);
-
-                    setState(() {
-                      selectedCategoryId.text = categoriesIds[index];
-                    });
-                  },
-                ),
+                // DropDown(
+                //   width: 250,
+                //   borderColor: AppColors.white,
+                //   borderRadius: 10,
+                //   hint: "Brand(optional)",
+                //   selectedValue: selectedBrandName.text,
+                //   items: brands,
+                //   onChanged: (value) {
+                //     int index = brands.indexOf(value);
+                //
+                //     setState(() {
+                //       selectedBrandId.text = categoriesIds[index];
+                //     });
+                //   },
+                // ),
+                // DropDown(
+                //   width: 250,
+                //   borderColor: AppColors.white,
+                //   selectedValue: selectedCategoryName.text,
+                //   borderRadius: 10,
+                //   hint: "Category*",
+                //   items: categories,
+                //   onChanged: (value) {
+                //     int index = categories.indexOf(value);
+                //
+                //     setState(() {
+                //       selectedCategoryId.text = categoriesIds[index];
+                //     });
+                //   },
+                // ),
 
                 SizedBox(
                   height: 10,
@@ -252,12 +275,26 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                 DataColumn(
                     label:
                         Text('INDEX', style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label: Text('PRODUCT ID',
-                        style: TextStyle(color: Colors.white))),
+                // DataColumn(
+                //     label: Text('PRODUCT ID',
+                //         style: TextStyle(color: Colors.white))),
                 DataColumn(
                     label: Text('PRODUCT NAME',
                         style: TextStyle(color: Colors.white))),
+                DataColumn(
+                    label:
+                        Text('BRAND', style: TextStyle(color: Colors.white))),
+                DataColumn(
+                    label: Text('CATEGORY',
+                        style: TextStyle(color: Colors.white))),
+                DataColumn(
+                    label: Text('SKU', style: TextStyle(color: Colors.white))),
+                DataColumn(
+                    label:
+                        Text('PRICE', style: TextStyle(color: Colors.white))),
+                // DataColumn(
+                //     label: Text('CREATED AT',
+                //         style: TextStyle(color: Colors.white))),
                 DataColumn(
                     label:
                         Text('ACTIONS', style: TextStyle(color: Colors.white))),
@@ -267,10 +304,25 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                 return DataRow(cells: [
                   DataCell(Text((index + 1).toString(),
                       style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(paginatedProducts[index].productId!,
-                      style: const TextStyle(color: Colors.white))),
+                  // DataCell(Text(paginatedProducts[index].productId!,
+                  //     style: const TextStyle(color: Colors.white))),
                   DataCell(Text(paginatedProducts[index].productName ?? '',
                       style: const TextStyle(color: Colors.white))),
+                  DataCell(Text(
+                      _getBrandName(paginatedProducts[index].brandId ?? '') ??
+                          '',
+                      style: const TextStyle(color: Colors.white))),
+                  DataCell(Text(
+                      _getCategoryName(
+                              paginatedProducts[index].categoryId ?? '') ??
+                          '',
+                      style: const TextStyle(color: Colors.white))),
+                  DataCell(Text(paginatedProducts[index].sku ?? '',
+                      style: const TextStyle(color: Colors.white))),
+                  DataCell(Text(paginatedProducts[index].price.toString() ?? '',
+                      style: const TextStyle(color: Colors.white))),
+                  // DataCell(Text(AppUtils.formatComplexDate(dateTime: DateTime.fromMillisecondsSinceEpoch(int.parse(paginatedProducts[index].createdAt.toString()) * 1000).toString()) ?? '',
+                  //     style: const TextStyle(color: Colors.white))),
                   DataCell(Row(
                     children: [
                       IconButton(

@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Product {
-  String categoryId;
+  String? categoryId;
   Timestamp createdAt;
   String createdBy;
-  String brandId;
+  String? brandId;
   String productId;
   String productImageUrl;
   String productName;
