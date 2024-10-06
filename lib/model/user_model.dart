@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User {
+class UserModel {
   String userId;
   String email;
   String fullname;
@@ -8,10 +8,11 @@ class User {
   String phone;
   String role;
   String tenantId;
+  bool accountStatus;
   Timestamp createdAt;
   Timestamp updatedAt;
 
-  User({
+  UserModel({
     required this.userId,
     required this.email,
     required this.fullname,
@@ -21,12 +22,13 @@ class User {
     required this.tenantId,
     required this.createdAt,
     required this.updatedAt,
+    required this.accountStatus,
   });
 
-  // Factory method to create a User from Firestore DocumentSnapshot
-  factory User.fromFirestore(DocumentSnapshot doc) {
+  // Factory method to create a UserModel from Firestore DocumentSnapshot
+  factory UserModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    return User(
+    return UserModel(
       userId: data['userId'],
       email: data['email'],
       fullname: data['fullname'],
@@ -36,10 +38,11 @@ class User {
       tenantId: data['tenantId'],
       createdAt: data['createdAt'],
       updatedAt: data['updatedAt'],
+      accountStatus: data['accountStatus'],
     );
   }
 
-  // Method to convert User object to a map for Firestore
+  // Method to convert UserModel object to a map for Firestore
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
@@ -51,6 +54,7 @@ class User {
       'tenantId': tenantId,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'accountStatus': accountStatus,
     };
   }
 }

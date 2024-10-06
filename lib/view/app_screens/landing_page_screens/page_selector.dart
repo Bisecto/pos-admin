@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pos_admin/res/app_colors.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/main_product_screen.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/role_page_screens/main_role_screen.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 import '../../widgets/app_custom_text.dart';
@@ -38,8 +39,11 @@ class _PageSelectorState extends State<PageSelector> {
                 case 0:
                   return const MainProductScreen();
                 case 1:
-                  return const MainBrandScreen(); case 2:
+                  return const MainBrandScreen();
+                case 2:
                   return const MainCategoryScreen();
+                case 4:
+                  return const MainUserScreen();
                 default:
                   return TextStyles.textHeadings(
                     textValue: pageTitle,
