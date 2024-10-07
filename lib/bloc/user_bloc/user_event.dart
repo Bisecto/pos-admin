@@ -16,10 +16,10 @@ class AddUserEvent extends UserEvent {
   String phone;
   String role;
   String tenantId;
-
+  BuildContext context;
 
   AddUserEvent(this.email, this.tenantId, this.phone, this.imageUrl,
-      this.fullname, this.role);
+      this.fullname, this.role, this.context);
 }
 
 class DeleteUserEvent extends UserEvent {

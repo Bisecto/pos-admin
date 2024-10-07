@@ -15,4 +15,18 @@ class SignInEventClick extends AuthEvent {
   SignInEventClick(this.userData, this.password);
 }
 
+class SignUpEventClick extends AuthEvent {
+  final String email;
+  final String password;
+  String fullname;
+  String imageUrl;
+  String phone;
+  String role;
+  String tenantId;
 
+  // final String loginOption;
+  // final String accessPin;
+
+  SignUpEventClick(this.email, this.tenantId, this.phone, this.imageUrl,
+      this.fullname, this.role, this.password);
+}

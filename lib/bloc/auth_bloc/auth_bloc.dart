@@ -21,6 +21,7 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitial()) {
     on<SignInEventClick>(signInEventClick);
+    on<SignUpEventClick>(signUpEventClick);
     // on<AuthEvent>((event, emit) {
     //   // TODO: implement event handler
     // });
@@ -84,6 +85,55 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       emit(ErrorState(errorMessage)); // Emit error message
       emit(AuthInitial()); // Reset state after handling error
+    } catch (e) {
+      emit(ErrorState("There was a problem logging you in, please try again."));
+      emit(AuthInitial()); // Reset state
+    }
+  }
+
+  FutureOr<void> signUpEventClick(SignUpEventClick event, Emitter<AuthState> emit)async {
+    emit(LoadingState());
+
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: event.email, password: event.password);
+      User? user = userCredential.user;
+      //FirebaseAuth.instance.tenantId='';
+      // await user!.updateProfile(        'tenantId': newTenantId,
+      // );
+      print(user!.tenantId);
+      print(user.uid);
+      if (user.email!.isNotEmpty) {
+        emit(SuccessState("Successfully Signed in"));
+      } else {
+        emit(ErrorState(
+            "There was a problem logging you in, please try again.")); // Emit error message
+        emit(AuthInitial()); //
+      }
+
+    } on FirebaseAuthException catch (e) {
+      // Handle different FirebaseAuth exceptions during sign-up
+      print(e.toString());
+      print(e.code.toString());
+
+      String errorMessage = "There was a problem signing you up, please try again."; // Default message
+
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+        errorMessage = 'The password provided is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+        errorMessage = 'The account already exists for this email.';
+      } else if (e.code == 'invalid-email') {
+        print('Invalid email provided.');
+        errorMessage = 'Invalid email provided.';
+      } else if (e.code == 'operation-not-allowed') {
+        print('Operation not allowed.');
+        errorMessage = 'Operation not allowed, please contact support.';
+      }
+
+      emit(ErrorState(errorMessage)); // Emit the error state with a custom message
+      emit(AuthInitial()); // Reset the state after handling the error
     } catch (e) {
       emit(ErrorState("There was a problem logging you in, please try again."));
       emit(AuthInitial()); // Reset state
