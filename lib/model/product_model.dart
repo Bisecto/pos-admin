@@ -10,6 +10,7 @@ class Product {
   String productName;
   String sku;
   double price;
+  double discount;
   Timestamp updatedAt;
   String updatedBy;
 
@@ -19,6 +20,7 @@ class Product {
     required this.createdBy,
     required this.brandId,
     required this.price,
+    required this.discount,
     required this.productId,
     required this.productImageUrl,
     required this.productName,
@@ -36,6 +38,7 @@ class Product {
       createdBy: data['createdBy'],
       brandId: data['brandId'],
       price: double.parse(data['price'].toString()),
+      discount: double.parse(data['discount'].toString()),
       productId: data['productId'],
       productImageUrl: data['productImageUrl'],
       productName: data['productName'],
@@ -56,6 +59,7 @@ class Product {
       'productImageUrl': productImageUrl,
       'productName': productName,
       'price': price,
+      'discount': discount,
       'sku': sku,
       'updatedAt': updatedAt,
       'updatedBy': updatedBy,

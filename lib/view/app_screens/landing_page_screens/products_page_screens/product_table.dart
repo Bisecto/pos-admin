@@ -42,7 +42,9 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
   String? _getCategoryName(String categoryId) {
     // Check if any category matches the given categoryId
     if (widget.categoryList.any((c) => c.categoryId == categoryId)) {
-      return widget.categoryList.firstWhere((c) => c.categoryId == categoryId).categoryName;
+      return widget.categoryList
+          .firstWhere((c) => c.categoryId == categoryId)
+          .categoryName;
     }
     // Return a default message if no match is found
     return 'Unknown';
@@ -58,31 +60,15 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
   void _editProduct(int index) {
     final TextEditingController productNameController = TextEditingController();
     final TextEditingController skuController = TextEditingController();
-    //final TextEditingController quantityController = TextEditingController();
+    final TextEditingController discountController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
-    // final TextEditingController selectedCategoryName = TextEditingController();
-    // final TextEditingController selectedBrandName = TextEditingController();
-    // final TextEditingController selectedCategoryId = TextEditingController();
-    // final TextEditingController selectedBrandId = TextEditingController();
+
     productNameController.text = widget.productList[index].productName ?? '';
     skuController.text = widget.productList[index].sku ?? '';
-    //quantityController.text = widget.productList[index].qu ?? '';
     priceController.text = widget.productList[index].price.toString() ?? '';
-    // selectedBrandId.text=widget.productList[index].brandId;
-    // selectedCategoryId.text=widget.productList[index].categoryId;
-    //selectedBrandName.text=widget.productList[index].;
-    // List<String> brands = [];
-    // List<String> ids = [];
-    // for (int i = 0; i < widget.brandList.length; i++) {
-    //   brands.add(widget.brandList[i].brandName.toString());
-    //   ids.add(widget.brandList[i].brandId.toString());
-    // }
-    // List<String> categories = [];
-    // List<String> categoriesIds = [];
-    // for (int i = 0; i < widget.categoryList.length; i++) {
-    //   categories.add(widget.categoryList[i].categoryName.toString());
-    //   categoriesIds.add(widget.categoryList[i].categoryId.toString());
-    // }
+    discountController.text =
+        widget.productList[index].discount.toString() ?? '';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -130,6 +116,13 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                   label: 'Price',
                   width: 250,
                   hint: 'Enter product price',
+                  textInputType: TextInputType.number,
+                ),
+                CustomTextFormField(
+                  controller: discountController,
+                  label: 'Discount',
+                  width: 250,
+                  hint: 'Enter Discounted value',
                   textInputType: TextInputType.number,
                 ),
                 // DropDown(
@@ -183,31 +176,42 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
               onPressed: () {
                 String userId = FirebaseAuth.instance.currentUser!.uid;
                 if (productNameController.text.isNotEmpty) {
-                  Product newProduct = Product(
-                    productName: productNameController.text,
-                    updatedBy: userId,
-                    createdAt: widget.productList[index].createdAt,
-                    updatedAt: Timestamp.fromDate(DateTime.now()),
-                    productId: widget.productList[index].productId,
-                    createdBy: widget.productList[index].createdBy,
-                    categoryId: widget.productList[index].categoryId,
-                    brandId: widget.productList[index].brandId,
-                    productImageUrl: widget.productList[index].productImageUrl,
-                    price: double.parse(priceController.text.toString()),
-                    sku: skuController.text,
-                  );
-                  FirebaseFirestore.instance
-                      .collection('Enrolled Entities')
-                      .doc('8V8YTiKWyObO7tppMHeP') // Replace with tenant ID
-                      .collection('Products')
-                      .doc(widget.productList[index].productId)
-                      .update(newProduct.toFirestore());
-                  setState(() {
-                    widget.productList[index].productName =
-                        productNameController.text;
-                  });
-                  print(
-                      'Product ${widget.productList[index].productName} edited');
+                  if (double.parse(discountController.text) > 100) {
+                    MSG.warningSnackBar(
+                        context, "Discount cannot be greater than 100.");
+                  } else {
+                    Product newProduct = Product(
+                      productName: productNameController.text,
+                      updatedBy: userId,
+                      createdAt: widget.productList[index].createdAt,
+                      updatedAt: Timestamp.fromDate(DateTime.now()),
+                      productId: widget.productList[index].productId,
+                      createdBy: widget.productList[index].createdBy,
+                      categoryId: widget.productList[index].categoryId,
+                      brandId: widget.productList[index].brandId,
+                      productImageUrl:
+                          widget.productList[index].productImageUrl,
+                      price: double.parse(priceController.text.toString()),
+                      sku: skuController.text,
+                      discount: double.parse(discountController.text),
+                    );
+                    FirebaseFirestore.instance
+                        .collection('Enrolled Entities')
+                        .doc('8V8YTiKWyObO7tppMHeP') // Replace with tenant ID
+                        .collection('Products')
+                        .doc(widget.productList[index].productId)
+                        .update(newProduct.toFirestore());
+                    setState(() {
+                      widget.productList[index].productName =
+                          productNameController.text;
+                      widget.productList[index].price =
+                          double.parse(priceController.text);
+                      widget.productList[index].discount =
+                          double.parse(discountController.text);
+                    });
+                    print(
+                        'Product ${widget.productList[index].productName} edited');
+                  }
                 } else {
                   MSG.warningSnackBar(context, "Product name cannot be empty.");
                 }
@@ -291,7 +295,9 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                     label: Text('SKU', style: TextStyle(color: Colors.white))),
                 DataColumn(
                     label:
-                        Text('PRICE', style: TextStyle(color: Colors.white))),
+                        Text('PRICE', style: TextStyle(color: Colors.white))), DataColumn(
+                    label:
+                        Text('Discount(%)', style: TextStyle(color: Colors.white))),
                 // DataColumn(
                 //     label: Text('CREATED AT',
                 //         style: TextStyle(color: Colors.white))),
@@ -320,6 +326,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                   DataCell(Text(paginatedProducts[index].sku ?? '',
                       style: const TextStyle(color: Colors.white))),
                   DataCell(Text(paginatedProducts[index].price.toString() ?? '',
+                      style: const TextStyle(color: Colors.white))),DataCell(Text(paginatedProducts[index].discount.toString() ?? '',
                       style: const TextStyle(color: Colors.white))),
                   // DataCell(Text(AppUtils.formatComplexDate(dateTime: DateTime.fromMillisecondsSinceEpoch(int.parse(paginatedProducts[index].createdAt.toString()) * 1000).toString()) ?? '',
                   //     style: const TextStyle(color: Colors.white))),

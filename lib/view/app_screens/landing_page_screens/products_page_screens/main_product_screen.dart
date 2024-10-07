@@ -48,16 +48,18 @@ class _MainProductScreenState extends State<MainProductScreen> {
     super.initState();
   }
 
-
   void _filterProducts() {
     setState(() {
       filteredProducts = allProducts.where((product) {
         final searchQuery = searchController.text.toLowerCase();
 
         // Check if the search query matches the product name, brand name, or category name
-        final matchesProductName = product.productName?.toLowerCase().contains(searchQuery) ?? false;
-        final matchesBrand = selectedBrandId.isEmpty || product.brandId == selectedBrandId;
-        final matchesCategory = selectedCategoryId.isEmpty || product.categoryId == selectedCategoryId;
+        final matchesProductName =
+            product.productName?.toLowerCase().contains(searchQuery) ?? false;
+        final matchesBrand =
+            selectedBrandId.isEmpty || product.brandId == selectedBrandId;
+        final matchesCategory = selectedCategoryId.isEmpty ||
+            product.categoryId == selectedCategoryId;
 
         // Return true if any of the conditions match
         return matchesProductName && matchesBrand && matchesCategory;
@@ -84,6 +86,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController quantityController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
+    final TextEditingController discountController = TextEditingController();
     final TextEditingController selectedCategoryName = TextEditingController();
     final TextEditingController selectedBrandName = TextEditingController();
     final TextEditingController selectedCategoryId = TextEditingController();
@@ -149,6 +152,16 @@ class _MainProductScreenState extends State<MainProductScreen> {
                   hint: 'Enter price',
                   textInputType: TextInputType.number,
                 ),
+                SizedBox(
+                  height: 10,
+                ),
+                CustomTextFormField(
+                  controller: discountController,
+                  label: 'Discount',
+                  width: 250,
+                  hint: 'Enter price',
+                  textInputType: TextInputType.number,
+                ),
                 DropDown(
                   width: 250,
                   borderColor: AppColors.white,
@@ -208,7 +221,8 @@ class _MainProductScreenState extends State<MainProductScreen> {
                       double.parse(priceController.text),
                       skuController.text,
                       selectedCategoryId.text,
-                      selectedBrandId.text));
+                      selectedBrandId.text,
+                      double.parse(discountController.text)));
                 });
                 Navigator.of(context).pop();
               },
@@ -370,7 +384,8 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                 int index = categories.indexOf(value);
 
                                 setState(() {
-                                  selectedCategoryId = categoryList[index].categoryId!;
+                                  selectedCategoryId =
+                                      categoryList[index].categoryId!;
                                   _filterProducts(); // Trigger filter logic
                                 });
                               },
