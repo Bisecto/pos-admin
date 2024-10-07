@@ -215,15 +215,20 @@ class _MainProductScreenState extends State<MainProductScreen> {
             ),
             FormButton(
               onPressed: () {
-                setState(() {
-                  productBloc.add(AddProductEvent(
-                      nameController.text,
-                      double.parse(priceController.text),
-                      skuController.text,
-                      selectedCategoryId.text,
-                      selectedBrandId.text,
-                      double.parse(discountController.text)));
-                });
+                if (double.parse(discountController.text) > 100) {
+                  MSG.warningSnackBar(
+                      context, "Discount cannot be greater than 100.");
+                } else {
+                  setState(() {
+                    productBloc.add(AddProductEvent(
+                        nameController.text,
+                        double.parse(priceController.text),
+                        skuController.text,
+                        selectedCategoryId.text,
+                        selectedBrandId.text,
+                        double.parse(discountController.text)));
+                  });
+                }
                 Navigator.of(context).pop();
               },
               text: "Add",
