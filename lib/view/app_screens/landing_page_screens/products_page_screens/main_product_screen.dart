@@ -92,10 +92,10 @@ class _MainProductScreenState extends State<MainProductScreen> {
     final TextEditingController selectedCategoryId = TextEditingController();
     final TextEditingController selectedBrandId = TextEditingController();
     List<String> brands = [];
-    List<String> ids = [];
+    List<String> brandsIds = [];
     for (int i = 0; i < brandList.length; i++) {
       brands.add(brandList[i].brandName.toString());
-      ids.add(brandList[i].brandId.toString());
+      brandsIds.add(brandList[i].brandId.toString());
     }
     List<String> categories = [];
     List<String> categoriesIds = [];
@@ -173,7 +173,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                     int index = brands.indexOf(value);
 
                     setState(() {
-                      selectedBrandId.text = categoriesIds[index];
+                      selectedBrandId.text = brandsIds[index];
                       _filterProducts(); // Trigger filter logic
                     });
                   },
