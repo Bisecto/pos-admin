@@ -4,6 +4,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:pos_admin/res/app_router.dart';
 import 'package:pos_admin/utills/custom_theme.dart';
@@ -23,9 +24,12 @@ void main() async {
 
   //await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
 
-  runApp(
-    MyApp(),
-  );
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeRight,
+    DeviceOrientation.landscapeLeft,
+  ]).then((_) {
+    runApp(MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {

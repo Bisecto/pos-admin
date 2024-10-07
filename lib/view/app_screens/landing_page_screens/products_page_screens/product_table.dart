@@ -255,7 +255,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                 await FirebaseFirestore.instance
                     .collection('Enrolled Entities')
                     .doc('8V8YTiKWyObO7tppMHeP') // Replace with tenant ID
-                    .collection('Product')
+                    .collection('Products')
                     .doc(productId)
                     .delete();
                 print('Product deleted');
@@ -273,85 +273,80 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
     return Column(
       children: [
         Expanded(
-          child: SingleChildScrollView(
-            child: DataTable(
-              columns: const [
-                DataColumn(
-                    label:
-                        Text('INDEX', style: TextStyle(color: Colors.white))),
-                // DataColumn(
-                //     label: Text('PRODUCT ID',
-                //         style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label: Text('PRODUCT NAME',
-                        style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label:
-                        Text('BRAND', style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label: Text('CATEGORY',
-                        style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label: Text('SKU', style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label:
-                        Text('PRICE', style: TextStyle(color: Colors.white))), DataColumn(
-                    label:
-                        Text('Discount(%)', style: TextStyle(color: Colors.white))),
-                // DataColumn(
-                //     label: Text('CREATED AT',
-                //         style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label:
-                        Text('ACTIONS', style: TextStyle(color: Colors.white))),
-              ],
-              rows: List.generate(paginatedProducts.length, (index) {
-                final productIndex = (currentPage - 1) * rowsPerPage + index;
-                return DataRow(cells: [
-                  DataCell(Text((index + 1).toString(),
-                      style: const TextStyle(color: Colors.white))),
-                  // DataCell(Text(paginatedProducts[index].productId!,
-                  //     style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(paginatedProducts[index].productName ?? '',
-                      style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(
-                      _getBrandName(paginatedProducts[index].brandId ?? '') ??
-                          '',
-                      style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(
-                      _getCategoryName(
-                              paginatedProducts[index].categoryId ?? '') ??
-                          '',
-                      style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(paginatedProducts[index].sku ?? '',
-                      style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(paginatedProducts[index].price.toString() ?? '',
-                      style: const TextStyle(color: Colors.white))),DataCell(Text(paginatedProducts[index].discount.toString() ?? '',
-                      style: const TextStyle(color: Colors.white))),
-                  // DataCell(Text(AppUtils.formatComplexDate(dateTime: DateTime.fromMillisecondsSinceEpoch(int.parse(paginatedProducts[index].createdAt.toString()) * 1000).toString()) ?? '',
-                  //     style: const TextStyle(color: Colors.white))),
-                  DataCell(Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          _editProduct(productIndex);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _deleteProduct(productIndex,
-                              paginatedProducts[index].productId!);
-                        },
-                      ),
-                    ],
-                  )),
-                ]);
-              }),
-              headingRowColor: MaterialStateProperty.all(Colors.black),
-              dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
-            ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth), // Ensure it uses available width
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical, // Enable vertical scrolling
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(
+                            label: Text('INDEX', style: TextStyle(color: Colors.white))),
+                        DataColumn(
+                            label: Text('PRODUCT NAME',
+                                style: TextStyle(color: Colors.white))),
+                        DataColumn(
+                            label: Text('BRAND', style: TextStyle(color: Colors.white))),
+                        DataColumn(
+                            label: Text('CATEGORY',
+                                style: TextStyle(color: Colors.white))),
+                        DataColumn(
+                            label: Text('SKU', style: TextStyle(color: Colors.white))),
+                        DataColumn(
+                            label: Text('PRICE', style: TextStyle(color: Colors.white))),
+                        DataColumn(
+                            label: Text('Discount(%)', style: TextStyle(color: Colors.white))),
+                        DataColumn(
+                            label: Text('ACTIONS', style: TextStyle(color: Colors.white))),
+                      ],
+                      rows: List.generate(paginatedProducts.length, (index) {
+                        final productIndex = (currentPage - 1) * rowsPerPage + index;
+                        return DataRow(cells: [
+                          DataCell(Text((index + 1).toString(),
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(paginatedProducts[index].productName ?? '',
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              _getBrandName(paginatedProducts[index].brandId ?? '') ?? '',
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(
+                              _getCategoryName(paginatedProducts[index].categoryId ?? '') ?? '',
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(paginatedProducts[index].sku ?? '',
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(paginatedProducts[index].price.toString(),
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text(paginatedProducts[index].discount.toString(),
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () {
+                                  _editProduct(productIndex);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  _deleteProduct(productIndex,
+                                      paginatedProducts[index].productId!);
+                                },
+                              ),
+                            ],
+                          )),
+                        ]);
+                      }),
+                      headingRowColor: MaterialStateProperty.all(Colors.black),
+                      dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],

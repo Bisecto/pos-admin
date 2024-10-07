@@ -196,74 +196,67 @@ class _UserTableScreenState extends State<UserTableScreen> {
       children: [
         Expanded(
           child: SingleChildScrollView(
-            child: DataTable(
-              columns: const [
-                DataColumn(
-                    label:
-                        Text('INDEX', style: TextStyle(color: Colors.white))),
-                // DataColumn(
-                //     label: Text('PRODUCT ID',
-                //         style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label:
-                        Text('EMAIL', style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label: Text('FULL NAME',
-                        style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label:
-                        Text('PHONE', style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label: Text('ROLE', style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label:
-                        Text('Status', style: TextStyle(color: Colors.white))),
-                // DataColumn(
-                //     label: Text('CREATED AT',
-                //         style: TextStyle(color: Colors.white))),
-                DataColumn(
-                    label:
-                        Text('ACTIONS', style: TextStyle(color: Colors.white))),
-              ],
-              rows: List.generate(paginatedUsers.length, (index) {
-                final userIndex = (currentPage - 1) * rowsPerPage + index;
-                return DataRow(cells: [
-                  DataCell(Text((index + 1).toString(),
-                      style: const TextStyle(color: Colors.white))),
-                  // DataCell(Text(paginatedUsers[index].userId!,
-                  //     style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(paginatedUsers[index].email ?? '',
-                      style: const TextStyle(color: Colors.white))),
-
-                  DataCell(Text(paginatedUsers[index].fullname ?? '',
-                      style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(paginatedUsers[index].phone ?? '',
-                      style: const TextStyle(color: Colors.white))),
-                  DataCell(Text(paginatedUsers[index].role.toString() ?? '',
-                      style: const TextStyle(color: Colors.white))),
-                  DataCell(Icon(Icons.verified,color: paginatedUsers[index].accountStatus?Colors.green:Colors.red,)),
-                  // DataCell(Text(AppUtils.formatComplexDate(dateTime: DateTime.fromMillisecondsSinceEpoch(int.parse(paginatedUsers[index].createdAt.toString()) * 1000).toString()) ?? '',
-                  //     style: const TextStyle(color: Colors.white))),
-                  DataCell(Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          _editUser(userIndex);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _deleteUser(userIndex, paginatedUsers[index].userId!);
-                        },
-                      ),
-                    ],
-                  )),
-                ]);
-              }),
-              headingRowColor: MaterialStateProperty.all(Colors.black),
-              dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+            scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width), // Ensure it fits within screen width
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical, // Enable vertical scrolling
+                child: DataTable(
+                  columns: const [
+                    DataColumn(
+                        label: Text('INDEX', style: TextStyle(color: Colors.white))),
+                    DataColumn(
+                        label: Text('EMAIL', style: TextStyle(color: Colors.white))),
+                    DataColumn(
+                        label: Text('FULL NAME', style: TextStyle(color: Colors.white))),
+                    DataColumn(
+                        label: Text('PHONE', style: TextStyle(color: Colors.white))),
+                    DataColumn(
+                        label: Text('ROLE', style: TextStyle(color: Colors.white))),
+                    DataColumn(
+                        label: Text('Status', style: TextStyle(color: Colors.white))),
+                    DataColumn(
+                        label: Text('ACTIONS', style: TextStyle(color: Colors.white))),
+                  ],
+                  rows: List.generate(paginatedUsers.length, (index) {
+                    final userIndex = (currentPage - 1) * rowsPerPage + index;
+                    return DataRow(cells: [
+                      DataCell(Text((index + 1).toString(),
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text(paginatedUsers[index].email ?? '',
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text(paginatedUsers[index].fullname ?? '',
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text(paginatedUsers[index].phone ?? '',
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Text(paginatedUsers[index].role.toString() ?? '',
+                          style: const TextStyle(color: Colors.white))),
+                      DataCell(Icon(
+                        Icons.verified,
+                        color: paginatedUsers[index].accountStatus ? Colors.green : Colors.red,
+                      )),
+                      DataCell(Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              _editUser(userIndex);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              _deleteUser(userIndex, paginatedUsers[index].userId!);
+                            },
+                          ),
+                        ],
+                      )),
+                    ]);
+                  }),
+                  headingRowColor: MaterialStateProperty.all(Colors.black),
+                  dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+                ),
+              ),
             ),
           ),
         ),

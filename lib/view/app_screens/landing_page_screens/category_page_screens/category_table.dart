@@ -214,63 +214,81 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
   Widget build(BuildContext context) {
     return Container(
       height: AppUtils.deviceScreenSize(context).height - 200,
-      width: AppUtils.deviceScreenSize(context).width,
+      //width: AppUtils.deviceScreenSize(context).width,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: SingleChildScrollView(
-              child: DataTable(
-                decoration: BoxDecoration(
-                  color: AppColors.purple,
-                  borderRadius: BorderRadius.circular(20),
+              scrollDirection: Axis.horizontal, // Allow horizontal scrolling
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: MediaQuery.of(context).size.width, // Ensure full width
                 ),
-                columns: const [
-                  DataColumn(
-                      label:
-                          Text('INDEX', style: TextStyle(color: Colors.white))),
-                  DataColumn(
-                      label: Text('CATEGORY ID',
-                          style: TextStyle(color: Colors.white))),
-                  DataColumn(
-                      label: Text('CATEGORY NAME',
-                          style: TextStyle(color: Colors.white))),
-                  DataColumn(
-                      label: Text('ACTIONS',
-                          style: TextStyle(color: Colors.white))),
-                ],
-                rows: List.generate(paginatedcategorys.length, (index) {
-                  final categoryIndex = (currentPage - 1) * rowsPerPage + index;
-                  return DataRow(cells: [
-                    DataCell(Text((index + 1).toString(),
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(paginatedcategorys[index].categoryId!,
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(
-                        paginatedcategorys[index].categoryName.toString(),
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () {
-                            _editCategory(categoryIndex);
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            _deleteCategory(categoryIndex,
-                                paginatedcategorys[index].categoryId!);
-                          },
-                        ),
-                      ],
-                    )),
-                  ]);
-                }),
-                headingRowColor: MaterialStateProperty.all(Colors.black),
-                dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
-                dividerThickness: 1,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical, // Allow vertical scrolling
+                  child: DataTable(
+                    decoration: BoxDecoration(
+                      color: AppColors.purple,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    columns: const [
+                      DataColumn(
+                        label: Text('INDEX', style: TextStyle(color: Colors.white)),
+                      ),
+                      DataColumn(
+                        label: Text('CATEGORY ID',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      DataColumn(
+                        label: Text('CATEGORY NAME',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      DataColumn(
+                        label: Text('ACTIONS', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                    rows: List.generate(paginatedcategorys.length, (index) {
+                      final categoryIndex = (currentPage - 1) * rowsPerPage + index;
+                      return DataRow(cells: [
+                        DataCell(Text(
+                          (index + 1).toString(),
+                          style: const TextStyle(color: Colors.white),
+                        )),
+                        DataCell(Text(
+                          paginatedcategorys[index].categoryId!,
+                          style: const TextStyle(color: Colors.white),
+                        )),
+                        DataCell(Text(
+                          paginatedcategorys[index].categoryName.toString(),
+                          style: const TextStyle(color: Colors.white),
+                        )),
+                        DataCell(Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                _editCategory(categoryIndex);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                _deleteCategory(
+                                  categoryIndex,
+                                  paginatedcategorys[index].categoryId!,
+                                );
+                              },
+                            ),
+                          ],
+                        )),
+                      ]);
+                    }),
+                    headingRowColor: MaterialStateProperty.all(Colors.black),
+                    dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+                    dividerThickness: 1,
+                  ),
+                ),
               ),
             ),
           ),
@@ -281,7 +299,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 (totalItems / rowsPerPage).ceil(),
-                (index) => GestureDetector(
+                    (index) => GestureDetector(
                   onTap: () {
                     setState(() {
                       currentPage = index + 1;

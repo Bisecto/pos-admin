@@ -220,57 +220,66 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              child: DataTable(
-                decoration: BoxDecoration(
-                  color: AppColors.purple,
-                  borderRadius: BorderRadius.circular(20),
+              scrollDirection: Axis.horizontal,  // Allow horizontal scrolling
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: MediaQuery.of(context).size.width, // Ensure the table takes full width
                 ),
-                columns: const [
-                  DataColumn(
-                      label:
-                      Text('INDEX', style: TextStyle(color: Colors.white))),
-                  DataColumn(
-                      label: Text('CATEGORY ID',
-                          style: TextStyle(color: Colors.white))),
-                  DataColumn(
-                      label: Text('CATEGORY NAME',
-                          style: TextStyle(color: Colors.white))),
-                  DataColumn(
-                      label: Text('ACTIONS',
-                          style: TextStyle(color: Colors.white))),
-                ],
-                rows: List.generate(paginatedbrands.length, (index) {
-                  final brandIndex = (currentPage - 1) * rowsPerPage + index;
-                  return DataRow(cells: [
-                    DataCell(Text((index + 1).toString(),
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(paginatedbrands[index].brandId!,
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(
-                        paginatedbrands[index].brandName.toString(),
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () {
-                            _editBrand(brandIndex);
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            _deleteBrand(brandIndex,
-                                paginatedbrands[index].brandId!);
-                          },
-                        ),
-                      ],
-                    )),
-                  ]);
-                }),
-                headingRowColor: MaterialStateProperty.all(Colors.black),
-                dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
-                dividerThickness: 1,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,  // Allow vertical scrolling
+                  child: DataTable(
+                    decoration: BoxDecoration(
+                      color: AppColors.purple,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    columns: const [
+                      DataColumn(
+                          label:
+                          Text('INDEX', style: TextStyle(color: Colors.white))),
+                      DataColumn(
+                          label: Text('CATEGORY ID',
+                              style: TextStyle(color: Colors.white))),
+                      DataColumn(
+                          label: Text('CATEGORY NAME',
+                              style: TextStyle(color: Colors.white))),
+                      DataColumn(
+                          label: Text('ACTIONS',
+                              style: TextStyle(color: Colors.white))),
+                    ],
+                    rows: List.generate(paginatedbrands.length, (index) {
+                      final brandIndex = (currentPage - 1) * rowsPerPage + index;
+                      return DataRow(cells: [
+                        DataCell(Text((index + 1).toString(),
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(paginatedbrands[index].brandId!,
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(
+                            paginatedbrands[index].brandName.toString(),
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                _editBrand(brandIndex);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                _deleteBrand(brandIndex,
+                                    paginatedbrands[index].brandId!);
+                              },
+                            ),
+                          ],
+                        )),
+                      ]);
+                    }),
+                    headingRowColor: MaterialStateProperty.all(Colors.black),
+                    dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+                    dividerThickness: 1,
+                  ),
+                ),
               ),
             ),
           ),
