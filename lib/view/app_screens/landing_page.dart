@@ -5,6 +5,7 @@ import 'package:cross_connectivity/cross_connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pos_admin/res/app_images.dart';
+import 'package:pos_admin/view/app_screens/auth/sign_in_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/page_selector.dart';
 import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -201,12 +202,24 @@ class ExampleSidebarX extends StatelessWidget {
             SidebarXItem(
               icon: Icons.inventory_rounded,
               label: 'Invoice',
-              selectable: false,
-              onTap: () => _showDisabledAlert(context),
+              //selectable: false,
+              //onTap: () => _showDisabledAlert(context),
             ),
             const SidebarXItem(
               icon: Icons.people,
               label: 'Roles',
+            ), const SidebarXItem(
+              icon: Icons.person,
+              label: 'Profile',
+            ),  SidebarXItem(
+              icon: Icons.logout,
+              label: 'Logout',
+              selectable: false,
+              onTap: () {
+                AppNavigator.pushAndRemovePreviousPages(context, page: SignInScreen());
+              },
+
+
             ),
           ],
         ),
@@ -242,6 +255,8 @@ String _getTitleByIndex(int index) {
     case 5:
       return 'Profile';
     case 6:
+      return 'Logout';
+    case 7:
       return 'Settings';
     default:
       return 'Not found page';
