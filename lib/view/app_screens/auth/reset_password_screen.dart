@@ -1,7 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pos_admin/view/app_screens/auth/reset_password_screen.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 import 'package:provider/provider.dart';
 
@@ -17,28 +16,18 @@ import '../../widgets/form_button.dart';
 import '../../widgets/form_input.dart';
 import '../landing_page.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+class ResetPassword extends StatefulWidget {
+  const ResetPassword({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  State<ResetPassword> createState() => _ResetPasswordState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _ResetPasswordState extends State<ResetPassword> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
 
   final AuthBloc authBloc = AuthBloc();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    //authBloc.add(InitialEvent());
-    //AppUtils().logout(context);
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +41,7 @@ class _SignInScreenState extends State<SignInScreen> {
             if (state is SuccessState) {
               MSG.snackBar(context, state.msg);
 
-              AppNavigator.pushAndRemovePreviousPages(context,
-                  page: const LandingPage());
+              Navigator.pop(context);
             } else if (state is ErrorState) {
               MSG.warningSnackBar(context, state.error);
             }
@@ -79,7 +67,10 @@ class _SignInScreenState extends State<SignInScreen> {
                               const SizedBox(
                                 height: 20,
                               ),
-                              TextStyles.textSubHeadings(textValue: "Login to your account",textColor:AppColors.white,textSize: 20 ),
+                              TextStyles.textSubHeadings(
+                                  textValue: "Reset password",
+                                  textColor: AppColors.white,
+                                  textSize: 20),
                               const SizedBox(
                                 height: 20,
                               ),
@@ -101,8 +92,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                   child: Column(
                                     children: [
                                       CustomTextFormField(
-                                        hint:
-                                            'Please enter Email',
+                                        hint: 'Please enter Email',
                                         label: 'Email',
                                         borderColor: AppColors.purple,
                                         controller: _emailController,
@@ -116,60 +106,17 @@ class _SignInScreenState extends State<SignInScreen> {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      CustomTextFormField(
-                                        label: 'Password',
-                                        isPasswordField: true,
-                                        borderColor: AppColors.purple,
-                                        backgroundColor: AppColors
-                                            .darkModeBackgroundContainerColor,
-                                        validator:
-                                            AppValidator.validateTextfield,
-                                        controller: _passwordController,
-                                        hint: 'Enter your password',
-                                        widget: Icon(Icons.lock_outline),
-                                        width: 250,
-                                      ),
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      SizedBox(
-                                        width: 250,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            GestureDetector(
-                                              onTap: () {
-                                                AppNavigator.pushAndStackPage(
-                                                    context,
-                                                    page:
-                                                        const ResetPassword());
-                                              },
-                                              child: Align(
-                                                alignment: Alignment.topRight,
-                                                child: CustomText(
-                                                  text: "Forgot password ?",
-                                                  color: AppColors.white,
-                                                  size: 16,
-                                                  weight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-
                                       FormButton(
                                         onPressed: () async {
                                           if (_formKey.currentState!
                                               .validate()) {
-
-                                            authBloc.add(SignInEventClick(
-
+                                            authBloc.add(ResetPasswordEvent(
                                                 _emailController.text
                                                     .toLowerCase()
-                                                    .trim(),
-                                                _passwordController.text));
+                                                    .trim()));
                                           }
                                         },
                                         text: 'Login',

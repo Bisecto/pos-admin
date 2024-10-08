@@ -9,10 +9,13 @@ class SignInEventClick extends AuthEvent {
   final String userData;
   final String password;
 
-  // final String loginOption;
-  // final String accessPin;
-
   SignInEventClick(this.userData, this.password);
+}
+
+class ResetPasswordEvent extends AuthEvent {
+  final String email;
+
+  ResetPasswordEvent(this.email);
 }
 
 class SignUpEventClick extends AuthEvent {

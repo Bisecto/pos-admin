@@ -22,6 +22,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitial()) {
     on<SignInEventClick>(signInEventClick);
     on<SignUpEventClick>(signUpEventClick);
+    on<ResetPasswordEvent>(resetPasswordEvent);
     // on<AuthEvent>((event, emit) {
     //   // TODO: implement event handler
     // });
@@ -111,7 +112,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthInitial()); //
       }
 
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e)
+    {
       // Handle different FirebaseAuth exceptions during sign-up
       print(e.toString());
       print(e.code.toString());
@@ -138,5 +140,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(ErrorState("There was a problem logging you in, please try again."));
       emit(AuthInitial()); // Reset state
     }
+  }
+
+  Future<void> resetPasswordEvent(ResetPasswordEvent event, Emitter<AuthState> emit) async {
+    try {
+      // Send password reset email
+      await _auth.sendPasswordResetEmail(email: event.email);
+
+      // No user credentials are returned from sendPasswordResetEmail
+      // Emit a success message for password reset email
+      emit(SuccessState("Password reset email sent successfully to ${event.email}."));
+
+    } on FirebaseAuthException catch (e) {
+      // Handle different FirebaseAuth exceptions during password reset
+      print("FirebaseAuthException: ${e.code} - ${e.message}");
+
+      String errorMessage = "There was a problem sending the reset email, please try again."; // Default error message
+
+      // Custom error messages for specific cases
+      if (e.code == 'invalid-email') {
+        print('Invalid email provided.');
+        errorMessage = 'The email address is not valid.';
+      } else if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+        errorMessage = 'No account found with this email.';
+      } else if (e.code == 'operation-not-allowed') {
+        print('Operation not allowed.');
+        errorMessage = 'Password reset operation not allowed, please contact support.';
+      }
+
+      emit(ErrorState(errorMessage)); // Emit the error state with a specific message
+      emit(AuthInitial()); // Reset the state after handling the error
+    } catch (e) {
+      // Catch any other exceptions
+      print("Exception: ${e.toString()}");
+
+      emit(ErrorState("An unexpected error occurred. Please try again later."));
+      emit(AuthInitial()); // Reset the state
+    }
+
   }
 }
