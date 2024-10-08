@@ -233,9 +233,9 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     columns: const [
-                      DataColumn(
-                        label: Text('INDEX', style: TextStyle(color: Colors.white)),
-                      ),
+                      // DataColumn(
+                      //   label: Text('INDEX', style: TextStyle(color: Colors.white)),
+                      // ),
                       DataColumn(
                         label: Text('CATEGORY ID',
                             style: TextStyle(color: Colors.white)),
@@ -251,10 +251,10 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                     rows: List.generate(paginatedcategorys.length, (index) {
                       final categoryIndex = (currentPage - 1) * rowsPerPage + index;
                       return DataRow(cells: [
-                        DataCell(Text(
-                          (index + 1).toString(),
-                          style: const TextStyle(color: Colors.white),
-                        )),
+                        // DataCell(Text(
+                        //   (index + 1).toString(),
+                        //   style: const TextStyle(color: Colors.white),
+                        // )),
                         DataCell(Text(
                           paginatedcategorys[index].categoryId!,
                           style: const TextStyle(color: Colors.white),

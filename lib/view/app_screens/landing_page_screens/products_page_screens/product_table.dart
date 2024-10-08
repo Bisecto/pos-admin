@@ -283,8 +283,8 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                     scrollDirection: Axis.vertical, // Enable vertical scrolling
                     child: DataTable(
                       columns: const [
-                        DataColumn(
-                            label: Text('INDEX', style: TextStyle(color: Colors.white))),
+                        // DataColumn(
+                        //     label: Text('INDEX', style: TextStyle(color: Colors.white))),
                         DataColumn(
                             label: Text('PRODUCT NAME',
                                 style: TextStyle(color: Colors.white))),
@@ -305,8 +305,8 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                       rows: List.generate(paginatedProducts.length, (index) {
                         final productIndex = (currentPage - 1) * rowsPerPage + index;
                         return DataRow(cells: [
-                          DataCell(Text((index + 1).toString(),
-                              style: const TextStyle(color: Colors.white))),
+                          // DataCell(Text((index + 1).toString(),
+                          //     style: const TextStyle(color: Colors.white))),
                           DataCell(Text(paginatedProducts[index].productName ?? '',
                               style: const TextStyle(color: Colors.white))),
                           DataCell(Text(

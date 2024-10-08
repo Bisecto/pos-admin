@@ -233,9 +233,9 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     columns: const [
-                      DataColumn(
-                          label:
-                          Text('INDEX', style: TextStyle(color: Colors.white))),
+                      // DataColumn(
+                      //     label:
+                      //     Text('INDEX', style: TextStyle(color: Colors.white))),
                       DataColumn(
                           label: Text('CATEGORY ID',
                               style: TextStyle(color: Colors.white))),
@@ -249,8 +249,8 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                     rows: List.generate(paginatedbrands.length, (index) {
                       final brandIndex = (currentPage - 1) * rowsPerPage + index;
                       return DataRow(cells: [
-                        DataCell(Text((index + 1).toString(),
-                            style: const TextStyle(color: Colors.white))),
+                        // DataCell(Text((index + 1).toString(),
+                        //     style: const TextStyle(color: Colors.white))),
                         DataCell(Text(paginatedbrands[index].brandId!,
                             style: const TextStyle(color: Colors.white))),
                         DataCell(Text(

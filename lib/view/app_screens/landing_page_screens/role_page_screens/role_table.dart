@@ -203,8 +203,8 @@ class _UserTableScreenState extends State<UserTableScreen> {
                 scrollDirection: Axis.vertical, // Enable vertical scrolling
                 child: DataTable(
                   columns: const [
-                    DataColumn(
-                        label: Text('INDEX', style: TextStyle(color: Colors.white))),
+                    // DataColumn(
+                    //     label: Text('INDEX', style: TextStyle(color: Colors.white))),
                     DataColumn(
                         label: Text('EMAIL', style: TextStyle(color: Colors.white))),
                     DataColumn(
@@ -221,8 +221,8 @@ class _UserTableScreenState extends State<UserTableScreen> {
                   rows: List.generate(paginatedUsers.length, (index) {
                     final userIndex = (currentPage - 1) * rowsPerPage + index;
                     return DataRow(cells: [
-                      DataCell(Text((index + 1).toString(),
-                          style: const TextStyle(color: Colors.white))),
+                      // DataCell(Text((index + 1).toString(),
+                      //     style: const TextStyle(color: Colors.white))),
                       DataCell(Text(paginatedUsers[index].email ?? '',
                           style: const TextStyle(color: Colors.white))),
                       DataCell(Text(paginatedUsers[index].fullname ?? '',
