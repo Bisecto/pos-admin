@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:idle_detector_wrapper/idle_detector_wrapper.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart' as modalSheet;
 
 import 'package:cross_connectivity/cross_connectivity.dart';
@@ -119,109 +120,116 @@ class ExampleSidebarX extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.scaffoldBackgroundColor,
-      child: SafeArea(
-        child: SidebarX(
-          controller: _controller,
-          theme: SidebarXTheme(
-            margin: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.canvasColor,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            hoverColor: AppColors.scaffoldBackgroundColor,
-            textStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-            selectedTextStyle: const TextStyle(color: Colors.white),
-            hoverTextStyle: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-            ),
-            itemTextPadding: const EdgeInsets.only(left: 30),
-            selectedItemTextPadding: const EdgeInsets.only(left: 30),
-            itemDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.canvasColor),
-            ),
-            selectedItemDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: AppColors.actionColor.withOpacity(0.37),
+    return IdleDetector(
+      idleTime: const Duration(minutes: 10),
+      onIdle: () async {
+        AppNavigator.pushAndRemovePreviousPages(context, page: SignInScreen());
+      },
+      child: Container(
+        color: AppColors.scaffoldBackgroundColor,
+        child: SafeArea(
+          child: SidebarX(
+            controller: _controller,
+            theme: SidebarXTheme(
+              margin: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.canvasColor,
+                borderRadius: BorderRadius.circular(20),
               ),
-              gradient: const LinearGradient(
-                colors: [AppColors.accentCanvasColor, AppColors.canvasColor],
+              hoverColor: AppColors.scaffoldBackgroundColor,
+              textStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              selectedTextStyle: const TextStyle(color: Colors.white),
+              hoverTextStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.28),
-                  blurRadius: 30,
-                )
-              ],
+              itemTextPadding: const EdgeInsets.only(left: 30),
+              selectedItemTextPadding: const EdgeInsets.only(left: 30),
+              itemDecoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.canvasColor),
+              ),
+              selectedItemDecoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppColors.actionColor.withOpacity(0.37),
+                ),
+                gradient: const LinearGradient(
+                  colors: [AppColors.accentCanvasColor, AppColors.canvasColor],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.28),
+                    blurRadius: 30,
+                  )
+                ],
+              ),
+              iconTheme: IconThemeData(
+                color: Colors.white.withOpacity(0.7),
+                size: 20,
+              ),
+              selectedIconTheme: const IconThemeData(
+                color: Colors.blue,
+                size: 20,
+              ),
             ),
-            iconTheme: IconThemeData(
-              color: Colors.white.withOpacity(0.7),
-              size: 20,
+            extendedTheme: const SidebarXTheme(
+              width: 200,
+              decoration: BoxDecoration(
+                color: AppColors.canvasColor,
+              ),
             ),
-            selectedIconTheme: const IconThemeData(
-              color: Colors.blue,
-              size: 20,
-            ),
+            footerDivider: AppColors.divider,
+            headerBuilder: (context, extended) {
+              return SizedBox(
+                height: 100,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Image.asset(AppImages.posTerminal),
+                ),
+              );
+            },
+            items: [
+              SidebarXItem(
+                icon: Icons.storage,
+                label: 'Products',
+                onTap: () {
+                  debugPrint('Products');
+                },
+              ),
+              const SidebarXItem(
+                icon: Icons.store,
+                label: 'Brands',
+              ),
+              const SidebarXItem(
+                icon: Icons.category,
+                label: 'Category',
+              ),
+              SidebarXItem(
+                icon: Icons.inventory_rounded,
+                label: 'Invoice',
+                //selectable: false,
+                //onTap: () => _showDisabledAlert(context),
+              ),
+              const SidebarXItem(
+                icon: Icons.people,
+                label: 'Roles',
+              ),
+              const SidebarXItem(
+                icon: Icons.person,
+                label: 'Profile',
+              ),
+              SidebarXItem(
+                icon: Icons.logout,
+                label: 'Logout',
+                selectable: false,
+                onTap: () {
+                  AppNavigator.pushAndRemovePreviousPages(context,
+                      page: SignInScreen());
+                },
+              ),
+            ],
           ),
-          extendedTheme: const SidebarXTheme(
-            width: 200,
-            decoration: BoxDecoration(
-              color: AppColors.canvasColor,
-            ),
-          ),
-          footerDivider: AppColors.divider,
-          headerBuilder: (context, extended) {
-            return SizedBox(
-              height: 100,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Image.asset(AppImages.posTerminal),
-              ),
-            );
-          },
-          items: [
-            SidebarXItem(
-              icon: Icons.storage,
-              label: 'Products',
-              onTap: () {
-                debugPrint('Products');
-              },
-            ),
-            const SidebarXItem(
-              icon: Icons.store,
-              label: 'Brands',
-            ),
-            const SidebarXItem(
-              icon: Icons.category,
-              label: 'Category',
-            ),
-            SidebarXItem(
-              icon: Icons.inventory_rounded,
-              label: 'Invoice',
-              //selectable: false,
-              //onTap: () => _showDisabledAlert(context),
-            ),
-            const SidebarXItem(
-              icon: Icons.people,
-              label: 'Roles',
-            ), const SidebarXItem(
-              icon: Icons.person,
-              label: 'Profile',
-            ),  SidebarXItem(
-              icon: Icons.logout,
-              label: 'Logout',
-              selectable: false,
-              onTap: () {
-                AppNavigator.pushAndRemovePreviousPages(context, page: SignInScreen());
-              },
-
-
-            ),
-          ],
         ),
       ),
     );

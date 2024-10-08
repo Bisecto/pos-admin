@@ -67,6 +67,8 @@ dependencies:
   pigeon: ^5.0.0
   image_picker:
   image:
+  idle_detector_wrapper: ^1.0.0
+
 
 
 dev_dependencies:
