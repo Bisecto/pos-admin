@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pos_admin/model/category_model.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/product_table.dart';
@@ -80,13 +83,24 @@ class _MainProductScreenState extends State<MainProductScreen> {
 
   List<Brand> brandList = [];
   List<Category> categoryList = [];
+  File? _imageFile;
+  final picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
 
   void _addProduct() {
     final TextEditingController skuController = TextEditingController();
     final TextEditingController nameController = TextEditingController();
     final TextEditingController quantityController = TextEditingController();
-    final TextEditingController priceController = TextEditingController();
-    final TextEditingController discountController = TextEditingController();
+    final TextEditingController priceController = TextEditingController(text: '0');
+    final TextEditingController discountController = TextEditingController(text: '0');
     final TextEditingController selectedCategoryName = TextEditingController();
     final TextEditingController selectedBrandName = TextEditingController();
     final TextEditingController selectedCategoryId = TextEditingController();
@@ -105,140 +119,174 @@ class _MainProductScreenState extends State<MainProductScreen> {
     }
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: TextStyles.textHeadings(
-              textValue: 'Add New Product',
-              textSize: 20,
-              textColor: AppColors.white),
-          backgroundColor: AppColors.darkModeBackgroundContainerColor,
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                // String productImageUrl;
-
-                CustomTextFormField(
-                  controller: skuController,
-                  label: 'SKU(optional)',
-                  width: 250,
-                  hint: 'Enter product sku',
+        // Use StatefulBuilder to maintain the dialog's internal state
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setStateDialog) {
+            return AlertDialog(
+              title: TextStyles.textHeadings(
+                  textValue: 'Add New Product',
+                  textSize: 20,
+                  textColor: AppColors.white),
+              backgroundColor: AppColors.darkModeBackgroundContainerColor,
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _imageFile != null
+                            ? Image.file(
+                                _imageFile!,
+                                height: 150,
+                                width: 150,
+                                fit: BoxFit.contain,
+                              )
+                            : Icon(
+                                Icons.image,
+                                size: 200,
+                                color: AppColors.grey,
+                              ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await _pickImage();
+                            // Use setState from StatefulBuilder to update the dialog's state
+                            setStateDialog(() {});
+                          },
+                          child: const Text('Select Image'),
+                        ),
+                      ],
+                    ),
+                    CustomTextFormField(
+                      controller: skuController,
+                      label: 'SKU(optional)',
+                      width: 250,
+                      hint: 'Enter product sku',
+                    ),
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: nameController,
+                      label: 'Product Name*',
+                      width: 250,
+                      hint: 'Enter product name',
+                    ),
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: quantityController,
+                      label: 'Quantity(optional)',
+                      width: 250,
+                      hint: 'Enter qty of product',
+                      textInputType: TextInputType.number,
+                    ),
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: priceController,
+                      label: 'Price',
+                      width: 250,
+                      hint: 'Enter price',
+                      textInputType: TextInputType.number,
+                    ),
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: discountController,
+                      label: 'Discount',
+                      width: 250,
+                      hint: 'Enter discount',
+                      textInputType: TextInputType.number,
+                    ),
+                    DropDown(
+                      width: 250,
+                      borderColor: AppColors.white,
+                      borderRadius: 10,
+                      hint: "Brand(optional)",
+                      selectedValue: selectedBrandName.text,
+                      items: brands,
+                      onChanged: (value) {
+                        int index = brands.indexOf(value);
+                        setState(() {
+                          selectedBrandId.text = brandsIds[index];
+                          _filterProducts();
+                        });
+                      },
+                    ),
+                    DropDown(
+                      width: 250,
+                      borderColor: AppColors.white,
+                      selectedValue: selectedCategoryName.text,
+                      borderRadius: 10,
+                      hint: "Category*",
+                      items: categories,
+                      onChanged: (value) {
+                        int index = categories.indexOf(value);
+                        setState(() {
+                          selectedCategoryId.text = categoriesIds[index];
+                          _filterProducts();
+                        });
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        FormButton(
+                          onPressed: () {
+                            setState(() {
+                              _imageFile = null;
+                            });
+                            Navigator.of(context).pop();
+                          },
+                          bgColor: AppColors.red,
+                          textColor: AppColors.white,
+                          width: 140,
+                          text: "Discard",
+                          iconWidget: Icons.clear,
+                          borderRadius: 20,
+                        ),
+                        FormButton(
+                          onPressed: () {
+                            if (double.parse(discountController.text) > 100) {
+                              MSG.warningSnackBar(context,
+                                  "Discount cannot be greater than 100.");
+                            } else {
+                              if (_imageFile == null) {
+                                MSG.warningSnackBar(context,
+                                    "Select product image");
+                                return;
+                              }
+                              setState(() {
+                                productBloc.add(AddProductEvent(
+                                    nameController.text,
+                                    double.parse(priceController.text),
+                                    skuController.text,
+                                    selectedCategoryId.text,
+                                    selectedBrandId.text,
+                                    double.parse(discountController.text),_imageFile!));
+                              });
+                            }
+                            Navigator.of(context).pop();
+                            setState(() {
+                              _imageFile = null;
+                            });
+                          },
+                          text: "Add",
+                          iconWidget: Icons.add,
+                          bgColor: AppColors.green,
+                          textColor: AppColors.white,
+                          width: 140,
+                          borderRadius: 20,
+                        )
+                      ],
+                    )
+                  ],
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomTextFormField(
-                  controller: nameController,
-                  label: 'Product Name*',
-                  width: 250,
-                  hint: 'Enter product name',
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomTextFormField(
-                  controller: quantityController,
-                  label: 'Quantity(optional)',
-                  width: 250,
-                  hint: 'Enter qty of product',
-                  textInputType: TextInputType.number,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomTextFormField(
-                  controller: priceController,
-                  label: 'Price',
-                  width: 250,
-                  hint: 'Enter price',
-                  textInputType: TextInputType.number,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomTextFormField(
-                  controller: discountController,
-                  label: 'Discount',
-                  width: 250,
-                  hint: 'Enter price',
-                  textInputType: TextInputType.number,
-                ),
-                DropDown(
-                  width: 250,
-                  borderColor: AppColors.white,
-                  borderRadius: 10,
-                  hint: "Brand(optional)",
-                  selectedValue: selectedBrandName.text,
-                  items: brands,
-                  onChanged: (value) {
-                    int index = brands.indexOf(value);
-
-                    setState(() {
-                      selectedBrandId.text = brandsIds[index];
-                      _filterProducts(); // Trigger filter logic
-                    });
-                  },
-                ),
-                DropDown(
-                  width: 250,
-                  borderColor: AppColors.white,
-                  selectedValue: selectedCategoryName.text,
-                  borderRadius: 10,
-                  hint: "Category*",
-                  items: categories,
-                  onChanged: (value) {
-                    int index = categories.indexOf(value);
-
-                    setState(() {
-                      selectedCategoryId.text = categoriesIds[index];
-                      _filterProducts(); // Trigger filter logic
-                    });
-                  },
-                ),
-
-                SizedBox(
-                  height: 10,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            FormButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              bgColor: AppColors.red,
-              textColor: AppColors.white,
-              width: 120,
-              text: "Discard",
-              iconWidget: Icons.clear,
-              borderRadius: 20,
-            ),
-            FormButton(
-              onPressed: () {
-                if (double.parse(discountController.text) > 100) {
-                  MSG.warningSnackBar(
-                      context, "Discount cannot be greater than 100.");
-                } else {
-                  setState(() {
-                    productBloc.add(AddProductEvent(
-                        nameController.text,
-                        double.parse(priceController.text),
-                        skuController.text,
-                        selectedCategoryId.text,
-                        selectedBrandId.text,
-                        double.parse(discountController.text)));
-                  });
-                }
-                Navigator.of(context).pop();
-              },
-              text: "Add",
-              iconWidget: Icons.add,
-              bgColor: AppColors.green,
-              textColor: AppColors.white,
-              width: 120,
-              borderRadius: 20,
-            )
-          ],
+              ),
+              // actions: [
+              //
+              // ],
+            );
+          },
         );
       },
     );

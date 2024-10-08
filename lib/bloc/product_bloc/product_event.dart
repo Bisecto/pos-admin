@@ -13,7 +13,9 @@ class AddProductEvent extends ProductEvent {
   final String brandId;
   final String categoryId;
   final double discount;
-  AddProductEvent(this.productName,this.price,this.sku,this.categoryId,this.brandId,this.discount);
+  final File imageFile;
+
+  AddProductEvent(this.productName,this.price,this.sku,this.categoryId,this.brandId,this.discount,this.imageFile);
 }
 class DeleteProductEvent extends ProductEvent {
   final String productId;

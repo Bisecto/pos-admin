@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:meta/meta.dart';
 
 import '../../model/brand_model.dart';
@@ -68,7 +70,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     emit(ProductLoadingState());
     try {
       String? userId = FirebaseAuth.instance.currentUser!.uid;
-
+      String? productUrl = await uploadImageToFirebase(event.imageFile,event.productName);
       String generatedId = AppUtils().generateFirestoreUniqueId();
       var collection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
@@ -84,9 +86,10 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         updatedAt: Timestamp.fromDate(DateTime.now()),
         categoryId: event.categoryId,
         brandId: event.brandId,
-        productImageUrl: '',
+        productImageUrl: productUrl!,
         price: event.price,
-        sku: event.sku, discount: event.discount,
+        sku: event.sku,
+        discount: event.discount,
       );
 
       await collection.doc(generatedId).set(newProduct.toFirestore());
@@ -172,5 +175,33 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       print(e.toString());
       emit(ProductErrorState(e.toString()));
     }
+  }
+}
+
+Future<String?> uploadImageToFirebase(File imageFile, String imageName) async {
+  try {
+    // Create a unique filename for the image using the current timestamp
+    String fileName = imageName.replaceAll(' ', '') +
+        DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Define a Firebase Storage reference
+    Reference firebaseStorageRef =
+        FirebaseStorage.instance.ref().child('product_images/$fileName');
+
+    // Upload the file to Firebase Storage
+    UploadTask uploadTask = firebaseStorageRef.putFile(imageFile);
+
+    // Wait until the file upload completes
+    TaskSnapshot taskSnapshot = await uploadTask;
+
+    // Get the download URL of the uploaded file
+    String downloadURL = await taskSnapshot.ref.getDownloadURL();
+
+    print("Image uploaded successfully. URL: $downloadURL");
+
+    return downloadURL; // Return the URL of the uploaded image
+  } catch (e) {
+    print("Error uploading image: $e");
+    return null; // Return null if the upload fails
   }
 }
