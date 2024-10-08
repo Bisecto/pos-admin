@@ -65,6 +65,8 @@ dependencies:
   cloud_firestore:
   firebase_storage:
   pigeon: ^5.0.0
+  image_picker:
+  image:
 
 
 dev_dependencies:
