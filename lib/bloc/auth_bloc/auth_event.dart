@@ -15,6 +15,7 @@ class SignInEventClick extends AuthEvent {
 class ResetPasswordEvent extends AuthEvent {
   final String email;
 
+
   ResetPasswordEvent(this.email);
 }
 
@@ -26,10 +27,11 @@ class SignUpEventClick extends AuthEvent {
   String phone;
   String role;
   String tenantId;
+  TenantModel tenantModel;
 
   // final String loginOption;
   // final String accessPin;
 
   SignUpEventClick(this.email, this.tenantId, this.phone, this.imageUrl,
-      this.fullname, this.role, this.password);
+      this.fullname, this.role, this.password,this.tenantModel);
 }

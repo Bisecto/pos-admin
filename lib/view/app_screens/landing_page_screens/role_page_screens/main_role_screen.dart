@@ -9,6 +9,7 @@ import 'package:pos_admin/view/widgets/form_button.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../bloc/user_bloc/user_bloc.dart';
 import '../../../../model/brand_model.dart';
+import '../../../../model/tenant_model.dart';
 import '../../../../model/user_model.dart';
 import '../../../../res/app_colors.dart';
 import '../../../widgets/app_custom_text.dart';
@@ -30,7 +31,9 @@ import '../../../../res/app_colors.dart';
 import '../../auth/create_new_user.dart';
 
 class MainUserScreen extends StatefulWidget {
-  const MainUserScreen({super.key});
+  TenantModel tenantModel;
+
+   MainUserScreen({super.key,required this.tenantModel});
 
   @override
   State<MainUserScreen> createState() => _MainUserScreenState();
@@ -184,7 +187,7 @@ class _MainUserScreenState extends State<MainUserScreen> {
                   padding: const EdgeInsets.only(top: 20.0),
                   child: GestureDetector(
                     onTap: () {
-                      AppNavigator.pushAndStackPage(context, page: CreateNewUser());
+                      AppNavigator.pushAndStackPage(context, page: CreateNewUser(tenantModel: widget.tenantModel,));
                       // modalSheet.showMaterialModalBottomSheet(
                       //   backgroundColor: Colors.transparent,
                       //   shape: const RoundedRectangleBorder(

@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:pos_admin/res/app_colors.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/main_product_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/role_page_screens/main_role_screen.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/tenant_profile/tenant_profile.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../../../model/tenant_model.dart';
 import '../../widgets/app_custom_text.dart';
 import 'brands_page_screens/main_brand_screen.dart';
 import 'category_page_screens/main_category_screen.dart';
 
 class PageSelector extends StatefulWidget {
   final SidebarXController controller;
+  TenantModel tenantModel;
 
-  const PageSelector({super.key, required this.controller});
+
+   PageSelector({super.key, required this.controller,required this.tenantModel});
 
   @override
   State<PageSelector> createState() => _PageSelectorState();
@@ -43,7 +47,9 @@ class _PageSelectorState extends State<PageSelector> {
                 case 2:
                   return const MainCategoryScreen();
                 case 4:
-                  return const MainUserScreen();
+
+                  return  MainUserScreen(tenantModel: widget.tenantModel,);case 5:
+                  return  TenantProfilePage(tenantModel: widget.tenantModel,);
                 default:
                   return TextStyles.textHeadings(
                     textValue: pageTitle,

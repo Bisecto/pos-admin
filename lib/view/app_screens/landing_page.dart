@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:idle_detector_wrapper/idle_detector_wrapper.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart' as modalSheet;
 
 import 'package:cross_connectivity/cross_connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/res/app_images.dart';
 import 'package:pos_admin/view/app_screens/auth/sign_in_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/page_selector.dart';
@@ -21,7 +23,8 @@ import '../../../utills/enums/toast_mesage.dart';
 import '../../../utills/shared_preferences.dart';
 
 class LandingPage extends StatefulWidget {
-  const LandingPage({super.key});
+  TenantModel tenantModel;
+   LandingPage({super.key,required this.tenantModel});
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -100,7 +103,7 @@ class _LandingPageState extends State<LandingPage> {
               children: [
                 if (!isSmallScreen) ExampleSidebarX(controller: _controller),
                 Expanded(
-                  child: Center(child: PageSelector(controller: _controller)),
+                  child: Center(child: PageSelector(controller: _controller, tenantModel: widget.tenantModel,)),
                 ),
               ],
             ),
@@ -123,6 +126,7 @@ class ExampleSidebarX extends StatelessWidget {
     return IdleDetector(
       idleTime: const Duration(minutes: 10),
       onIdle: () async {
+        await FirebaseAuth.instance.signOut();
         AppNavigator.pushAndRemovePreviousPages(context, page: SignInScreen());
       },
       child: Container(

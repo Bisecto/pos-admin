@@ -27,10 +27,12 @@ class DeviceChange extends AuthState {
 
 class SuccessState extends AuthState {
   final String msg;
+  TenantModel? tenantModel;
+
 
 
   SuccessState(
-      this.msg,);
+      this.msg,this.tenantModel);
 }
 
 class ResetPasswordSuccessState extends AuthState {

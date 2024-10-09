@@ -20,7 +20,7 @@ class AppRouter {
   static const String noInternetScreen = "/no-internet";
 
   ///LANDING PAGE LandingPage
-  static const String landingPage = "/landing-page";
+  //static const String landingPage = "/landing-page";
 
   // static const String homePage = "/home-page";
 
@@ -34,10 +34,10 @@ class AppRouter {
       case signInScreen:
         return MaterialPageRoute(builder: (_) => const SignInScreen());
 
-      case landingPage:
-        return MaterialPageRoute(
-          builder: (_) => const LandingPage(),
-        );
+      // case landingPage:
+      //   return MaterialPageRoute(
+      //     builder: (_) => const LandingPage(),
+      //   );
 
       default:
         return MaterialPageRoute(builder: (_) => const NotFoundPage());

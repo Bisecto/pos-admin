@@ -53,7 +53,7 @@ class _SignInScreenState extends State<SignInScreen> {
               MSG.snackBar(context, state.msg);
 
               AppNavigator.pushAndRemovePreviousPages(context,
-                  page: const LandingPage());
+                  page:  LandingPage(tenantModel: state.tenantModel!,));
             } else if (state is ErrorState) {
               MSG.warningSnackBar(context, state.error);
             }

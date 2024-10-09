@@ -16,7 +16,7 @@ class Address {
   // Factory method to create Address from Firestore DocumentSnapshot
   factory Address.fromFirestore(Map<String, dynamic> data) {
     return Address(
-      country: data['country'],
+      country: data['Country'],
       city: data['city'],
       state: data['state'],
       streetAddress: data['streetAddress'],
@@ -27,7 +27,7 @@ class Address {
   // Method to convert Address object to a map for Firestore
   Map<String, dynamic> toFirestore() {
     return {
-      'country': country,
+      'Country': country,
       'city': city,
       'state': state,
       'streetAddress': streetAddress,

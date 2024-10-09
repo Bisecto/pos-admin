@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../bloc/auth_bloc/auth_bloc.dart';
 import '../../../firebase_options.dart';
+import '../../../model/tenant_model.dart';
 import '../../../res/app_colors.dart';
 import '../../../res/app_images.dart';
 import '../../../utills/app_navigator.dart';
@@ -17,7 +18,9 @@ import '../../widgets/form_input.dart';
 import '../landing_page.dart';
 
 class CreateNewUser extends StatefulWidget {
-  const CreateNewUser({super.key});
+  TenantModel tenantModel;
+
+   CreateNewUser({super.key,required this.tenantModel});
 
   @override
   State<CreateNewUser> createState() => _CreateNewUserState();
@@ -51,8 +54,8 @@ class _CreateNewUserState extends State<CreateNewUser> {
               if (state is SuccessState) {
                 MSG.snackBar(context, state.msg);
 
-                AppNavigator.pushAndRemovePreviousPages(context,
-                    page: const LandingPage());
+                // AppNavigator.pushAndRemovePreviousPages(context,
+                //     page: const LandingPage());
               } else if (state is ErrorState) {
                 MSG.warningSnackBar(context, state.error);
               }
@@ -150,7 +153,7 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                                       phoneController.text,
                                                       'imageUrl',
                                                       fullNameController.text,
-                                                      roleController.text,'Qwerty123@'
+                                                      roleController.text,'Qwerty123@',widget.tenantModel,
                                                   ));
                                                 });
                                               }
