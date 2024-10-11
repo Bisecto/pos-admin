@@ -95,6 +95,17 @@ class _MainProductScreenState extends State<MainProductScreen> {
     }
   }
 
+  void _clearFilter() {
+   setState(() {
+      selectedBrandId = '';
+      selectedCategory='';
+      selectedBrand='';
+      selectedCategoryId = '';
+      searchController.clear();
+      print(1234567);
+   });
+   _filterProducts();
+  }
   void _addProduct() {
     final TextEditingController skuController = TextEditingController();
     final TextEditingController nameController = TextEditingController();
@@ -443,6 +454,37 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                 });
                               },
                             ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 20.0),
+                              child: GestureDetector(
+                                onTap: _clearFilter,
+                                child: Container(
+                                  width: 150,
+                                  height: 45,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: AppColors.purple),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(0.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+
+                                        CustomText(
+                                          text: "Clear Filter",
+                                          size: 18,
+                                          color: AppColors.white,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+
                             // Expanded(
                             //   child: DropDown(
                             //     width: 250,
