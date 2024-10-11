@@ -236,10 +236,10 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                       // DataColumn(
                       //   label: Text('INDEX', style: TextStyle(color: Colors.white)),
                       // ),
-                      DataColumn(
-                        label: Text('CATEGORY ID',
-                            style: TextStyle(color: Colors.white)),
-                      ),
+                      // DataColumn(
+                      //   label: Text('CATEGORY ID',
+                      //       style: TextStyle(color: Colors.white)),
+                      // ),
                       DataColumn(
                         label: Text('CATEGORY NAME',
                             style: TextStyle(color: Colors.white)),
@@ -255,10 +255,10 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                         //   (index + 1).toString(),
                         //   style: const TextStyle(color: Colors.white),
                         // )),
-                        DataCell(Text(
-                          paginatedcategorys[index].categoryId!,
-                          style: const TextStyle(color: Colors.white),
-                        )),
+                        // DataCell(Text(
+                        //   paginatedcategorys[index].categoryId!,
+                        //   style: const TextStyle(color: Colors.white),
+                        // )),
                         DataCell(Text(
                           paginatedcategorys[index].categoryName.toString(),
                           style: const TextStyle(color: Colors.white),
