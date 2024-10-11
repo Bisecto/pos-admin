@@ -29,6 +29,7 @@ class ProductTableScreen extends StatefulWidget {
 class _ProductTableScreenState extends State<ProductTableScreen> {
   int rowsPerPage = 10;
   int currentPage = 1;
+  int get totalItems => widget.productList.length;
 
   String? _getBrandName(String brandId) {
     // Check if any brand matches the given brandId
@@ -270,86 +271,125 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal, // Enable horizontal scrolling
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: constraints.maxWidth), // Ensure it uses available width
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical, // Enable vertical scrolling
-                    child: DataTable(
-                      columns: const [
-                        // DataColumn(
-                        //     label: Text('INDEX', style: TextStyle(color: Colors.white))),
-                        DataColumn(
-                            label: Text('PRODUCT NAME',
-                                style: TextStyle(color: Colors.white))),
-                        DataColumn(
-                            label: Text('BRAND', style: TextStyle(color: Colors.white))),
-                        DataColumn(
-                            label: Text('CATEGORY',
-                                style: TextStyle(color: Colors.white))),
-                        DataColumn(
-                            label: Text('SKU', style: TextStyle(color: Colors.white))),
-                        DataColumn(
-                            label: Text('PRICE', style: TextStyle(color: Colors.white))),
-                        DataColumn(
-                            label: Text('Discount(%)', style: TextStyle(color: Colors.white))),
-                        DataColumn(
-                            label: Text('ACTIONS', style: TextStyle(color: Colors.white))),
-                      ],
-                      rows: List.generate(paginatedProducts.length, (index) {
-                        final productIndex = (currentPage - 1) * rowsPerPage + index;
-                        return DataRow(cells: [
-                          // DataCell(Text((index + 1).toString(),
-                          //     style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(paginatedProducts[index].productName ?? '',
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              _getBrandName(paginatedProducts[index].brandId ?? '') ?? '',
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(
-                              _getCategoryName(paginatedProducts[index].categoryId ?? '') ?? '',
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(paginatedProducts[index].sku ?? '',
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(paginatedProducts[index].price.toString(),
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Text(paginatedProducts[index].discount.toString(),
-                              style: const TextStyle(color: Colors.white))),
-                          DataCell(Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () {
-                                  _editProduct(productIndex);
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  _deleteProduct(productIndex,
-                                      paginatedProducts[index].productId!);
-                                },
-                              ),
-                            ],
-                          )),
-                        ]);
-                      }),
-                      headingRowColor: MaterialStateProperty.all(Colors.black),
-                      dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+    return Container(
+      height: AppUtils.deviceScreenSize(context).height - 200,
+
+      child: Column(
+        children: [
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth), // Ensure it uses available width
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical, // Enable vertical scrolling
+                      child: DataTable(
+                        columns: const [
+                          // DataColumn(
+                          //     label: Text('INDEX', style: TextStyle(color: Colors.white))),
+                          DataColumn(
+                              label: Text('PRODUCT NAME',
+                                  style: TextStyle(color: Colors.white))),
+                          DataColumn(
+                              label: Text('BRAND', style: TextStyle(color: Colors.white))),
+                          DataColumn(
+                              label: Text('CATEGORY',
+                                  style: TextStyle(color: Colors.white))),
+                          DataColumn(
+                              label: Text('SKU', style: TextStyle(color: Colors.white))),
+                          DataColumn(
+                              label: Text('PRICE', style: TextStyle(color: Colors.white))),
+                          DataColumn(
+                              label: Text('Discount(%)', style: TextStyle(color: Colors.white))),
+                          DataColumn(
+                              label: Text('ACTIONS', style: TextStyle(color: Colors.white))),
+                        ],
+                        rows: List.generate(paginatedProducts.length, (index) {
+                          final productIndex = (currentPage - 1) * rowsPerPage + index;
+                          return DataRow(cells: [
+                            // DataCell(Text((index + 1).toString(),
+                            //     style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(paginatedProducts[index].productName ?? '',
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(
+                                _getBrandName(paginatedProducts[index].brandId ?? '') ?? '',
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(
+                                _getCategoryName(paginatedProducts[index].categoryId ?? '') ?? '',
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(paginatedProducts[index].sku ?? '',
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(paginatedProducts[index].price.toString(),
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(paginatedProducts[index].discount.toString(),
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () {
+                                    _editProduct(productIndex);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    _deleteProduct(productIndex,
+                                        paginatedProducts[index].productId!);
+                                  },
+                                ),
+                              ],
+                            )),
+                          ]);
+                        }),
+                        headingRowColor: MaterialStateProperty.all(Colors.black),
+                        dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                (totalItems / rowsPerPage).ceil(),
+                    (index) => GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      currentPage = index + 1;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: currentPage == (index + 1)
+                          ? Colors.purple
+                          : Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        color: currentPage == (index + 1)
+                            ? Colors.white
+                            : Colors.black,
+                      ),
                     ),
                   ),
                 ),
-              );
-            },
+              ),
+            ),
           ),
-        ),
-      ],
+
+        ],
+      ),
     );
   }
 }
