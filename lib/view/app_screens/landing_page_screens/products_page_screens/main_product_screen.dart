@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pos_admin/model/category_model.dart';
-import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/product_table.dart';
 import 'package:pos_admin/view/widgets/drop_down.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
@@ -12,21 +11,11 @@ import '../../../../model/brand_model.dart';
 import '../../../../res/app_colors.dart';
 import '../../../widgets/app_custom_text.dart';
 
-import 'package:flutter/material.dart';
-import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/product_table.dart';
-import 'package:pos_admin/view/widgets/drop_down.dart';
-import 'package:pos_admin/view/widgets/form_input.dart';
-import '../../../../res/app_colors.dart';
-import '../../../widgets/app_custom_text.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_admin/bloc/product_bloc/product_bloc.dart';
 import 'package:pos_admin/model/product_model.dart';
-import 'package:pos_admin/view/widgets/form_input.dart';
-import 'package:pos_admin/view/widgets/form_button.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../important_pages/app_loading_page.dart';
-import '../../../../res/app_colors.dart';
 
 class MainProductScreen extends StatefulWidget {
   const MainProductScreen({super.key});
@@ -58,7 +47,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
 
         // Check if the search query matches the product name, brand name, or category name
         final matchesProductName =
-            product.productName?.toLowerCase().contains(searchQuery) ?? false;
+            product.productName.toLowerCase().contains(searchQuery) ?? false;
         final matchesBrand =
             selectedBrandId.isEmpty || product.brandId == selectedBrandId;
         final matchesCategory = selectedCategoryId.isEmpty ||

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/utills/app_validator.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
@@ -7,7 +6,6 @@ import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../model/address_model.dart';
 import '../../../../model/business_hours_model.dart';
 import '../../../../res/app_colors.dart';
-import 'business_hours.dart';
 
 class TenantProfilePage extends StatefulWidget {
   final TenantModel tenantModel; // Pass in the tenant profile to the page

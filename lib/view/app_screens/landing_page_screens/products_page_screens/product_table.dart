@@ -7,7 +7,6 @@ import '../../../../model/brand_model.dart';
 import '../../../../model/category_model.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/app_custom_text.dart';
-import '../../../widgets/drop_down.dart';
 import '../../../widgets/form_button.dart';
 import '../../../widgets/form_input.dart';
 import '../../../../res/app_colors.dart';
@@ -64,11 +63,11 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
     final TextEditingController discountController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
 
-    productNameController.text = widget.productList[index].productName ?? '';
-    skuController.text = widget.productList[index].sku ?? '';
-    priceController.text = widget.productList[index].price.toString() ?? '';
+    productNameController.text = widget.productList[index].productName;
+    skuController.text = widget.productList[index].sku;
+    priceController.text = widget.productList[index].price.toString();
     discountController.text =
-        widget.productList[index].discount.toString() ?? '';
+        widget.productList[index].discount.toString();
 
     showDialog(
       context: context,
@@ -311,7 +310,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                           return DataRow(cells: [
                             // DataCell(Text((index + 1).toString(),
                             //     style: const TextStyle(color: Colors.white))),
-                            DataCell(Text(paginatedProducts[index].productName ?? '',
+                            DataCell(Text(paginatedProducts[index].productName,
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Text(
                                 _getBrandName(paginatedProducts[index].brandId ?? '') ?? '',
@@ -319,7 +318,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                             DataCell(Text(
                                 _getCategoryName(paginatedProducts[index].categoryId ?? '') ?? '',
                                 style: const TextStyle(color: Colors.white))),
-                            DataCell(Text(paginatedProducts[index].sku ?? '',
+                            DataCell(Text(paginatedProducts[index].sku,
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Text(paginatedProducts[index].price.toString(),
                                 style: const TextStyle(color: Colors.white))),
@@ -337,15 +336,15 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                                   icon: const Icon(Icons.delete, color: Colors.red),
                                   onPressed: () {
                                     _deleteProduct(productIndex,
-                                        paginatedProducts[index].productId!);
+                                        paginatedProducts[index].productId);
                                   },
                                 ),
                               ],
                             )),
                           ]);
                         }),
-                        headingRowColor: MaterialStateProperty.all(Colors.black),
-                        dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+                        headingRowColor: WidgetStateProperty.all(Colors.black),
+                        dataRowColor: WidgetStateProperty.all(Colors.grey[850]),
                       ),
                     ),
                   ),

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:pos_admin/res/app_images.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
@@ -275,8 +274,8 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                         )),
                       ]);
                     }),
-                    headingRowColor: MaterialStateProperty.all(Colors.black),
-                    dataRowColor: MaterialStateProperty.all(Colors.grey[850]),
+                    headingRowColor: WidgetStateProperty.all(Colors.black),
+                    dataRowColor: WidgetStateProperty.all(Colors.grey[850]),
                     dividerThickness: 1,
                   ),
                 ),
