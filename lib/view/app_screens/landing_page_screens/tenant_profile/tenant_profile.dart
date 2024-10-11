@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pos_admin/model/tenant_model.dart';
+import 'package:pos_admin/utills/app_validator.dart';
+import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../model/address_model.dart';
 import '../../../../model/business_hours_model.dart';
-import 'tenant_profile.dart'; // Import your models here
+import '../../../../res/app_colors.dart';
+import 'business_hours.dart';
 
 class TenantProfilePage extends StatefulWidget {
   final TenantModel tenantModel; // Pass in the tenant profile to the page
@@ -17,89 +20,30 @@ class TenantProfilePage extends StatefulWidget {
 class _TenantProfilePageState extends State<TenantProfilePage> {
   final _formKey = GlobalKey<FormState>();
 
-  late String businessName;
-  late String businessPhoneNumber;
-  late String businessType;
-  late String email;
   late String logoUrl;
   late Address address;
   late Map<String, BusinessHours> businessHours;
+  TextEditingController businessName = TextEditingController();
+  TextEditingController businessPhoneNumber = TextEditingController();
+  TextEditingController businessType = TextEditingController();
+  TextEditingController email = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    businessName = widget.tenantModel.businessName;
-    businessPhoneNumber = widget.tenantModel.businessPhoneNumber;
-    businessType = widget.tenantModel.businessType;
-    email = widget.tenantModel.email;
+    businessName.text = widget.tenantModel.businessName;
+    businessPhoneNumber.text = widget.tenantModel.businessPhoneNumber;
+    businessType.text = widget.tenantModel.businessType;
+    email.text = widget.tenantModel.email;
     logoUrl = widget.tenantModel.logoUrl;
     address = widget.tenantModel.address;
     businessHours = widget.tenantModel.businessHours;
   }
 
-  // Time selection helper
-  Future<TimeOfDay?> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    return picked;
-  }
-
-  Widget _buildBusinessHoursFields(String day) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(day, style: TextStyle(color: Colors.white)),
-        IconButton(
-          icon: Icon(Icons.access_time, color: Colors.white),
-          onPressed: () async {
-            TimeOfDay? openingTime = await _selectTime(context);
-            if (openingTime != null) {
-              setState(() {
-                businessHours[day]!.opening = Timestamp.fromDate(
-                  DateTime(0, 0, 0, openingTime.hour, openingTime.minute),
-                );
-              });
-            }
-          },
-        ),
-        Text(
-          businessHours[day]!.opening == null
-              ? "Opening"
-              : "${businessHours[day]!.opening!.toDate().hour}:${businessHours[day]!.opening!.toDate().minute}",
-          style: TextStyle(color: Colors.white),
-        ),
-        IconButton(
-          icon: Icon(Icons.access_time, color: Colors.white),
-          onPressed: () async {
-            TimeOfDay? closingTime = await _selectTime(context);
-            if (closingTime != null) {
-              setState(() {
-                businessHours[day]!.closing = Timestamp.fromDate(
-                  DateTime(0, 0, 0, closingTime.hour, closingTime.minute),
-                );
-              });
-            }
-          },
-        ),
-        Text(
-          businessHours[day]!.closing == null
-              ? "Closing"
-              : "${businessHours[day]!.closing!.toDate().hour}:${businessHours[day]!.closing!.toDate().minute}",
-          style: TextStyle(color: Colors.white),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Update Tenant Profile'),
-        backgroundColor: Colors.black,
-      ),
+      backgroundColor: AppColors.canvasColor,
       body: Container(
         color: Colors.black87,
         padding: const EdgeInsets.all(16.0),
@@ -108,157 +52,97 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
           child: ListView(
             children: [
               // Business Name
-              TextFormField(
-                initialValue: businessName,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Business Name',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    businessName = value;
-                  });
-                },
+              CustomTextFormField(
+                width: 250,
+                controller: businessName,
+                hint: '',
+                label: 'Business name',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
+
               // Business Phone Number
-              TextFormField(
-                initialValue: businessPhoneNumber,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Business Phone Number',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    businessPhoneNumber = value;
-                  });
-                },
+              CustomTextFormField(
+                width: 250,
+                controller: businessPhoneNumber,
+                hint: '',
+                label: 'Business Phone Number',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
+
               // Business Type
-              TextFormField(
-                initialValue: businessType,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Business Type',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    businessType = value;
-                  });
-                },
+              CustomTextFormField(
+                width: 250,
+                controller: businessType,
+                hint: '',
+                label: 'Business Type',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
-              // Email
-              TextFormField(
-                initialValue: email,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    email = value;
-                  });
-                },
+
+              // Business Email
+              CustomTextFormField(
+                width: 250,
+                controller: email,
+                hint: '',
+                label: 'Business Email',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
+
               // Address Fields
-              TextFormField(
-                initialValue: address.country,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Country',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    address.country = value;
-                  });
-                },
+              CustomTextFormField(
+                width: 250,
+                controller: TextEditingController(text: address.country),
+                hint: '',
+                label: 'Country',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
-              TextFormField(
-                initialValue: address.state,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'State',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    address.state = value;
-                  });
-                },
+
+              CustomTextFormField(
+                width: 250,
+                controller: TextEditingController(text: address.state),
+                hint: '',
+                label: 'State',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
-              TextFormField(
-                initialValue: address.city,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'City',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    address.city = value;
-                  });
-                },
+
+              CustomTextFormField(
+                width: 250,
+                controller: TextEditingController(text: address.city),
+                hint: '',
+                label: 'City',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
-              TextFormField(
-                initialValue: address.streetAddress,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Street Address',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    address.streetAddress = value;
-                  });
-                },
+
+              CustomTextFormField(
+                width: 250,
+                controller: TextEditingController(text: address.streetAddress),
+                hint: '',
+                label: 'Street Address',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
-              TextFormField(
-                initialValue: address.zipCode,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Zip Code',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.black12,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    address.zipCode = value;
-                  });
-                },
+
+              CustomTextFormField(
+                width: 250,
+                controller: TextEditingController(text: address.zipCode),
+                hint: '',
+                label: 'Zip Code',
+                validator: AppValidator.validateTextfield,
               ),
               SizedBox(height: 10),
-              // Business Hours Fields
-              ...businessHours.keys.map((day) => _buildBusinessHoursFields(day)),
+
+              // Business Hours Widget
+              // Container(height: 300,width: 300,
+              //     child: BusinessHoursWidget(businessHours: businessHours)),
+
               SizedBox(height: 20),
+
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,

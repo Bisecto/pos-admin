@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'address_model.dart';
-import 'business_hours_model.dart';
+import 'business_hours_model.dart' as businesTime;
 
 class TenantModel {
   String businessName;
@@ -12,7 +12,7 @@ class TenantModel {
   Timestamp createdAt;
   Timestamp updatedAt;
   Address address;
-  Map<String, BusinessHours> businessHours;
+  Map<String, businesTime.BusinessHours> businessHours;
 
   TenantModel({
     required this.businessName,
@@ -40,9 +40,9 @@ class TenantModel {
       updatedAt: data['updateAt'],
       address: Address.fromFirestore(data['address']),
       businessHours: (data['businessHours'] as Map<String, dynamic>).map(
-            (day, hours) => MapEntry(
+        (day, hours) => MapEntry(
           day,
-          BusinessHours.fromFirestore(hours),
+          businesTime.BusinessHours.fromFirestore(hours),
         ),
       ),
     );
@@ -60,7 +60,7 @@ class TenantModel {
       'updatedAt': updatedAt,
       'address': address.toFirestore(),
       'businessHours': businessHours.map(
-            (day, hours) => MapEntry(day, hours.toFirestore()),
+        (day, hours) => MapEntry(day, hours.toFirestore()),
       ),
     };
   }
