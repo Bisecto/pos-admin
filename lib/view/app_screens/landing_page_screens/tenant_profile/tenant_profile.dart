@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/utills/app_validator.dart';
+import 'package:pos_admin/view/widgets/form_button.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../model/address_model.dart';
 import '../../../../model/business_hours_model.dart';
@@ -52,108 +53,108 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
           child: ListView(
             children: [
               // Business Name
-              CustomTextFormField(
-                width: 250,
-                controller: businessName,
-                hint: '',
-                label: 'Business name',
-                validator: AppValidator.validateTextfield,
-              ),
-              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomTextFormField(
+                    width: 250,
+                    controller: businessName,
+                    hint: '',
+                    label: 'Business name',
+                    validator: AppValidator.validateTextfield,
+                  ),
 
-              // Business Phone Number
-              CustomTextFormField(
-                width: 250,
-                controller: businessPhoneNumber,
-                hint: '',
-                label: 'Business Phone Number',
-                validator: AppValidator.validateTextfield,
-              ),
-              SizedBox(height: 10),
+                  // Business Phone Number
+                  CustomTextFormField(
+                    width: 250,
+                    controller: businessPhoneNumber,
+                    hint: '',
+                    label: 'Business Phone Number',
+                    validator: AppValidator.validateTextfield,
+                  ),
 
-              // Business Type
-              CustomTextFormField(
-                width: 250,
-                controller: businessType,
-                hint: '',
-                label: 'Business Type',
-                validator: AppValidator.validateTextfield,
+                  // Business Type
+                  CustomTextFormField(
+                    width: 250,
+                    controller: businessType,
+                    hint: '',
+                    label: 'Business Type',
+                    validator: AppValidator.validateTextfield,
+                  ),
+                ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 20),
 
               // Business Email
-              CustomTextFormField(
-                width: 250,
-                controller: email,
-                hint: '',
-                label: 'Business Email',
-                validator: AppValidator.validateTextfield,
-              ),
-              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomTextFormField(
+                    width: 250,
+                    controller: email,
+                    hint: '',
+                    label: 'Business Email',
+                    validator: AppValidator.validateTextfield,
+                  ),
 
-              // Address Fields
-              CustomTextFormField(
-                width: 250,
-                controller: TextEditingController(text: address.country),
-                hint: '',
-                label: 'Country',
-                validator: AppValidator.validateTextfield,
-              ),
-              SizedBox(height: 10),
+                  // Address Fields
+                  CustomTextFormField(
+                    width: 250,
+                    controller: TextEditingController(text: address.country),
+                    hint: '',
+                    label: 'Country',
+                    validator: AppValidator.validateTextfield,
+                  ),
 
-              CustomTextFormField(
-                width: 250,
-                controller: TextEditingController(text: address.state),
-                hint: '',
-                label: 'State',
-                validator: AppValidator.validateTextfield,
+                  CustomTextFormField(
+                    width: 250,
+                    controller: TextEditingController(text: address.state),
+                    hint: '',
+                    label: 'State',
+                    validator: AppValidator.validateTextfield,
+                  ),
+                ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-              CustomTextFormField(
-                width: 250,
-                controller: TextEditingController(text: address.city),
-                hint: '',
-                label: 'City',
-                validator: AppValidator.validateTextfield,
-              ),
-              SizedBox(height: 10),
+             Row(
+               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+               children: [
+                 CustomTextFormField(
+                   width: 250,
+                   controller: TextEditingController(text: address.city),
+                   hint: '',
+                   label: 'City',
+                   validator: AppValidator.validateTextfield,
+                 ),
+                 const SizedBox(height: 10),
 
-              CustomTextFormField(
-                width: 250,
-                controller: TextEditingController(text: address.streetAddress),
-                hint: '',
-                label: 'Street Address',
-                validator: AppValidator.validateTextfield,
-              ),
-              SizedBox(height: 10),
+                 CustomTextFormField(
+                   width: 250,
+                   controller: TextEditingController(text: address.streetAddress),
+                   hint: '',
+                   label: 'Street Address',
+                   validator: AppValidator.validateTextfield,
+                 ),
+                 const SizedBox(height: 10),
 
-              CustomTextFormField(
-                width: 250,
-                controller: TextEditingController(text: address.zipCode),
-                hint: '',
-                label: 'Zip Code',
-                validator: AppValidator.validateTextfield,
-              ),
-              SizedBox(height: 10),
+                 CustomTextFormField(
+                   width: 250,
+                   controller: TextEditingController(text: address.zipCode),
+                   hint: '',
+                   label: 'Zip Code',
+                   validator: AppValidator.validateTextfield,
+                 ),
+               ],
+             ),
+              const SizedBox(height: 10),
 
               // Business Hours Widget
               // Container(height: 300,width: 300,
               //     child: BusinessHoursWidget(businessHours: businessHours)),
 
-              SizedBox(height: 20),
 
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Save data to Firestore or perform other actions
-                  }
-                },
-                child: Text('Update Profile'),
-              ),
+             Center(child: FormButton(onPressed: (){},text: "Update Profile",width: 300,borderRadius: 20,))
             ],
           ),
         ),
