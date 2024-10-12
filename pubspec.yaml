@@ -69,7 +69,7 @@ dependencies:
   image:
   idle_detector_wrapper: ^1.0.0
   flutter_paginate: ^1.0.0
-  fl_chart:
+  fl_chart: ^0.40.0
 
 
 

@@ -13,7 +13,7 @@ class MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 150, // Width of each metric card
+      width: 200, // Width of each metric card
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
