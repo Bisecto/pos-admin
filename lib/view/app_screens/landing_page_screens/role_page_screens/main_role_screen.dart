@@ -33,7 +33,7 @@ import '../../auth/create_new_user.dart';
 class MainUserScreen extends StatefulWidget {
   TenantModel tenantModel;
 
-   MainUserScreen({super.key,required this.tenantModel});
+  MainUserScreen({super.key, required this.tenantModel});
 
   @override
   State<MainUserScreen> createState() => _MainUserScreenState();
@@ -139,10 +139,9 @@ class _MainUserScreenState extends State<MainUserScreen> {
   @override
   Widget build(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.darkModeBackgroundContainerColor,
-      body:
-      Padding(
+      body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
@@ -187,7 +186,7 @@ class _MainUserScreenState extends State<MainUserScreen> {
                   padding: const EdgeInsets.only(top: 20.0),
                   child: GestureDetector(
                     onTap: () {
-                     // AppNavigator.pushAndStackPage(context, page: CreateNewUser(tenantModel: widget.tenantModel,));
+                      // AppNavigator.pushAndStackPage(context, page: CreateNewUser(tenantModel: widget.tenantModel,));
                       modalSheet.showMaterialModalBottomSheet(
                         backgroundColor: Colors.transparent,
                         shape: const RoundedRectangleBorder(
@@ -197,12 +196,10 @@ class _MainUserScreenState extends State<MainUserScreen> {
                         ),
                         context: context,
                         builder: (context) => Padding(
-
                           padding: const EdgeInsets.only(top: 100.0),
                           child: CreateNewUser(tenantModel: widget.tenantModel),
                         ),
                       );
-
                     },
                     child: Container(
                       width: 150,
@@ -280,5 +277,3 @@ class _MainUserScreenState extends State<MainUserScreen> {
     );
   }
 }
-
-

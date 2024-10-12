@@ -108,23 +108,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(LoadingState());
 
     try {
-      print(1234);
-      await FirebaseAuth.instance.signOut();
-      print(345);
+      // User? adminUser = FirebaseAuth.instance.currentUser;
 
-      // FirebaseAuth.instance.;
+      // if (adminUser == null) {
+      //   emit(ErrorState("Admin is not signed in"));
+      //   return;
+      // }
+
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
-              email: event.email, password: event.password);
-      print("fr4iueu");
+              email: event.email, password: 'Qwerty123@');
 
-      User? user = userCredential.user;
-      var userCollection =
-          FirebaseFirestore.instance.collection('Users').doc(user!.uid);
-      print("fr4iueu");
+      User? newUser = userCredential.user;
+
+      var newUserCollection =
+          FirebaseFirestore.instance.collection('Users').doc(newUser!.uid);
 
       UserModel userModel = UserModel(
-          userId: user.uid,
+          userId: newUser.uid,
           email: event.email,
           fullname: event.fullname,
           imageUrl: '',
@@ -135,32 +136,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           updatedAt: Timestamp.fromDate(DateTime.now()),
           accountStatus: true);
 
-      await userCollection
-          .set(userModel.toFirestore()); //FirebaseAuth.instance.tenantId='';
-      // await user!.updateProfile(        'tenantId': newTenantId,
-      // );
-      print(user.tenantId);
-      print(user.uid);
-      await FirebaseAuth.instance.signOut();
+      await newUserCollection.set(userModel.toFirestore());
 
-      // if (user.email!.isNotEmpty) {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: await SharedPref.getString('email'),
-          password: await SharedPref.getString('password'));
-      emit(SuccessState("Successfully Signed in", event.tenantModel));
-
-      // } else {
-      //   emit(ErrorState(
-      //       "There was a problem logging you in, please try again.")); // Emit error message
-      //   emit(AuthInitial()); //
-      // }
+      emit(SuccessState("Account created successfully", event.tenantModel));
     } on FirebaseAuthException catch (e) {
       // Handle different FirebaseAuth exceptions during sign-up
       print(e.toString());
       print(e.code.toString());
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: await SharedPref.getString('email'),
-          password: await SharedPref.getString('password'));
+      // await FirebaseAuth.instance.signInWithEmailAndPassword(
+      //     email: await SharedPref.getString('email'),
+      //     password: await SharedPref.getString('password'));
 
       String errorMessage =
           "There was a problem signing you up, please try again."; // Default message
@@ -183,14 +168,103 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           errorMessage)); // Emit the error state with a custom message
       emit(AuthInitial()); // Reset the state after handling the error
     } catch (e) {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: await SharedPref.getString('email'),
-          password: await SharedPref.getString('password'));
-
-      emit(ErrorState("There was a problem logging you in, please try again."));
-      emit(AuthInitial()); // Reset state
+      print(e.toString());
+      emit(ErrorState("An unexpected error occurred, please try again."));
+    } finally {
+      // Optional cleanup or reset actions if needed
     }
   }
+
+  // FutureOr<void> signUpEventClick(
+  //     SignUpEventClick event, Emitter<AuthState> emit) async {
+  //   emit(LoadingState());
+  //
+  //   try {
+  //     await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+  //
+  //     print(1234);
+  //     await FirebaseAuth.instance.signOut();
+  //     print(345);
+  //
+  //     // FirebaseAuth.instance.;
+  //     UserCredential userCredential =
+  //         await _auth.createUserWithEmailAndPassword(
+  //             email: event.email, password: 'Qwerty123@');
+  //     print("fr4iueu");
+  //
+  //     User? user = userCredential.user;
+  //     var userCollection =
+  //         FirebaseFirestore.instance.collection('Users').doc(user!.uid);
+  //     print("fr4iueu");
+  //
+  //     UserModel userModel = UserModel(
+  //         userId: user.uid,
+  //         email: event.email,
+  //         fullname: event.fullname,
+  //         imageUrl: '',
+  //         phone: event.phone,
+  //         role: event.role,
+  //         tenantId: event.tenantId,
+  //         createdAt: Timestamp.fromDate(DateTime.now()),
+  //         updatedAt: Timestamp.fromDate(DateTime.now()),
+  //         accountStatus: true);
+  //
+  //     await userCollection
+  //         .set(userModel.toFirestore()); //FirebaseAuth.instance.tenantId='';
+  //     // await user!.updateProfile(        'tenantId': newTenantId,
+  //     // );
+  //     print(user.tenantId);
+  //     print(user.uid);
+  //     await FirebaseAuth.instance.signOut();
+  //
+  //     // if (user.email!.isNotEmpty) {
+  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
+  //         email: await SharedPref.getString('email'),
+  //         password: await SharedPref.getString('password'));
+  //     emit(SuccessState("Successfully Signed in", event.tenantModel));
+  //
+  //     // } else {
+  //     //   emit(ErrorState(
+  //     //       "There was a problem logging you in, please try again.")); // Emit error message
+  //     //   emit(AuthInitial()); //
+  //     // }
+  //   } on FirebaseAuthException catch (e) {
+  //     // Handle different FirebaseAuth exceptions during sign-up
+  //     print(e.toString());
+  //     print(e.code.toString());
+  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
+  //         email: await SharedPref.getString('email'),
+  //         password: await SharedPref.getString('password'));
+  //
+  //     String errorMessage =
+  //         "There was a problem signing you up, please try again."; // Default message
+  //
+  //     if (e.code == 'weak-password') {
+  //       print('The password provided is too weak.');
+  //       errorMessage = 'The password provided is too weak.';
+  //     } else if (e.code == 'email-already-in-use') {
+  //       print('The account already exists for that email.');
+  //       errorMessage = 'The account already exists for this email.';
+  //     } else if (e.code == 'invalid-email') {
+  //       print('Invalid email provided.');
+  //       errorMessage = 'Invalid email provided.';
+  //     } else if (e.code == 'operation-not-allowed') {
+  //       print('Operation not allowed.');
+  //       errorMessage = 'Operation not allowed, please contact support.';
+  //     }
+  //
+  //     emit(ErrorState(
+  //         errorMessage)); // Emit the error state with a custom message
+  //     emit(AuthInitial()); // Reset the state after handling the error
+  //   } catch (e) {
+  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
+  //         email: await SharedPref.getString('email'),
+  //         password: await SharedPref.getString('password'));
+  //
+  //     emit(ErrorState("There was a problem logging you in, please try again."));
+  //     emit(AuthInitial()); // Reset state
+  //   }
+  // }
 
   Future<void> resetPasswordEvent(
       ResetPasswordEvent event, Emitter<AuthState> emit) async {

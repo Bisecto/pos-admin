@@ -54,8 +54,8 @@ class _CreateNewUserState extends State<CreateNewUser> {
               if (state is SuccessState) {
                 MSG.snackBar(context, state.msg);
 
-                // AppNavigator.pushAndRemovePreviousPages(context,
-                //     page: const LandingPage());
+                AppNavigator.pushAndRemovePreviousPages(context,
+                    page:  LandingPage(tenantModel: state.tenantModel!,));
               } else if (state is ErrorState) {
                 MSG.warningSnackBar(context, state.error);
               }
@@ -79,6 +79,7 @@ class _CreateNewUserState extends State<CreateNewUser> {
                               //mainAxisAlignment: MainAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                //Align(child: Icon(Icons.cancel,size: 35,),),
                                 const SizedBox(
                                   height: 20,
                                 ),
