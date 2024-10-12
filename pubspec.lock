@@ -414,6 +414,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_paginate:
+    dependency: "direct main"
+    description:
+      name: flutter_paginate
+      sha256: "7ea1bc14f7c273d1a05e52623af4a42e6f5f9718317daabb6a855e576c0bb38e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

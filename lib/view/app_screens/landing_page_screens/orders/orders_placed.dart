@@ -27,6 +27,29 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   TextEditingController searchController = TextEditingController();
   DateTimeRange? dateRange;
   String searchQuery = '';
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> filteredOrders = [];
+  int currentPage = 0;
+  final int rowsPerPage = 10; // Number of rows per page
+  late int totalPages=0;
+
+  @override
+  void initState() {
+    super.initState();
+    ordersStream = FirebaseFirestore.instance
+        .collection('Enrolled Entities')
+        .doc(widget.tenantId)
+        .collection('Orders')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+
+    // Listen for updates in the orders stream
+    ordersStream.listen((snapshot) {
+      setState(() {
+        filteredOrders = snapshot.docs;
+        totalPages = (filteredOrders.length / rowsPerPage).ceil();
+      });
+    });
+  }
 
   // Function to format dates
   String formatDate(Timestamp timestamp) {
@@ -49,37 +72,31 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    ordersStream = FirebaseFirestore.instance
-        .collection('Enrolled Entities')
-        .doc(widget.tenantId)
-        .collection('Orders')
-        .orderBy('createdAt', descending: true)
-        .snapshots();
-  }
-
   String getStatusText(int statusIndex) {
     return OrderStatus.values[statusIndex].toString().split('.').last;
   }
 
   @override
   Widget build(BuildContext context) {
+    final startIndex = currentPage * rowsPerPage;
+    final endIndex = startIndex + rowsPerPage < filteredOrders.length
+        ? startIndex + rowsPerPage
+        : filteredOrders.length;
+
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Order Management'),
-      // ),
-      appBar: AppBar(
-        title:  TextStyles.textHeadings(textValue: 'Invoice',textColor: AppColors.white,),
-        backgroundColor: Colors.transparent,
-
-        elevation: 0,
-
-      ),
-      backgroundColor: AppColors.scaffoldBackgroundColor,
-      body: Column(
-        children: [
+        // appBar: AppBar(
+        //   title: Text('Order Management'),
+        // ),
+        appBar: AppBar(
+          title: TextStyles.textHeadings(
+            textValue: 'Invoice',
+            textColor: AppColors.white,
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        backgroundColor: AppColors.scaffoldBackgroundColor,
+        body: Column(children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -104,7 +121,10 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     setState(() {
                       searchQuery = value;
                     });
-                  }, width: 250, hint: 'Search by ID', label: 'Search',
+                  },
+                  width: 250,
+                  hint: 'Search by ID',
+                  label: 'Search',
                 ),
                 IconButton(
                   icon: Icon(Icons.filter_list),
@@ -122,134 +142,142 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
               ),
             ),
           Expanded(
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: ordersStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error loading orders.'));
-                }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                final orders = snapshot.data!.docs;
-
-                // Apply search and date filtering
-                final filteredOrders = orders.where((orderDoc) {
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowColor: MaterialStateProperty.all<Color>(AppColors.purple),
+                columns: [
+                  DataColumn(
+                    label: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: CustomText(text: 'Order ID', color: AppColors.white),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: CustomText(text: 'Created At', color: AppColors.white),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: CustomText(text: 'Status', color: AppColors.white),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: CustomText(text: 'Actions', color: AppColors.white),
+                    ),
+                  ),
+                ],
+                rows: filteredOrders
+                    .sublist(startIndex, endIndex)
+                    .map((orderDoc) {
                   final orderData = orderDoc.data();
                   final orderId = orderDoc.id;
-                  final createdAt = (orderData['createdAt'] as Timestamp).toDate();
+                  final createdAt =
+                  (orderData['createdAt'] as Timestamp).toDate();
+                  final statusIndex = orderData['status'] as int;
 
-                  // Check search query match
-                  final matchesSearch = searchQuery.isEmpty ||
-                      orderId.toLowerCase().contains(searchQuery.toLowerCase());
-
-                  // Check date range filter match
-                  final matchesDateRange = dateRange == null ||
-                      (createdAt.isAfter(dateRange!.start) &&
-                          createdAt.isBefore(dateRange!.end));
-
-                  return matchesSearch && matchesDateRange;
-                }).toList();
-
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(
-                        label: CustomText(text: 'Order ID', color: AppColors.white),
+                  return DataRow(
+                    color: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          return states.contains(MaterialState.selected)
+                              ? Colors.purple.withOpacity(0.08)
+                              : null; // Use default value for unselected rows
+                        }),
+                    cells: [
+                      DataCell(
+                        Container(
+                          padding: EdgeInsets.all(8.0),
+                          child: CustomText(text: orderId, color: AppColors.white),
+                        ),
                       ),
-                      DataColumn(
-                        label: CustomText(text: 'Created At', color: AppColors.white),
+                      DataCell(
+                        Container(
+                          padding: EdgeInsets.all(8.0),
+                          child: CustomText(
+                              text: formatDate(orderData['createdAt']),
+                              color: AppColors.white),
+                        ),
                       ),
-                      DataColumn(
-                        label: CustomText(text: 'Status', color: AppColors.white),
+                      DataCell(
+                        Container(
+                          padding: EdgeInsets.all(8.0),
+                          child: CustomText(
+                              text: getStatusText(statusIndex).toUpperCase(),
+                              color: AppColors.white),
+                        ),
                       ),
-                      DataColumn(
-                        label: CustomText(text: 'Actions', color: AppColors.white),
+                      DataCell(
+                        Row(
+                          children: [
+                            // IconButton(
+                            //   icon: Icon(Icons.edit, color: AppColors.purple),
+                            //   onPressed: () async {
+                            //     await fetchOrderDetails(orderId);
+                            //     showEditPopup(context, orderId);
+                            //   },
+                            //   tooltip: 'Edit Order',
+                            // ),
+                           // if (getStatusText(statusIndex).toLowerCase() != 'pending')
+                              FormButton(
+                                onPressed: () async {
+                                  await fetchOrderDetails(orderId);
+                                  showEditPopup(context, orderId);
+                                  // await fetchOrderDetails(orderId);
+                                  // _printReceipt();
+                                },
+                                text: "View Receipt",
+                                bgColor: AppColors.purple,
+                                width: 150,
+                                textColor: AppColors.white,
+                                borderRadius:10,
+                              ),
+                          ],
+                        ),
                       ),
                     ],
-                    rows: filteredOrders.map((orderDoc) {
-                      final orderData = orderDoc.data();
-                      final orderId = orderDoc.id;
-                      final createdAt = (orderData['createdAt'] as Timestamp).toDate();
-                      final statusIndex = orderData['status'] as int;
-
-                      return DataRow(
-                        color: MaterialStateProperty.resolveWith<Color?>(
-                              (Set<MaterialState> states) {
-                            return states.contains(MaterialState.selected) ? AppColors.purple : null; // Change row color on selection
-                          },
-                        ),
-                        cells: [
-                          DataCell(
-                            CustomText(
-                              text: orderId,
-                              color: AppColors.white,
-                            ),
-                          ),
-                          DataCell(
-                            CustomText(
-                              text: formatDate(orderData['createdAt']),
-                              color: AppColors.white,
-                            ),
-                          ),
-                          DataCell(
-                            CustomText(
-                              text: getStatusText(statusIndex).toUpperCase(),
-                              color: AppColors.white,
-                            ),
-                          ),
-                          DataCell(
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                // IconButton(
-                                //   icon: Icon(Icons.edit, color: AppColors.purple),
-                                //   onPressed: () async {
-                                //     await fetchOrderDetails(orderId);
-                                //     showEditPopup(context, orderId);
-                                //   },
-                                //   tooltip: 'Edit Order',
-                                // ),
-                                //if (getStatusText(statusIndex).toLowerCase() != 'pending')
-                                  FormButton(
-                                    onPressed: () async {
-                                          await fetchOrderDetails(orderId);
-                                          showEditPopup(context, orderId);
-                                      // await fetchOrderDetails(orderId);
-                                      // _printReceipt();
-                                    },
-                                    text: "View Receipt",
-                                    bgColor: AppColors.purple,
-                                    width: 150,
-                                    textColor: AppColors.white, // Ensure text color contrasts with button
-                                    borderRadius: 10, // Rounded button edges
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }).toList(),
-                    decoration: BoxDecoration(
-                      color: AppColors.scaffoldBackgroundColor, // Background color for the table
-                      borderRadius: BorderRadius.circular(12), // Rounded corners for the table
-                    ),
-                    headingRowColor: MaterialStateProperty.all(AppColors.purple), // Header row color
-                    headingTextStyle: TextStyle(
-                      color: AppColors.white, // Header text color
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                  ,
-                );
-              },
+                  );
+                }).toList(),
+              ),
             ),
-          ),        ],
-      ),
-    );
+          ),
+
+          // Pagination controls
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(
+              'Page ${currentPage + 1} of $totalPages',
+              style: TextStyle(color: AppColors.white),
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.chevron_left, color: AppColors.white),
+                  onPressed: currentPage > 0
+                      ? () {
+                          setState(() {
+                            currentPage--;
+                          });
+                        }
+                      : null,
+                ),
+                IconButton(
+                  icon: Icon(Icons.chevron_right, color: AppColors.white),
+                  onPressed: currentPage < totalPages - 1
+                      ? () {
+                          setState(() {
+                            currentPage++;
+                          });
+                        }
+                      : null,
+                ),
+              ],
+            )
+          ])
+        ]));
   }
 
   Future<pw.Document> _generateReceipt() async {
@@ -260,7 +288,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         pageFormat: const PdfPageFormat(58 * PdfPageFormat.mm, double.infinity),
         build: (context) {
           return pw.Padding(
-            padding: const pw.EdgeInsets.all(5), // Reduced padding to fit content
+            padding: const pw.EdgeInsets.all(5),
+            // Reduced padding to fit content
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
@@ -605,7 +634,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     // setState(() {
                     //   selectedStatus = newStatus!;
                     // });
-                   // updateOrderStatus(selectedStatus, orderId);
+                    // updateOrderStatus(selectedStatus, orderId);
                   },
                   items: [],
                 ),
@@ -726,15 +755,6 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Book Order logic
-                    },
-                    child: const Text('Book Order'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black, // Background color
-                    ),
-                  ),
                 ]
               ],
             ),

@@ -68,6 +68,8 @@ dependencies:
   image_picker:
   image:
   idle_detector_wrapper: ^1.0.0
+  flutter_paginate: ^1.0.0
+
 
 
 
