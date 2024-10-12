@@ -9,6 +9,7 @@ import '../../../model/tenant_model.dart';
 import '../../widgets/app_custom_text.dart';
 import 'brands_page_screens/main_brand_screen.dart';
 import 'category_page_screens/main_category_screen.dart';
+import 'orders/orders_placed.dart';
 
 class PageSelector extends StatefulWidget {
   final SidebarXController controller;
@@ -45,7 +46,8 @@ class _PageSelectorState extends State<PageSelector> {
                 case 1:
                   return const MainBrandScreen();
                 case 2:
-                  return const MainCategoryScreen();
+                  return const MainCategoryScreen();case 3:
+                  return  OrderManagementPage(tenantId: '8V8YTiKWyObO7tppMHeP',);
                 case 4:
 
                   return  MainUserScreen(tenantModel: widget.tenantModel,);case 5:
