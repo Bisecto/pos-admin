@@ -71,6 +71,7 @@ class _CreateNewUserState extends State<CreateNewUser> {
                     child: SingleChildScrollView(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(20.0),
@@ -132,6 +133,7 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                         },
                                       ),
                                       Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [FormButton(
                                           onPressed: () {
                                            // Navigator.of(context).pop();
@@ -143,6 +145,7 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                           iconWidget: Icons.clear,
                                           borderRadius: 20,
                                         ),
+                                          SizedBox(width: 20,),
                                           FormButton(
                                             onPressed: () {
                                               if (_formKey.currentState!.validate()) {

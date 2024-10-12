@@ -187,21 +187,21 @@ class _MainUserScreenState extends State<MainUserScreen> {
                   padding: const EdgeInsets.only(top: 20.0),
                   child: GestureDetector(
                     onTap: () {
-                      AppNavigator.pushAndStackPage(context, page: CreateNewUser(tenantModel: widget.tenantModel,));
-                      // modalSheet.showMaterialModalBottomSheet(
-                      //   backgroundColor: Colors.transparent,
-                      //   shape: const RoundedRectangleBorder(
-                      //     borderRadius: BorderRadius.vertical(
-                      //       top: Radius.circular(20.0),
-                      //     ),
-                      //   ),
-                      //   context: context,
-                      //   builder: (context) => Padding(
-                      //
-                      //     padding: const EdgeInsets.only(top: 100.0),
-                      //     child: CreateNewUser(),
-                      //   ),
-                      // );
+                     // AppNavigator.pushAndStackPage(context, page: CreateNewUser(tenantModel: widget.tenantModel,));
+                      modalSheet.showMaterialModalBottomSheet(
+                        backgroundColor: Colors.transparent,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20.0),
+                          ),
+                        ),
+                        context: context,
+                        builder: (context) => Padding(
+
+                          padding: const EdgeInsets.only(top: 100.0),
+                          child: CreateNewUser(tenantModel: widget.tenantModel),
+                        ),
+                      );
 
                     },
                     child: Container(
