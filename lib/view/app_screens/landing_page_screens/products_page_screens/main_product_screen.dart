@@ -8,6 +8,7 @@ import 'package:pos_admin/view/widgets/drop_down.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../model/brand_model.dart';
+import '../../../../model/user_model.dart';
 import '../../../../res/app_colors.dart';
 import '../../../widgets/app_custom_text.dart';
 
@@ -18,7 +19,8 @@ import '../../../important_pages/dialog_box.dart';
 import '../../../important_pages/app_loading_page.dart';
 
 class MainProductScreen extends StatefulWidget {
-  const MainProductScreen({super.key});
+  UserModel userModel;
+   MainProductScreen({super.key,required this.userModel});
 
   @override
   State<MainProductScreen> createState() => _MainProductScreenState();
@@ -36,7 +38,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
 
   @override
   void initState() {
-    productBloc.add(GetProductEvent('8V8YTiKWyObO7tppMHeP'));
+    productBloc.add(GetProductEvent(widget.userModel.tenantId));
     super.initState();
   }
 
@@ -262,7 +264,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                     skuController.text,
                                     selectedCategoryId.text,
                                     selectedBrandId.text,
-                                    double.parse(discountController.text),_imageFile!));
+                                    double.parse(discountController.text),_imageFile!,widget.userModel.tenantId));
                               });
                             }
                             Navigator.of(context).pop();
@@ -526,7 +528,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                               child: ProductTableScreen(
                             productList: filteredProducts,
                             brandList: brandList,
-                            categoryList: categoryList,
+                            categoryList: categoryList, userModel: widget.userModel,
                           )),
                       ],
                     );

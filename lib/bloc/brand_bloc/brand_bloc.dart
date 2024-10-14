@@ -50,7 +50,7 @@ class BrandBloc extends Bloc<BrandEvent, BrandState> {
       String generatedId = AppUtils().generateFirestoreUniqueId();
       var collection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+          .doc(event.tenantId) // Replace with the tenant ID
           .collection('Brand');
 
       Brand newBrand = Brand(
@@ -66,7 +66,7 @@ class BrandBloc extends Bloc<BrandEvent, BrandState> {
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP')
+          .doc(event.tenantId)
           .collection('Brand')
           .get();
       print(querySnapshot.docs);
@@ -87,7 +87,7 @@ class BrandBloc extends Bloc<BrandEvent, BrandState> {
 
       var collection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+          .doc(event.tenantId) // Replace with the tenant ID
           .collection('Brand').doc(event.brandId);
 
 
@@ -95,7 +95,7 @@ class BrandBloc extends Bloc<BrandEvent, BrandState> {
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP')
+          .doc(event.tenantId)
           .collection('Brand')
           .get();
       print(querySnapshot.docs);

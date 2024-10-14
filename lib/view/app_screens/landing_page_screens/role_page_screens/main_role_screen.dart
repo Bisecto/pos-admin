@@ -32,8 +32,9 @@ import '../../auth/create_new_user.dart';
 
 class MainUserScreen extends StatefulWidget {
   TenantModel tenantModel;
+  UserModel userModel;
 
-  MainUserScreen({super.key, required this.tenantModel});
+  MainUserScreen({super.key, required this.tenantModel,required this.userModel});
 
   @override
   State<MainUserScreen> createState() => _MainUserScreenState();
@@ -47,7 +48,7 @@ class _MainUserScreenState extends State<MainUserScreen> {
 
   @override
   void initState() {
-    userBloc.add(GetUserEvent('8V8YTiKWyObO7tppMHeP'));
+    userBloc.add(GetUserEvent(widget.userModel.tenantId));
     super.initState();
   }
 
@@ -197,7 +198,7 @@ class _MainUserScreenState extends State<MainUserScreen> {
                         context: context,
                         builder: (context) => Padding(
                           padding: const EdgeInsets.only(top: 100.0),
-                          child: CreateNewUser(tenantModel: widget.tenantModel),
+                          child: CreateNewUser(tenantModel: widget.tenantModel, userModel: widget.userModel,),
                         ),
                       );
                     },
@@ -261,7 +262,7 @@ class _MainUserScreenState extends State<MainUserScreen> {
                         if (filteredUsers.isNotEmpty)
                           Expanded(
                               child: UserTableScreen(
-                            userList: filteredUsers,
+                            userList: filteredUsers, userModel: widget.userModel,
                           )),
                       ],
                     );

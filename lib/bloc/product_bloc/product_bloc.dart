@@ -74,7 +74,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       String generatedId = AppUtils().generateFirestoreUniqueId();
       var collection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP')
+          .doc(event.tenantId)
           .collection('Products');
 
       Product newProduct = Product(
@@ -95,7 +95,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       await collection.doc(generatedId).set(newProduct.toFirestore());
       QuerySnapshot brandQuerySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc("8V8YTiKWyObO7tppMHeP")
+          .doc(event.tenantId)
           .collection('Brand')
           .get();
       print(brandQuerySnapshot.docs);
@@ -105,7 +105,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
       QuerySnapshot categoryQuerySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc("8V8YTiKWyObO7tppMHeP")
+          .doc(event.tenantId)
           .collection('Category')
           .get();
       print(categoryQuerySnapshot.docs);
@@ -115,7 +115,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP')
+          .doc(event.tenantId)
           .collection('Products')
           .get();
       print(querySnapshot.docs);
@@ -137,14 +137,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
       var collection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+          .doc(event.tenantId) // Replace with the tenant ID
           .collection('Products')
           .doc(event.productId);
 
       await collection.delete();
       QuerySnapshot brandQuerySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc("8V8YTiKWyObO7tppMHeP")
+          .doc(event.tenantId)
           .collection('Brand')
           .get();
       print(brandQuerySnapshot.docs);
@@ -154,7 +154,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
       QuerySnapshot categoryQuerySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc("8V8YTiKWyObO7tppMHeP")
+          .doc(event.tenantId)
           .collection('Category')
           .get();
       print(categoryQuerySnapshot.docs);
@@ -163,7 +163,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           .toList();
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP')
+          .doc(event.tenantId)
           .collection('Products')
           .get();
       print(querySnapshot.docs);

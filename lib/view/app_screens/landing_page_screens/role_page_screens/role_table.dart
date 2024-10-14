@@ -15,9 +15,11 @@ import '../../../../res/app_colors.dart';
 
 class UserTableScreen extends StatefulWidget {
   final List<UserModel> userList;
+  final UserModel userModel;
 
   UserTableScreen({
     required this.userList,
+    required this.userModel
   });
 
   @override
@@ -122,7 +124,7 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     imageUrl: 'imageUrl',
                     phone: widget.userList[index].phone,
                     role: roleController.text,
-                    tenantId: '8V8YTiKWyObO7tppMHeP',
+                    tenantId: widget.userModel.tenantId,
                     createdAt: widget.userList[index].createdAt,
                     updatedAt: Timestamp.fromDate(DateTime.now()),
                     accountStatus: widget.userList[index].accountStatus);

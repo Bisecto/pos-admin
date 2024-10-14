@@ -8,15 +8,21 @@ class GetBrandEvent extends BrandEvent {
 }
 class AddBrandEvent extends BrandEvent {
   final String brandName;
-  AddBrandEvent(this.brandName);
+  final String tenantId;
+
+  AddBrandEvent(this.brandName,this.tenantId);
 }
 class DeleteBrandEvent extends BrandEvent {
   final String brandId;
-  DeleteBrandEvent(this.brandId);
+  final String tenantId;
+
+  DeleteBrandEvent(this.brandId,this.tenantId);
 }
 class EditBrandEvent extends BrandEvent {
   final String brandId;
   final String brandEditedName;
+  final String tenantId;
 
-  EditBrandEvent(this.brandId,this.brandEditedName);
+
+  EditBrandEvent(this.brandId,this.brandEditedName,this.tenantId);
 }

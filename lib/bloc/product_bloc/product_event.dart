@@ -7,6 +7,8 @@ class GetProductEvent extends ProductEvent {
   GetProductEvent(this.tenantId);
 }
 class AddProductEvent extends ProductEvent {
+  final String tenantId;
+
   final String productName;
   final String sku;
   final double price;
@@ -15,15 +17,18 @@ class AddProductEvent extends ProductEvent {
   final double discount;
   final File imageFile;
 
-  AddProductEvent(this.productName,this.price,this.sku,this.categoryId,this.brandId,this.discount,this.imageFile);
+  AddProductEvent(this.productName,this.price,this.sku,this.categoryId,this.brandId,this.discount,this.imageFile, this.tenantId);
 }
 class DeleteProductEvent extends ProductEvent {
   final String productId;
-  DeleteProductEvent(this.productId);
+  final String tenantId;
+
+  DeleteProductEvent(this.productId, this.tenantId);
 }
 class EditProductEvent extends ProductEvent {
   final String productId;
   final String productEditedName;
+  final String tenantId;
 
-  EditProductEvent(this.productId,this.productEditedName);
+  EditProductEvent(this.productId,this.productEditedName, this.tenantId);
 }

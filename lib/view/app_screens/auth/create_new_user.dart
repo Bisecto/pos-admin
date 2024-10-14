@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pos_admin/model/user_model.dart';
 
 import '../../../bloc/auth_bloc/auth_bloc.dart';
 import '../../../firebase_options.dart';
@@ -19,8 +20,9 @@ import '../landing_page.dart';
 
 class CreateNewUser extends StatefulWidget {
   TenantModel tenantModel;
+  UserModel userModel;
 
-   CreateNewUser({super.key,required this.tenantModel});
+   CreateNewUser({super.key,required this.tenantModel,required this.userModel});
 
   @override
   State<CreateNewUser> createState() => _CreateNewUserState();
@@ -153,7 +155,7 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                                 setState(() {
                                                   authBloc.add(CreateUserRoleEventClick(
                                                       _emailController.text,
-                                                      '8V8YTiKWyObO7tppMHeP',
+                                                    widget.userModel.tenantId,
                                                       phoneController.text,
                                                       'imageUrl',
                                                       fullNameController.text,

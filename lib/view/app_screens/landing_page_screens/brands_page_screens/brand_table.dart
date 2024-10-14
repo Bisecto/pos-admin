@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
@@ -13,8 +14,9 @@ import '../../../widgets/form_input.dart';
 
 class BrandTableScreen extends StatefulWidget {
   final List<Brand> brandList;
+  UserModel userModel;
 
-  BrandTableScreen({required this.brandList});
+  BrandTableScreen({required this.brandList,required this.userModel});
 
   @override
   _BrandTableScreenState createState() => _BrandTableScreenState();
@@ -103,7 +105,7 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                   );
                   FirebaseFirestore.instance
                       .collection('Enrolled Entities')
-                      .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+                      .doc(widget.userModel.tenantId) // Replace with the tenant ID
                       .collection('Brand')
                       .doc(widget.brandList[index].brandId)
                       .update(newBrand.toFirestore());
@@ -192,7 +194,7 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                   print(brandId);
                   FirebaseFirestore.instance
                       .collection('Enrolled Entities')
-                      .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+                      .doc(widget.userModel.tenantId) // Replace with the tenant ID
                       .collection('Brand')
                       .doc(brandId)
                       .delete();

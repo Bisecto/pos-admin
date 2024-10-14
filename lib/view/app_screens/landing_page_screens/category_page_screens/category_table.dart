@@ -6,6 +6,7 @@ import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
 import '../../../../bloc/category_bloc/category_bloc.dart';
+import '../../../../model/user_model.dart';
 import '../../../../res/app_colors.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/form_button.dart';
@@ -13,8 +14,9 @@ import '../../../widgets/form_input.dart';
 
 class CategoryTableScreen extends StatefulWidget {
   final List<Category> categoryList;
+  final UserModel userModel;
 
-  CategoryTableScreen({required this.categoryList});
+  CategoryTableScreen({required this.categoryList,required this.userModel});
 
   @override
   _CategoryTableScreenState createState() => _CategoryTableScreenState();
@@ -103,7 +105,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                   );
                   FirebaseFirestore.instance
                       .collection('Enrolled Entities')
-                      .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+                      .doc(widget.userModel.tenantId) // Replace with the tenant ID
                       .collection('Category')
                       .doc(widget.categoryList[index].categoryId)
                       .update(newCategory.toFirestore());
@@ -192,7 +194,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                   print(categoryId);
                   FirebaseFirestore.instance
                       .collection('Enrolled Entities')
-                      .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+                      .doc(widget.userModel.tenantId) // Replace with the tenant ID
                       .collection('Category')
                       .doc(categoryId)
                       .delete();

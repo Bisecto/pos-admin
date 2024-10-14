@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_admin/bloc/auth_bloc/auth_bloc.dart';
 import 'package:pos_admin/bloc/category_bloc/category_bloc.dart';
 import 'package:pos_admin/model/category_model.dart';
+import 'package:pos_admin/model/tenant_model.dart';
+import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/product_table.dart';
 import 'package:pos_admin/view/widgets/drop_down.dart';
@@ -22,7 +24,8 @@ import '../../../widgets/app_custom_text.dart';
 import 'category_table.dart';
 
 class MainCategoryScreen extends StatefulWidget {
-  const MainCategoryScreen({super.key});
+  UserModel userModel;
+   MainCategoryScreen({super.key,required this.userModel});
 
   @override
   State<MainCategoryScreen> createState() => _MainCategoryScreenState();
@@ -37,7 +40,7 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
 
   @override
   void initState() {
-    categoryBloc.add(GetCategoryEvent('8V8YTiKWyObO7tppMHeP'));
+    categoryBloc.add(GetCategoryEvent(widget.userModel.tenantId));
     super.initState();
     // Sample data
 
@@ -112,7 +115,7 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
               onPressed: () {
                 if (categoryNameController.text.isNotEmpty) {
                   categoryBloc.add(
-                      AddCategoryEvent(categoryNameController.text.trim()));
+                      AddCategoryEvent(categoryNameController.text.trim(),widget.userModel.tenantId));
                 } else {
                   MSG.warningSnackBar(
                       context, "Category name cannot be empty.");
@@ -265,7 +268,7 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
 
                             CategoryTableScreen(
                               categoryList:
-                              filteredCategorys, // Display filtered list
+                              filteredCategorys, userModel: widget.userModel, // Display filtered list
                             ),
                         ],
                       ),

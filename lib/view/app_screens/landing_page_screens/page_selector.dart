@@ -44,15 +44,15 @@ class _PageSelectorState extends State<PageSelector> {
                   _getTitleByIndex(widget.controller.selectedIndex);
               switch (widget.controller.selectedIndex) {
                 case 0:
-                  return const MainProductScreen();
+                  return  MainProductScreen(userModel:widget.userModel,);
                 case 1:
-                  return const MainBrandScreen();
+                  return  MainBrandScreen(userModel: widget.userModel,);
                 case 2:
-                  return const MainCategoryScreen();case 3:
-                  return  OrderManagementPage(tenantId: '8V8YTiKWyObO7tppMHeP',);
+                  return  MainCategoryScreen(userModel: widget.userModel,);case 3:
+                  return  OrderManagementPage(tenantId: widget.userModel.tenantId,);
                 case 4:
 
-                  return  MainUserScreen(tenantModel: widget.tenantModel,);case 5:
+                  return  MainUserScreen(tenantModel: widget.tenantModel, userModel: widget.userModel,);case 5:
                   return  TenantProfilePage(tenantModel: widget.tenantModel, userModel: widget.userModel,);
                 default:
                   return TextStyles.textHeadings(

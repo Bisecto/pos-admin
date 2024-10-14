@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pos_admin/model/user_model.dart';
 
 import 'package:pos_admin/view/widgets/form_button.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
@@ -19,7 +20,8 @@ import '../../../widgets/app_custom_text.dart';
 import 'brand_table.dart';
 
 class MainBrandScreen extends StatefulWidget {
-  const MainBrandScreen({super.key});
+  final UserModel userModel;
+  const MainBrandScreen({super.key,required this.userModel});
 
   @override
   State<MainBrandScreen> createState() => _MainBrandScreenState();
@@ -34,7 +36,7 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
 
   @override
   void initState() {
-    brandBloc.add(GetBrandEvent('8V8YTiKWyObO7tppMHeP'));
+    brandBloc.add(GetBrandEvent(widget.userModel.tenantId));
     super.initState();
 
   }
@@ -100,7 +102,7 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
               onPressed: () {
                 if (brandNameController.text.isNotEmpty) {
                   brandBloc.add(
-                      AddBrandEvent(brandNameController.text.trim()));
+                      AddBrandEvent(brandNameController.text.trim(),widget.userModel.tenantId));
                 } else {
                   MSG.warningSnackBar(
                       context, "Brand name cannot be empty.");
@@ -253,7 +255,7 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
 
                             BrandTableScreen(
                               brandList:
-                              filteredBrands, // Display filtered list
+                              filteredBrands, userModel: widget.userModel, // Display filtered list
                             ),
                         ],
                       ),

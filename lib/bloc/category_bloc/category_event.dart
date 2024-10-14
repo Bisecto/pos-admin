@@ -9,15 +9,21 @@ class GetCategoryEvent extends CategoryEvent {
 }
 class AddCategoryEvent extends CategoryEvent {
   final String categoryName;
-  AddCategoryEvent(this.categoryName);
+  final String tenantId;
+
+  AddCategoryEvent(this.categoryName,this.tenantId);
 }
 class DeleteCategoryEvent extends CategoryEvent {
   final String categoryId;
-  DeleteCategoryEvent(this.categoryId);
+  final String tenantId;
+
+  DeleteCategoryEvent(this.categoryId,this.tenantId);
 }
   class EditCategoryEvent extends CategoryEvent {
     final String categoryId;
     final String categoryEditedName;
+    final String tenantId;
 
-    EditCategoryEvent(this.categoryId,this.categoryEditedName);
+
+    EditCategoryEvent(this.categoryId,this.categoryEditedName,this.tenantId);
   }

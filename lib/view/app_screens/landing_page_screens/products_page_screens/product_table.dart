@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pos_admin/model/product_model.dart';
+import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import '../../../../model/brand_model.dart';
 import '../../../../model/category_model.dart';
@@ -15,11 +16,12 @@ class ProductTableScreen extends StatefulWidget {
   final List<Product> productList;
   final List<Brand> brandList;
   final List<Category> categoryList;
+  final UserModel userModel;
 
   ProductTableScreen(
       {required this.productList,
       required this.brandList,
-      required this.categoryList});
+      required this.categoryList,required this.userModel});
 
   @override
   _ProductTableScreenState createState() => _ProductTableScreenState();
@@ -197,7 +199,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                     );
                     FirebaseFirestore.instance
                         .collection('Enrolled Entities')
-                        .doc('8V8YTiKWyObO7tppMHeP') // Replace with tenant ID
+                        .doc(widget.userModel.tenantId) // Replace with tenant ID
                         .collection('Products')
                         .doc(widget.productList[index].productId)
                         .update(newProduct.toFirestore());
@@ -254,7 +256,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                 });
                 await FirebaseFirestore.instance
                     .collection('Enrolled Entities')
-                    .doc('8V8YTiKWyObO7tppMHeP') // Replace with tenant ID
+                    .doc(widget.userModel.tenantId) // Replace with tenant ID
                     .collection('Products')
                     .doc(productId)
                     .delete();

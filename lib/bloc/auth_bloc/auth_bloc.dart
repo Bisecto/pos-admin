@@ -56,13 +56,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print(user!.tenantId);
       print(user.uid);
       if (user.email!.isNotEmpty) {
-        DocumentSnapshot tenantDocumentSnapshot = await FirebaseFirestore
-            .instance
-            .collection('Enrolled Entities')
-            .doc("8V8YTiKWyObO7tppMHeP")
-            .get();
-        TenantModel tenantModel =
-            TenantModel.fromFirestore(tenantDocumentSnapshot);
+
         DocumentSnapshot userDocumentSnapshot = await FirebaseFirestore.instance
             .collection('Users')
             .doc(user.uid)
@@ -73,6 +67,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (userModel.accountStatus &&
             (userModel.role.toLowerCase() == 'admin' ||
                 userModel.role.toLowerCase() == 'manager')) {
+          DocumentSnapshot tenantDocumentSnapshot = await FirebaseFirestore
+              .instance
+              .collection('Enrolled Entities')
+              .doc(userModel.tenantId)
+              .get();
+          TenantModel tenantModel =
+          TenantModel.fromFirestore(tenantDocumentSnapshot);
           emit(SuccessState("Successfully Signed in", tenantModel, userModel));
         } else {
           emit(ErrorState(

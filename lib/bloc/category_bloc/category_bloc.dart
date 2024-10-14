@@ -52,7 +52,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       String generatedId = AppUtils().generateFirestoreUniqueId();
       var collection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+          .doc(event.tenantId) // Replace with the tenant ID
           .collection('Category');
 
       Category newCategory = Category(
@@ -68,7 +68,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP')
+          .doc(event.tenantId)
           .collection('Category')
           .get();
       print(querySnapshot.docs);
@@ -89,7 +89,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
 
       var collection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP') // Replace with the tenant ID
+          .doc(event.tenantId) // Replace with the tenant ID
           .collection('Category').doc(event.categoryId);
 
 
@@ -97,7 +97,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
-          .doc('8V8YTiKWyObO7tppMHeP')
+          .doc(event.tenantId)
           .collection('Category')
           .get();
       print(querySnapshot.docs);
