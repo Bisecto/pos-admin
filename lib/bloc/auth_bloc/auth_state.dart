@@ -29,10 +29,13 @@ class SuccessState extends AuthState {
   final String msg;
   TenantModel? tenantModel;
 
+  SuccessState(this.msg, this.tenantModel);
+}
 
+class CreateUserSuccessState extends AuthState {
+  final String msg;
 
-  SuccessState(
-      this.msg,this.tenantModel);
+  CreateUserSuccessState(this.msg);
 }
 
 class ResetPasswordSuccessState extends AuthState {

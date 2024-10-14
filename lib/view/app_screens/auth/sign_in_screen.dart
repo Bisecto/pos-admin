@@ -1,7 +1,9 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pos_admin/view/app_screens/auth/create_new_user.dart';
 import 'package:pos_admin/view/app_screens/auth/reset_password_screen.dart';
+import 'package:pos_admin/view/app_screens/auth/sign_up_user.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 import 'package:provider/provider.dart';
 
@@ -110,7 +112,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                             .darkModeBackgroundContainerColor,
                                         validator:
                                             AppValidator.validateTextfield,
-                                        widget: Icon(Icons.person_2_outlined),
+                                        widget: const Icon(Icons.person_2_outlined),
                                         width: 250,
                                       ),
                                       const SizedBox(
@@ -126,7 +128,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                             AppValidator.validateTextfield,
                                         controller: _passwordController,
                                         hint: 'Enter your password',
-                                        widget: Icon(Icons.lock_outline),
+                                        widget: const Icon(Icons.lock_outline),
                                         width: 250,
                                       ),
                                       const SizedBox(
@@ -145,10 +147,27 @@ class _SignInScreenState extends State<SignInScreen> {
                                                     page:
                                                         const ResetPassword());
                                               },
-                                              child: Align(
+                                              child: const Align(
                                                 alignment: Alignment.topRight,
                                                 child: CustomText(
                                                   text: "Forgot password ?",
+                                                  color: AppColors.white,
+                                                  size: 16,
+                                                  weight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                AppNavigator.pushAndStackPage(
+                                                    context,
+                                                    page:
+                                                         SignUpUser());
+                                              },
+                                              child: const Align(
+                                                alignment: Alignment.topRight,
+                                                child: CustomText(
+                                                  text: "Account setup",
                                                   color: AppColors.white,
                                                   size: 16,
                                                   weight: FontWeight.w400,

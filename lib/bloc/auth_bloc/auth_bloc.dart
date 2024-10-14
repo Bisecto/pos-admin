@@ -134,11 +134,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           tenantId: event.tenantId,
           createdAt: Timestamp.fromDate(DateTime.now()),
           updatedAt: Timestamp.fromDate(DateTime.now()),
-          accountStatus: true);
+          accountStatus: false);
 
       await newUserCollection.set(userModel.toFirestore());
 
-      emit(SuccessState("Account created successfully", event.tenantModel));
+      emit(CreateUserSuccessState("Account created successfully"));
     } on FirebaseAuthException catch (e) {
       // Handle different FirebaseAuth exceptions during sign-up
       print(e.toString());
