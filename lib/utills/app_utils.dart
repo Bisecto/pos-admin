@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/src/foundation/key.dart' as kk;
 import 'package:flutter/material.dart';
@@ -52,24 +53,10 @@ class AppUtils {
   String generateFirestoreUniqueId() {
     return FirebaseFirestore.instance.collection('dummy').doc().id;
   }
-  logout(context) async {
-    SharedPref.remove(SharedPrefKey.passwordKey);
-    SharedPref.remove(SharedPrefKey.emailKey);
-    SharedPref.remove(SharedPrefKey.phoneKey);
-    SharedPref.remove("accessPin");
-    SharedPref.remove(SharedPrefKey.userIdKey);
-    SharedPref.remove(SharedPrefKey.firstNameKey);
-    SharedPref.remove(SharedPrefKey.lastNameKey);
-    SharedPref.remove(SharedPrefKey.userDataKey);
-    SharedPref.remove(SharedPrefKey.refreshTokenKey);
-    SharedPref.remove(SharedPrefKey.accessTokenKey);
-    SharedPref.remove(SharedPrefKey.temUserDataKey);
-    SharedPref.remove(SharedPrefKey.temPasswordKey);
-    SharedPref.remove("temUserPhone");
-    SharedPref.remove(SharedPrefKey.hashedAccessPinKey);
-    SharedPref.remove(SharedPrefKey.biometricKey);
-    SharedPref.remove("temUserPhone");
-    SharedPref.remove("accessPin");
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+    // Check if the user is properly signed out
+    print(FirebaseAuth.instance.currentUser); // This should return null
   }
 
   static Future<bool> biometrics(String localizedReason) async {

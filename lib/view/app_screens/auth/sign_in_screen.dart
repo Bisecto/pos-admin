@@ -55,7 +55,7 @@ class _SignInScreenState extends State<SignInScreen> {
               MSG.snackBar(context, state.msg);
 
               AppNavigator.pushAndRemovePreviousPages(context,
-                  page:  LandingPage(tenantModel: state.tenantModel!,));
+                  page:  LandingPage(tenantModel: state.tenantModel!, userModel: state.userModel!,));
             } else if (state is ErrorState) {
               MSG.warningSnackBar(context, state.error);
             }
@@ -157,23 +157,23 @@ class _SignInScreenState extends State<SignInScreen> {
                                                 ),
                                               ),
                                             ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                AppNavigator.pushAndStackPage(
-                                                    context,
-                                                    page:
-                                                         SignUpUser());
-                                              },
-                                              child: const Align(
-                                                alignment: Alignment.topRight,
-                                                child: CustomText(
-                                                  text: "Account setup",
-                                                  color: AppColors.white,
-                                                  size: 16,
-                                                  weight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ),
+                                            // GestureDetector(
+                                            //   onTap: () {
+                                            //     AppNavigator.pushAndStackPage(
+                                            //         context,
+                                            //         page:
+                                            //              SignUpUser());
+                                            //   },
+                                            //   child: const Align(
+                                            //     alignment: Alignment.topRight,
+                                            //     child: CustomText(
+                                            //       text: "Account setup",
+                                            //       color: AppColors.white,
+                                            //       size: 16,
+                                            //       weight: FontWeight.w400,
+                                            //     ),
+                                            //   ),
+                                            // ),
                                           ],
                                         ),
                                       ),

@@ -7,6 +7,7 @@ import 'package:cross_connectivity/cross_connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pos_admin/model/tenant_model.dart';
+import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_images.dart';
 import 'package:pos_admin/view/app_screens/auth/sign_in_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/page_selector.dart';
@@ -24,7 +25,8 @@ import '../../../utills/shared_preferences.dart';
 
 class LandingPage extends StatefulWidget {
   TenantModel tenantModel;
-   LandingPage({super.key,required this.tenantModel});
+  UserModel userModel;
+   LandingPage({super.key,required this.tenantModel,required this.userModel});
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -103,7 +105,7 @@ class _LandingPageState extends State<LandingPage> {
               children: [
                 if (!isSmallScreen) ExampleSidebarX(controller: _controller),
                 Expanded(
-                  child: Center(child: PageSelector(controller: _controller, tenantModel: widget.tenantModel,)),
+                  child: Center(child: PageSelector(controller: _controller, tenantModel: widget.tenantModel, userModel: widget.userModel,)),
                 ),
               ],
             ),

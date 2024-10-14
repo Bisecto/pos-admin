@@ -214,7 +214,7 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     DataColumn(
                         label: Text('ROLE', style: TextStyle(color: Colors.white))),
                     DataColumn(
-                        label: Text('Status', style: TextStyle(color: Colors.white))),
+                        label: Text('IS ACTIVE', style: TextStyle(color: Colors.white))),
                     DataColumn(
                         label: Text('ACTIONS', style: TextStyle(color: Colors.white))),
                   ],
@@ -232,7 +232,7 @@ class _UserTableScreenState extends State<UserTableScreen> {
                       DataCell(Text(paginatedUsers[index].role.toString() ?? '',
                           style: const TextStyle(color: Colors.white))),
                       DataCell(Icon(
-                        Icons.verified,
+                        paginatedUsers[index].accountStatus ? Icons.verified:Icons.block,
                         color: paginatedUsers[index].accountStatus ? Colors.green : Colors.red,
                       )),
                       DataCell(Row(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pos_admin/model/tenant_model.dart';
+import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/utills/app_validator.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
@@ -9,8 +10,9 @@ import '../../../../res/app_colors.dart';
 
 class TenantProfilePage extends StatefulWidget {
   final TenantModel tenantModel; // Pass in the tenant profile to the page
+  final UserModel userModel;
 
-  TenantProfilePage({required this.tenantModel});
+  TenantProfilePage({required this.tenantModel,required this.userModel});
 
   @override
   _TenantProfilePageState createState() => _TenantProfilePageState();

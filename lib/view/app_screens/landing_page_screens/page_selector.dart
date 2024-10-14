@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_colors.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/main_product_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/role_page_screens/main_role_screen.dart';
@@ -14,9 +15,10 @@ import 'orders/orders_placed.dart';
 class PageSelector extends StatefulWidget {
   final SidebarXController controller;
   TenantModel tenantModel;
+  UserModel userModel;
 
 
-   PageSelector({super.key, required this.controller,required this.tenantModel});
+   PageSelector({super.key, required this.controller,required this.tenantModel,required this.userModel});
 
   @override
   State<PageSelector> createState() => _PageSelectorState();
@@ -51,7 +53,7 @@ class _PageSelectorState extends State<PageSelector> {
                 case 4:
 
                   return  MainUserScreen(tenantModel: widget.tenantModel,);case 5:
-                  return  TenantProfilePage(tenantModel: widget.tenantModel,);
+                  return  TenantProfilePage(tenantModel: widget.tenantModel, userModel: widget.userModel,);
                 default:
                   return TextStyles.textHeadings(
                     textValue: pageTitle,

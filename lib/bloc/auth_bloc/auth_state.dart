@@ -28,8 +28,9 @@ class DeviceChange extends AuthState {
 class SuccessState extends AuthState {
   final String msg;
   TenantModel? tenantModel;
+  UserModel? userModel;
 
-  SuccessState(this.msg, this.tenantModel);
+  SuccessState(this.msg, this.tenantModel,this.userModel);
 }
 
 class CreateUserSuccessState extends AuthState {
