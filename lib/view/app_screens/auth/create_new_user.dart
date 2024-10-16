@@ -130,7 +130,7 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                         borderRadius: 10,
                                         hint: "Select role of user",
                                         selectedValue: roleController.text,
-                                        items: const ['Manager', "Admin", "Attendant","Cashier"],
+                                        items: const ['Manager', "Admin", "Attendant","Cashier","Chef","Bartender"],
                                         onChanged: (value) {
                                           roleController.text = value;
                                         },
