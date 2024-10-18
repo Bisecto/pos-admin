@@ -71,17 +71,18 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
-                            //mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const SizedBox(
                                 height: 20,
                               ),
-                              TextStyles.textSubHeadings(textValue: "Login to your account",textColor:AppColors.white,textSize: 20 ),
+                              //TextStyles.textSubHeadings(textValue: "Login to your account",textColor:AppColors.white,textSize: 20 ),
                               const SizedBox(
                                 height: 20,
                               ),
