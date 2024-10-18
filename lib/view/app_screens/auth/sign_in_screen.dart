@@ -90,7 +90,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 backgroundColor:
                                     AppColors.darkModeBackgroundContainerColor,
                                 child: Image.asset(
-                                  AppImages.posTerminal,
+                                  AppImages.companyLogo,
                                   height: 100,
                                   width: 100,
                                 ),

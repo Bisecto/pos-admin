@@ -191,7 +191,7 @@ class ExampleSidebarX extends StatelessWidget {
                 height: 100,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Image.asset(AppImages.posTerminal),
+                  child: Image.asset(AppImages.companyLogo),
                 ),
               );
             },
