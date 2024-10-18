@@ -74,15 +74,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                               const SizedBox(
                                 height: 20,
                               ),
-                              CircleAvatar(
-                                radius: 70,
-                                backgroundColor:
-                                    AppColors.darkModeBackgroundContainerColor,
-                                child: Image.asset(
-                                  AppImages.companyLogo,
-                                  height: 100,
-                                  width: 100,
-                                ),
+                              Image.asset(
+                                AppImages.companyLogo,
+                                height: 100,
+                                width: 100,
                               ),
                               const SizedBox(
                                 height: 20,
