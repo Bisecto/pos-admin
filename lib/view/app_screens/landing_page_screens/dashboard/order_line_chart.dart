@@ -61,7 +61,7 @@ class OrdersLineChart extends StatelessWidget {
               colors: [Colors.green],
               barWidth: 3,
               belowBarData: BarAreaData(
-                  show: true, colors: [Colors.green.withOpacity(0.3)]),
+                  show: false, colors: [Colors.green.withOpacity(0.3)]),
             ),
           ],
         ),

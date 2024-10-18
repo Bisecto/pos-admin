@@ -16,11 +16,11 @@ class MetricCard extends StatelessWidget {
       width: 200, // Width of each metric card
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.black,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey[200]!,
+            color: Colors.grey[900]!,
             spreadRadius: 2,
             blurRadius: 5,
             offset: Offset(0, 3), // Position of shadow
@@ -44,7 +44,7 @@ class MetricCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
         ],

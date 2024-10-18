@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_colors.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/main_dashboard_page.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/main_product_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/role_page_screens/main_role_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/tenant_profile/tenant_profile.dart';
@@ -17,8 +18,11 @@ class PageSelector extends StatefulWidget {
   TenantModel tenantModel;
   UserModel userModel;
 
-
-   PageSelector({super.key, required this.controller,required this.tenantModel,required this.userModel});
+  PageSelector(
+      {super.key,
+      required this.controller,
+      required this.tenantModel,
+      required this.userModel});
 
   @override
   State<PageSelector> createState() => _PageSelectorState();
@@ -44,16 +48,35 @@ class _PageSelectorState extends State<PageSelector> {
                   _getTitleByIndex(widget.controller.selectedIndex);
               switch (widget.controller.selectedIndex) {
                 case 0:
-                  return  MainProductScreen(userModel:widget.userModel,);
+                  return Dashboard(
+                    tenantId: widget.userModel.tenantId,
+                  );
                 case 1:
-                  return  MainBrandScreen(userModel: widget.userModel,);
+                  return MainProductScreen(
+                    userModel: widget.userModel,
+                  );
                 case 2:
-                  return  MainCategoryScreen(userModel: widget.userModel,);case 3:
-                  return  OrderManagementPage(tenantId: widget.userModel.tenantId,);
+                  return MainBrandScreen(
+                    userModel: widget.userModel,
+                  );
+                case 3:
+                  return MainCategoryScreen(
+                    userModel: widget.userModel,
+                  );
                 case 4:
-
-                  return  MainUserScreen(tenantModel: widget.tenantModel, userModel: widget.userModel,);case 5:
-                  return  TenantProfilePage(tenantModel: widget.tenantModel, userModel: widget.userModel,);
+                  return OrderManagementPage(
+                    tenantId: widget.userModel.tenantId,
+                  );
+                case 5:
+                  return MainUserScreen(
+                    tenantModel: widget.tenantModel,
+                    userModel: widget.userModel,
+                  );
+                case 6:
+                  return TenantProfilePage(
+                    tenantModel: widget.tenantModel,
+                    userModel: widget.userModel,
+                  );
                 default:
                   return TextStyles.textHeadings(
                     textValue: pageTitle,

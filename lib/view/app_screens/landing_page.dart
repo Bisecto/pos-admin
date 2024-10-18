@@ -197,6 +197,12 @@ class ExampleSidebarX extends StatelessWidget {
             },
             items: [
               SidebarXItem(
+                icon: Icons.dashboard,
+                label: 'Dashboard',
+                onTap: () {
+                  //debugPrint('Products');
+                },
+              ),SidebarXItem(
                 icon: Icons.storage,
                 label: 'Products',
                 onTap: () {
@@ -257,20 +263,22 @@ class ExampleSidebarX extends StatelessWidget {
 String _getTitleByIndex(int index) {
   switch (index) {
     case 0:
-      return 'Products';
+      return 'Dashboard';
     case 1:
-      return 'Brands';
+      return 'Products';
     case 2:
-      return 'Category';
+      return 'Brands';
     case 3:
-      return 'Invoices';
+      return 'Category';
     case 4:
-      return 'Roles';
+      return 'Invoices';
     case 5:
-      return 'Profile';
+      return 'Roles';
     case 6:
-      return 'Logout';
+      return 'Profile';
     case 7:
+      return 'Logout';
+    case 8:
       return 'Settings';
     default:
       return 'Not found page';

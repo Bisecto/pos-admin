@@ -54,7 +54,7 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
       }).toList();
 
       // Debug statement to check if filteredBrands is being updated
-      print("Filtered categories: ${filteredBrands.length}dgdghb");
+      print("Filtered brands: ${filteredBrands.length}dgdghb");
     });
   }
 
@@ -150,9 +150,9 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
             //     child: CircularProgressIndicator(),
             //   );
               case GetBrandSuccessState:
-                final getCategories = state as GetBrandSuccessState;
-                //print(getCategories.BrandList);
-                allBrands = getCategories.brandList;
+                final getBrands = state as GetBrandSuccessState;
+                //print(getBrands.BrandList);
+                allBrands = getBrands.brandList;
                 filteredBrands = allBrands.where((brand) {
                   final matchesSearch =
                       searchTextEditingController.text.isEmpty ||
@@ -163,9 +163,9 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
                 }).toList();
 
                 // Debug statement to check if filteredBrands is being updated
-                print("Filtered categories: ${filteredBrands.length}dgdghb");
-                print('All Categories: ${allBrands.length}');
-                print('Filtered Categories: ${filteredBrands.length}');
+                print("Filtered brands: ${filteredBrands.length}dgdghb");
+                print('All Brands: ${allBrands.length}');
+                print('Filtered Brands: ${filteredBrands.length}');
 
                 return Container(
                   //height: 200,
@@ -183,7 +183,7 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
                                   children: [
                                     if (!isSmallScreen)
                                       TextStyles.textHeadings(
-                                        textValue: "Categories",
+                                        textValue: "Brands",
                                         textSize: 25,
                                         textColor: AppColors.white,
                                       ),
@@ -241,7 +241,7 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          if (getCategories.brandList.isEmpty)
+                          if (getBrands.brandList.isEmpty)
                             const Center(
                               child: CustomText(
                                 text: "No Brands have been added yet.",
@@ -251,7 +251,7 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
                                 size: 12,
                               ),
                             ),
-                          if (getCategories.brandList.isNotEmpty)
+                          if (getBrands.brandList.isNotEmpty)
 
                             BrandTableScreen(
                               brandList:
