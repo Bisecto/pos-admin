@@ -22,7 +22,8 @@ class CreateNewUser extends StatefulWidget {
   TenantModel tenantModel;
   UserModel userModel;
 
-   CreateNewUser({super.key,required this.tenantModel,required this.userModel});
+  CreateNewUser(
+      {super.key, required this.tenantModel, required this.userModel});
 
   @override
   State<CreateNewUser> createState() => _CreateNewUserState();
@@ -31,18 +32,20 @@ class CreateNewUser extends StatefulWidget {
 class _CreateNewUserState extends State<CreateNewUser> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final  fullNameController = TextEditingController();
-  final  phoneController = TextEditingController();
-  final  roleController = TextEditingController();
+  final fullNameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final roleController = TextEditingController();
   final AuthBloc authBloc = AuthBloc();
-@override
+
+  @override
   void initState() {
     // TODO: implement initState
-   Firebase.initializeApp(
-    options: DefaultFirebaseOptions.android,
-  );
+    Firebase.initializeApp(
+      options: DefaultFirebaseOptions.android,
+    );
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,7 +107,8 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                         label: 'Email Address',
                                         width: 250,
                                         hint: 'Enter email address',
-                                        validator: AppValidator.validateTextfield,
+                                        validator:
+                                            AppValidator.validateTextfield,
                                       ),
                                       SizedBox(height: 10),
                                       CustomTextFormField(
@@ -112,7 +116,8 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                         label: 'Full name',
                                         width: 250,
                                         hint: 'Enter full name',
-                                        validator: AppValidator.validateTextfield,
+                                        validator:
+                                            AppValidator.validateTextfield,
                                       ),
                                       SizedBox(height: 10),
                                       CustomTextFormField(
@@ -121,7 +126,8 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                         width: 250,
                                         hint: 'Enter phone number of user',
                                         textInputType: TextInputType.number,
-                                        validator: AppValidator.validateTextfield,
+                                        validator:
+                                            AppValidator.validateTextfield,
                                       ),
                                       SizedBox(height: 10),
                                       DropDown(
@@ -130,36 +136,60 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                         borderRadius: 10,
                                         hint: "Select role of user",
                                         selectedValue: roleController.text,
-                                        items: const ['Manager', "Admin", "Attendant","Cashier","Chef","Bartender"],
+                                        items: widget.userModel.role
+                                                    .toLowerCase() ==
+                                                'admin'
+                                            ? const [
+                                                'Manager',
+                                                "Admin",
+                                                "Attendant",
+                                                "Cashier",
+                                                "Chef",
+                                                "Bartender"
+                                              ]
+                                            : const [
+                                                "Attendant",
+                                                "Cashier",
+                                                "Chef",
+                                                "Bartender"
+                                              ],
                                         onChanged: (value) {
                                           roleController.text = value;
                                         },
                                       ),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [FormButton(
-                                          onPressed: () {
-                                           // Navigator.of(context).pop();
-                                          },
-                                          bgColor: AppColors.red,
-                                          textColor: AppColors.white,
-                                          width: 120,
-                                          text: "Discard",
-                                          iconWidget: Icons.clear,
-                                          borderRadius: 20,
-                                        ),
-                                          SizedBox(width: 20,),
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
                                           FormButton(
                                             onPressed: () {
-                                              if (_formKey.currentState!.validate()) {
+                                              // Navigator.of(context).pop();
+                                            },
+                                            bgColor: AppColors.red,
+                                            textColor: AppColors.white,
+                                            width: 120,
+                                            text: "Discard",
+                                            iconWidget: Icons.clear,
+                                            borderRadius: 20,
+                                          ),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                          FormButton(
+                                            onPressed: () {
+                                              if (_formKey.currentState!
+                                                  .validate()) {
                                                 setState(() {
-                                                  authBloc.add(CreateUserRoleEventClick(
-                                                      _emailController.text,
+                                                  authBloc.add(
+                                                      CreateUserRoleEventClick(
+                                                    _emailController.text,
                                                     widget.userModel.tenantId,
-                                                      phoneController.text,
-                                                      'imageUrl',
-                                                      fullNameController.text,
-                                                      roleController.text,'Qwerty123@',widget.tenantModel,
+                                                    phoneController.text,
+                                                    'imageUrl',
+                                                    fullNameController.text,
+                                                    roleController.text,
+                                                    'Qwerty123@',
+                                                    widget.tenantModel,
                                                   ));
                                                 });
                                               }
@@ -170,12 +200,14 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                             textColor: AppColors.white,
                                             width: 120,
                                             borderRadius: 20,
-                                          ),],
+                                          ),
+                                        ],
                                       ),
                                       SizedBox(height: 10),
                                     ],
                                   ),
-                                ),                                const SizedBox(
+                                ),
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],

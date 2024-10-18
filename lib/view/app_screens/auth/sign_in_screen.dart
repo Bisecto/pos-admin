@@ -102,7 +102,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                         hint:
                                             'Please enter Email',
                                         label: 'Email',
-                                        borderColor: AppColors.purple,
+                                        borderColor: AppColors.darkYellow,
                                         controller: _emailController,
                                         backgroundColor: AppColors
                                             .darkModeBackgroundContainerColor,
@@ -117,7 +117,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                       CustomTextFormField(
                                         label: 'Password',
                                         isPasswordField: true,
-                                        borderColor: AppColors.purple,
+                                        borderColor: AppColors.darkYellow,
                                         backgroundColor: AppColors
                                             .darkModeBackgroundContainerColor,
                                         validator:
@@ -188,8 +188,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                           }
                                         },
                                         text: 'Login',
-                                        borderColor: AppColors.purple,
-                                        bgColor: AppColors.purple,
+                                        borderColor: AppColors.darkYellow,
+                                        bgColor: AppColors.darkYellow,
                                         textColor: AppColors.white,
                                         borderRadius: 10,
                                         width: 250,

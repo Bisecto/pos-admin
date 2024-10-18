@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../utills/enums/order_status_enums.dart';
 
-
 class OrderModel {
   final List<OrderProduct> products;
   final String createdBy;
+  String orderCode;
+  String orderTo;
+  String tableNo;
   final String updatedBy;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -14,6 +16,9 @@ class OrderModel {
   OrderModel({
     required this.products,
     required this.createdBy,
+    required this.orderCode,
+    required this.tableNo,
+    required this.orderTo,
     required this.updatedBy,
     required this.createdAt,
     required this.updatedAt,
@@ -31,6 +36,9 @@ class OrderModel {
       createdBy: json['createdBy'],
       updatedBy: json['updatedBy'],
       status: OrderStatus.values[json['status']],
+      orderCode: 'orderCode',
+      tableNo: 'tableNo',
+      orderTo: 'orderTo',
     );
   }
 
@@ -42,7 +50,10 @@ class OrderModel {
       'updatedAt': updatedAt,
       'updatedBy': updatedBy,
       'createdBy': createdBy,
-      'status': status.index, // Save status as integer
+      'status': status.index,
+      'orderCode': orderCode,
+      'orderTo': orderTo,
+      'tableNo': tableNo,
     };
   }
 }

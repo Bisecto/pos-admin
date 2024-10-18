@@ -349,7 +349,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                       height: 45,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: AppColors.purple),
+                          color: AppColors.darkYellow),
                       child: const Padding(
                         padding: EdgeInsets.all(0.0),
                         child: Row(
@@ -457,7 +457,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                   height: 45,
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(20),
-                                      color: AppColors.purple),
+                                      color: AppColors.darkYellow),
                                   child: const Padding(
                                     padding: EdgeInsets.all(0.0),
                                     child: Row(

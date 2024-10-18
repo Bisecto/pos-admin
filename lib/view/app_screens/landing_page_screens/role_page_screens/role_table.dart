@@ -91,7 +91,7 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     borderRadius: 10,
                     hint: "Select role of user",
                     selectedValue: roleController.text,
-                    items: const ['Manager', "Admin", "Registerer"],
+                    items:widget.userModel.role.toLowerCase()=='admin'? const ['Manager', "Admin", "Registerer"]:const ['Manager', "Registerer"],
                     onChanged: (value) {
                       roleController.text = value;
                     },

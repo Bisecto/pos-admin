@@ -65,7 +65,7 @@ class _PageSelectorState extends State<PageSelector> {
                   );
                 case 4:
                   return OrderManagementPage(
-                    tenantId: widget.userModel.tenantId,
+                    tenantId: widget.userModel.tenantId, tenantModel: widget.tenantModel,
                   );
                 case 5:
                   return MainUserScreen(

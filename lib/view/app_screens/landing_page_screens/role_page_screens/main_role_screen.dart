@@ -207,7 +207,7 @@ class _MainUserScreenState extends State<MainUserScreen> {
                       height: 45,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: AppColors.purple),
+                          color: AppColors.darkYellow),
                       child: const Padding(
                         padding: EdgeInsets.all(0.0),
                         child: Row(

@@ -25,7 +25,7 @@ class AppColors {
 
 //light colors
   static const Color appBarMainColor = Color(0xffF3FFEB);
-  static const Color purple = Color(0xffFFA02E);
+  static const Color darkYellow = Color(0xffFFA02E);
   static const Color lightPurple = Color(0xffEED3F9);
   static const Color orange = Color(0xffFFA02E);
   static const Color lightOrange = Color(0xffFFF3D5);

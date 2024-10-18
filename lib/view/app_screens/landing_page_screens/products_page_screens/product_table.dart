@@ -183,7 +183,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                         context, "Discount cannot be greater than 100.");
                   } else {
                     Product newProduct = Product(
-                      productName: productNameController.text,
+                      productName: productNameController.text.toLowerCase(),
                       updatedBy: userId,
                       createdAt: widget.productList[index].createdAt,
                       updatedAt: Timestamp.fromDate(DateTime.now()),

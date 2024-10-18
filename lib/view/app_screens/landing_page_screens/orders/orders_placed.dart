@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
@@ -8,15 +9,18 @@ import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../../model/order_model.dart';
+import '../../../../model/tenant_model.dart';
 import '../../../../res/app_colors.dart';
+import '../../../../res/app_images.dart';
 import '../../../../utills/enums/order_status_enums.dart';
 import '../../../widgets/app_custom_text.dart';
 import '../../../widgets/form_button.dart';
 
 class OrderManagementPage extends StatefulWidget {
   final String tenantId;
+  final TenantModel tenantModel;
 
-  OrderManagementPage({required this.tenantId});
+  OrderManagementPage({required this.tenantId, required this.tenantModel});
 
   @override
   _OrderManagementPageState createState() => _OrderManagementPageState();
@@ -30,7 +34,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> filteredOrders = [];
   int currentPage = 0;
   final int rowsPerPage = 10; // Number of rows per page
-  late int totalPages=0;
+  late int totalPages = 0;
 
   @override
   void initState() {
@@ -70,6 +74,10 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         dateRange = newRange;
       });
     }
+  }
+
+  double calculateTax(double totalPrice, double taxRate) {
+    return totalPrice * taxRate;
   }
 
   String getStatusText(int statusIndex) {
@@ -145,18 +153,39 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                headingRowColor: MaterialStateProperty.all<Color>(AppColors.purple),
+                headingRowColor:
+                    MaterialStateProperty.all<Color>(AppColors.darkYellow),
                 columns: [
                   DataColumn(
                     label: Container(
                       padding: EdgeInsets.all(8.0),
-                      child: CustomText(text: 'Order ID', color: AppColors.white),
+                      child:
+                          CustomText(text: 'Order No', color: AppColors.white),
+                    ),
+                  ),DataColumn(
+                    label: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child:
+                          CustomText(text: 'Sent To', color: AppColors.white),
+                    ),
+                  ),DataColumn(
+                    label: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child:
+                          CustomText(text: 'Table No', color: AppColors.white),
                     ),
                   ),
                   DataColumn(
                     label: Container(
                       padding: EdgeInsets.all(8.0),
-                      child: CustomText(text: 'Created At', color: AppColors.white),
+                      child: CustomText(
+                          text: 'Created At', color: AppColors.white),
+                    ),
+                  ), DataColumn(
+                    label: Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: CustomText(
+                          text: 'Updated At', color: AppColors.white),
                     ),
                   ),
                   DataColumn(
@@ -168,7 +197,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   DataColumn(
                     label: Container(
                       padding: EdgeInsets.all(8.0),
-                      child: CustomText(text: 'Actions', color: AppColors.white),
+                      child:
+                          CustomText(text: 'Actions', color: AppColors.white),
                     ),
                   ),
                 ],
@@ -178,21 +208,34 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   final orderData = orderDoc.data();
                   final orderId = orderDoc.id;
                   final createdAt =
-                  (orderData['createdAt'] as Timestamp).toDate();
+                      (orderData['createdAt'] as Timestamp).toDate();
                   final statusIndex = orderData['status'] as int;
 
                   return DataRow(
                     color: MaterialStateProperty.resolveWith<Color?>(
-                            (Set<MaterialState> states) {
-                          return states.contains(MaterialState.selected)
-                              ? Colors.purple.withOpacity(0.08)
-                              : null; // Use default value for unselected rows
-                        }),
+                        (Set<MaterialState> states) {
+                      return states.contains(MaterialState.selected)
+                          ? Colors.purple.withOpacity(0.08)
+                          : null; // Use default value for unselected rows
+                    }),
                     cells: [
                       DataCell(
                         Container(
                           padding: EdgeInsets.all(8.0),
-                          child: CustomText(text: orderId, color: AppColors.white),
+                          child:
+                              CustomText(text: orderData['orderCode'], color: AppColors.white),
+                        ),
+                      ),DataCell(
+                        Container(
+                          padding: EdgeInsets.all(8.0),
+                          child:
+                              CustomText(text: orderData['orderTo'], color: AppColors.white),
+                        ),
+                      ), DataCell(
+                        Container(
+                          padding: EdgeInsets.all(8.0),
+                          child:
+                              CustomText(text: orderData['tableNo'], color: AppColors.white),
                         ),
                       ),
                       DataCell(
@@ -200,6 +243,13 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                           padding: EdgeInsets.all(8.0),
                           child: CustomText(
                               text: formatDate(orderData['createdAt']),
+                              color: AppColors.white),
+                        ),
+                      ),DataCell(
+                        Container(
+                          padding: EdgeInsets.all(8.0),
+                          child: CustomText(
+                              text: formatDate(orderData['updatedAt']),
                               color: AppColors.white),
                         ),
                       ),
@@ -222,20 +272,20 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                             //   },
                             //   tooltip: 'Edit Order',
                             // ),
-                           // if (getStatusText(statusIndex).toLowerCase() != 'pending')
-                              FormButton(
-                                onPressed: () async {
-                                  await fetchOrderDetails(orderId);
-                                  showEditPopup(context, orderId);
-                                  // await fetchOrderDetails(orderId);
-                                  // _printReceipt();
-                                },
-                                text: "View Receipt",
-                                bgColor: AppColors.purple,
-                                width: 150,
-                                textColor: AppColors.white,
-                                borderRadius:10,
-                              ),
+                            // if (getStatusText(statusIndex).toLowerCase() != 'pending')
+                            FormButton(
+                              onPressed: () async {
+                                await fetchOrderDetails(orderId);
+                                showEditPopup(context, orderId);
+                                // await fetchOrderDetails(orderId);
+                                // _printReceipt();
+                              },
+                              text: "View Receipt",
+                              bgColor: AppColors.darkYellow,
+                              width: 150,
+                              textColor: AppColors.white,
+                              borderRadius: 10,
+                            ),
                           ],
                         ),
                       ),
@@ -282,48 +332,63 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
   Future<pw.Document> _generateReceipt() async {
     final pdf = pw.Document();
-
+    final ByteData qrCodeBytes = await rootBundle.load(AppImages.companyLogo);
+    final Uint8List companyImage = qrCodeBytes.buffer.asUint8List();
     pdf.addPage(
       pw.Page(
         pageFormat: const PdfPageFormat(58 * PdfPageFormat.mm, double.infinity),
         build: (context) {
           return pw.Padding(
             padding: const pw.EdgeInsets.all(5),
-            // Reduced padding to fit content
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Center(
-                  child: pw.Text(
-                    'Cash Receipt',
-                    style: pw.TextStyle(
-                      fontSize: 6,
-                      fontWeight: pw.FontWeight.bold,
-                      font: pw.Font.courier(),
-                    ),
-                  ),
+                  child: pw.Image(pw.MemoryImage(companyImage),
+                      //width: double.infinity,
+                      //fit: pw.BoxFit.fill,
+                      height: 20),
                 ),
+                // pw.Center(
+                //   child: pw.Text(
+                //     'Checkpoint Abuja',
+                //     style: pw.TextStyle(
+                //       fontSize: 6,
+                //       fontWeight: pw.FontWeight.bold,
+                //       font: pw.Font.courier(),
+                //     ),
+                //   ),
+                // ),
+
+                pw.SizedBox(height: 3),
                 pw.Center(
                   child: pw.Text(
-                    'Checkpoint Abuja',
+                      '${widget.tenantModel.address.streetAddress} ${widget.tenantModel.address.city}, \n${widget.tenantModel.address.state}, ${widget.tenantModel.address.country}',
+                      style: pw.TextStyle(
+                        fontSize: 4,
+                        font: pw.Font.courier(),
+                      ),
+                      textAlign: pw.TextAlign.center,
+                      maxLines: 5),
+                ),
+                pw.SizedBox(height: 1),
+                pw.Center(
+                  child: pw.Text(
+                    'Tel: ${widget.tenantModel.businessPhoneNumber}',
                     style: pw.TextStyle(
-                      fontSize: 6,
-                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 4,
                       font: pw.Font.courier(),
                     ),
                   ),
                 ),
-                pw.SizedBox(height: 3),
-                // pw.Text('Order Status: $selectedStatus',
-                //     style: pw.TextStyle(fontSize: 6, font: pw.Font.courier())),
-                pw.SizedBox(height: 3),
+                pw.SizedBox(height: 2),
                 pw.Divider(),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Row(children: [
                       pw.Container(
-                        width: 10, // Fixed width for "QTY"
+                        width: 10,
                         child: pw.Text(
                           "QTY",
                           style: pw.TextStyle(
@@ -334,7 +399,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                         ),
                       ),
                       pw.Container(
-                        width: 27, // Fixed width for "Description"
+                        width: 27,
                         child: pw.Text(
                           "Description",
                           style: pw.TextStyle(
@@ -347,7 +412,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     ]),
                     pw.Row(children: [
                       pw.Container(
-                        width: 20, // Fixed width for "Price"
+                        width: 20,
                         child: pw.Text(
                           "Price",
                           style: pw.TextStyle(
@@ -359,7 +424,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       ),
                       pw.SizedBox(width: 5),
                       pw.Container(
-                        width: 20, // Fixed width for "Total"
+                        width: 20,
                         child: pw.Text(
                           "Total",
                           style: pw.TextStyle(
@@ -372,7 +437,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     ])
                   ],
                 ),
-                pw.SizedBox(height: 5),
+                pw.SizedBox(height: 1),
                 pw.ListView.builder(
                   itemCount: products.length,
                   itemBuilder: (context, index) {
@@ -384,7 +449,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                         children: [
                           pw.Row(children: [
                             pw.Container(
-                              width: 10, // Fixed width for quantity
+                              width: 10,
                               child: pw.Text(
                                 product.quantity.toString(),
                                 style: pw.TextStyle(
@@ -394,7 +459,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                               ),
                             ),
                             pw.Container(
-                              width: 27, // Fixed width for product name
+                              width: 27,
                               child: pw.Text(
                                 product.productName,
                                 style: pw.TextStyle(
@@ -406,7 +471,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                           ]),
                           pw.Row(children: [
                             pw.Container(
-                              width: 20, // Fixed width for price
+                              width: 20,
                               child: pw.Text(
                                 '${product.price.toStringAsFixed(2)}',
                                 style: pw.TextStyle(
@@ -417,7 +482,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                             ),
                             pw.SizedBox(width: 5),
                             pw.Container(
-                              width: 20, // Fixed width for total price
+                              width: 20,
                               child: pw.Text(
                                 '${(product.price * product.quantity).toStringAsFixed(2)}',
                                 style: pw.TextStyle(
@@ -434,45 +499,70 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                 ),
                 pw.Divider(),
                 pw.SizedBox(height: 3),
+
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Total Price:',
-                        style:
-                            pw.TextStyle(fontSize: 6, font: pw.Font.courier())),
-                    pw.Text('${calculateTotalOrderPrice().toStringAsFixed(2)}',
-                        style:
-                            pw.TextStyle(fontSize: 6, font: pw.Font.courier())),
+                    pw.Text('Subtotal:', style: pw.TextStyle(fontSize: 4)),
+                    pw.Text(
+                        'NGN ${calculateTotalOrderPrice().toStringAsFixed(2)}',
+                        style: pw.TextStyle(fontSize: 4)),
                   ],
                 ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Amount to Pay:',
-                        style:
-                            pw.TextStyle(fontSize: 6, font: pw.Font.courier())),
-                    pw.Text('${calculateAmtToPay().toStringAsFixed(2)}',
-                        style:
-                            pw.TextStyle(fontSize: 6, font: pw.Font.courier())),
+                    pw.Text('Discounted price:',
+                        style: pw.TextStyle(fontSize: 4)),
+                    pw.Text('NGN ${calculateAmtToPay().toStringAsFixed(2)}',
+                        style: pw.TextStyle(fontSize: 4)),
                   ],
                 ),
-                pw.SizedBox(height: 10),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('VAT(${widget.tenantModel.vat}%):',
+                        style: pw.TextStyle(fontSize: 4)),
+                    pw.Text(
+                        'NGN ${calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100).toStringAsFixed(2)}',
+                        style: pw.TextStyle(fontSize: 4)),
+                  ],
+                ),
+                // pw.Row(
+                //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     pw.Text('Payment Method:',
+                //         style: pw.TextStyle(fontSize: 4)),
+                //     pw.Text('Cash/Card', style: pw.TextStyle(fontSize: 4)),
+                //   ],
+                // ),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Total:', style: pw.TextStyle(fontSize: 5)),
+                    pw.Text(
+                        'NGN ${(calculateAmtToPay() + calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100)).toStringAsFixed(2)}',
+                        style: pw.TextStyle(fontSize: 5)),
+                  ],
+                ),
+
+                pw.SizedBox(height: 5),
                 pw.Center(
                   child: pw.Text(
-                    'Thank you for shopping!',
+                    '* Thank you *',
                     style: pw.TextStyle(
-                      fontSize: 6,
+                      fontSize: 4,
                       fontStyle: pw.FontStyle.italic,
                       font: pw.Font.courier(),
                     ),
                   ),
                 ),
-                pw.SizedBox(height: 5),
+                //pw.SizedBox(height: 5),
                 pw.Center(
                   child: pw.Text(
                     'Visit us again!',
                     style: pw.TextStyle(
-                      fontSize: 6,
+                      fontSize: 4,
                       fontStyle: pw.FontStyle.italic,
                       font: pw.Font.courier(),
                     ),
@@ -486,7 +576,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     );
 
     return pdf;
-  } // Function to print the receipt
+  }
 
   Future<void> _printReceipt() async {
     final pdf = await _generateReceipt();
@@ -731,29 +821,49 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Total Order Price",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      Text('Subtotal:', style: TextStyle(fontSize: 14)),
                       Text(
-                        "₦${calculateTotalOrderPrice().toStringAsFixed(2)}",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                          'NGN ${calculateTotalOrderPrice().toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 14)),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Amount To Pay",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        "₦${(calculateAmtToPay().toStringAsFixed(2))}",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      Text('Discounted price:',
+                          style: TextStyle(fontSize: 14)),
+                      Text('NGN ${calculateAmtToPay().toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 14)),
                     ],
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('VAT(${widget.tenantModel.vat}%):',
+                          style: TextStyle(fontSize: 14)),
+                      Text(
+                          'NGN ${calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100).toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Text('Payment Method:',
+                  //         style: TextStyle(fontSize: 14)),
+                  //     Text('Cash/Card', style: TextStyle(fontSize: 14)),
+                  //   ],
+                  // ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Total:', style: TextStyle(fontSize: 15)),
+                      Text(
+                          'NGN ${(calculateAmtToPay() + calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100)).toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 15)),
+                    ],
+                  ),
+
                   const SizedBox(height: 10),
                 ]
               ],

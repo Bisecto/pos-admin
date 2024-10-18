@@ -9,6 +9,7 @@ class TenantModel {
   String businessType;
   String email;
   String logoUrl;
+  double vat;
   Timestamp createdAt;
   Timestamp updatedAt;
   Address address;
@@ -20,6 +21,7 @@ class TenantModel {
     required this.businessType,
     required this.email,
     required this.logoUrl,
+    required this.vat,
     required this.createdAt,
     required this.updatedAt,
     required this.address,
@@ -36,6 +38,7 @@ class TenantModel {
       businessType: data['businessType'],
       email: data['email'],
       logoUrl: data['logoUrl'] ?? '',
+      vat: double.parse(data['vat'].toString()) ,
       createdAt: data['createdAt'],
       updatedAt: data['updateAt'],
       address: Address.fromFirestore(data['address']),
@@ -56,6 +59,7 @@ class TenantModel {
       'businessType': businessType,
       'email': email,
       'logoUrl': logoUrl,
+      'vat': vat,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'address': address.toFirestore(),

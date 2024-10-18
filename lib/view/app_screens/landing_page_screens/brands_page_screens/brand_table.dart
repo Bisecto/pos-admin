@@ -230,7 +230,7 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                   scrollDirection: Axis.vertical,  // Allow vertical scrolling
                   child: DataTable(
                     decoration: BoxDecoration(
-                      color: AppColors.purple,
+                      color: AppColors.darkYellow,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     columns: const [

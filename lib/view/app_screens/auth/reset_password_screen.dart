@@ -89,7 +89,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                       CustomTextFormField(
                                         hint: 'Please enter Email',
                                         label: 'Email',
-                                        borderColor: AppColors.purple,
+                                        borderColor: AppColors.darkYellow,
                                         controller: _emailController,
                                         backgroundColor: AppColors
                                             .darkModeBackgroundContainerColor,
@@ -115,8 +115,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                                           }
                                         },
                                         text: 'Login',
-                                        borderColor: AppColors.purple,
-                                        bgColor: AppColors.purple,
+                                        borderColor: AppColors.darkYellow,
+                                        bgColor: AppColors.darkYellow,
                                         textColor: AppColors.white,
                                         borderRadius: 10,
                                         width: 250,

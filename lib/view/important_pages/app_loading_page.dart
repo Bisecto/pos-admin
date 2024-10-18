@@ -30,7 +30,7 @@ class AppLoadingPage extends StatelessWidget {
                   height: 70,
                   child: Center(
                       child: LoadingAnimationWidget.staggeredDotsWave(
-                        color: AppColors.purple,
+                        color: AppColors.darkYellow,
                         size: 100,
                       )),
                 ),
@@ -38,7 +38,7 @@ class AppLoadingPage extends StatelessWidget {
 
                 DefaultTextStyle(
                   style: const TextStyle(
-                      color: AppColors.purple,
+                      color: AppColors.darkYellow,
                       fontFamily: 'Roboto',
                       backgroundColor: Colors.transparent,
                       fontSize: 15),
