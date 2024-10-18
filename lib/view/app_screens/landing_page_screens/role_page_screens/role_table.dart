@@ -180,7 +180,7 @@ class _UserTableScreenState extends State<UserTableScreen> {
                 await FirebaseFirestore.instance
                     .collection('Users')
                     .doc(widget.userList[index].userId)
-                    .update({"isActive": false});
+                    .update({"accountStatus": false});
 
                 print('User deleted');
                 Navigator.of(context).pop();
