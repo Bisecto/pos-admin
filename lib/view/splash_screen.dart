@@ -45,10 +45,10 @@ class _SplashScreenState extends State<SplashScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                TextStyles.textHeadings(
-                    textValue: "CHECKPOINT ADMIN POS",
-                    textSize: 20,
-                    textColor: AppColors.white)
+                // TextStyles.textHeadings(
+                //     textValue: "CHECKPOINT ADMIN POS",
+                //     textSize: 20,
+                //     textColor: AppColors.white)
               ],
             ),
           ),
