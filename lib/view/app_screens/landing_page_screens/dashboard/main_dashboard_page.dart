@@ -22,7 +22,7 @@ class Dashboard extends StatelessWidget {
             children: [
               SizedBox(height: 20),
 
-              MetricsOverview(tenantId: tenantId),
+              MetricsOverview(tenantId: tenantId, ),
               // Fetch and display metrics
               SizedBox(height: 20),
               DashboardCharts(tenantId: tenantId),
