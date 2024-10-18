@@ -3,4 +3,5 @@ enum OrderStatus {
   foodServed,
   paymentMade,
   completed,
+  canceled,
 }
