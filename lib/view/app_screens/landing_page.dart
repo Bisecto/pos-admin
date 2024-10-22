@@ -53,7 +53,7 @@ class _LandingPageState extends State<LandingPage> {
     super.initState();
   }
   getPt() async {
-    pt = await SharedPref.getString('password_ha#64647');
+    pt = await SharedPref.getString('password');
     print(pt);
     if (pt == 'Qwerty123@') {
       showEditPopup(context);
