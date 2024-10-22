@@ -289,6 +289,9 @@ class ExampleSidebarX extends StatelessWidget {
               const SidebarXItem(
                 icon: Icons.person,
                 label: 'Profile',
+              ),const SidebarXItem(
+                icon: Icons.settings,
+                label: 'Settings',
               ),
               SidebarXItem(
                 icon: Icons.logout,
@@ -336,9 +339,10 @@ String _getTitleByIndex(int index) {
     case 6:
       return 'Profile';
     case 7:
-      return 'Logout';
-    case 8:
       return 'Settings';
+    case 8:
+      return 'Logout';
+
     default:
       return 'Not found page';
   }
