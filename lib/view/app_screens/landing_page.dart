@@ -22,6 +22,7 @@ import '../../../utills/app_utils.dart';
 import '../../../utills/custom_theme.dart';
 import '../../../utills/enums/toast_mesage.dart';
 import '../../../utills/shared_preferences.dart';
+import '../widgets/app_custom_text.dart';
 
 class LandingPage extends StatefulWidget {
   TenantModel tenantModel;
@@ -39,18 +40,76 @@ class _LandingPageState extends State<LandingPage> {
 
   StreamSubscription<ConnectivityStatus>? _connectivitySubscription;
   bool isNotification = false;
+  String pt='';
 
   @override
   void initState() {
     // TODO: implement initState
-
+    getPt();
     // _checkConnectivity();
     // _connectivitySubscription =
     //     Connectivity().onConnectivityChanged.listen(_handleConnectivity);
 
     super.initState();
   }
+  getPt() async {
+    pt = await SharedPref.getString('password_ha#64647');
+    print(pt);
+    if (pt == 'Qwerty123@') {
+      showEditPopup(context);
+      //print("Change password");
+    }
+  }
 
+  void showEditPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                const BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Change password',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                CustomText(
+                  text: "You are mandated to change your password",
+                  maxLines: 3,
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
   // Future<void> _checkConnectivity() async {
   //   var connectivityResult = await Connectivity().checkConnectivity();
   //   _handleConnectivity(connectivityResult);
