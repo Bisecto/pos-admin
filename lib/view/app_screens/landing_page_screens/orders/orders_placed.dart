@@ -264,14 +264,14 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       DataCell(
                         Row(
                           children: [
-                            // IconButton(
-                            //   icon: Icon(Icons.edit, color: AppColors.purple),
-                            //   onPressed: () async {
-                            //     await fetchOrderDetails(orderId);
-                            //     showEditPopup(context, orderId);
-                            //   },
-                            //   tooltip: 'Edit Order',
-                            // ),
+                            IconButton(
+                              icon: Icon(Icons.edit, color: AppColors.darkYellow),
+                              onPressed: () async {
+                                await fetchOrderDetails(orderId);
+                                showEditPopup(context, orderId);
+                              },
+                              tooltip: 'Edit Order',
+                            ),
                             // if (getStatusText(statusIndex).toLowerCase() != 'pending')
                             FormButton(
                               onPressed: () async {
@@ -594,9 +594,11 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   bool isContainerExpanded = true;
   final List<String> statusOptions = [
     'Pending',
-    'Payment Made',
     'Food Served',
+    'Payment Made',
     'Order Completed',
+    'Canceled',
+
   ];
 
   Future<void> fetchOrderDetails(orderId) async {
@@ -721,12 +723,17 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (newStatus) {
-                    // setState(() {
-                    //   selectedStatus = newStatus!;
-                    // });
-                    // updateOrderStatus(selectedStatus, orderId);
+                    setState(() {
+                      selectedStatus = newStatus!;
+                    });
+                    updateOrderStatus(selectedStatus, orderId);
                   },
-                  items: [],
+                  items:  statusOptions.map((status) {
+                    return DropdownMenuItem(
+                      value: status,
+                      child: Text(status),
+                    );
+                  }).toList(),
                 ),
                 const SizedBox(height: 5),
                 AnimatedContainer(
