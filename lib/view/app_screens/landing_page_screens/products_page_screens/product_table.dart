@@ -21,7 +21,8 @@ class ProductTableScreen extends StatefulWidget {
   ProductTableScreen(
       {required this.productList,
       required this.brandList,
-      required this.categoryList,required this.userModel});
+      required this.categoryList,
+      required this.userModel});
 
   @override
   _ProductTableScreenState createState() => _ProductTableScreenState();
@@ -30,6 +31,7 @@ class ProductTableScreen extends StatefulWidget {
 class _ProductTableScreenState extends State<ProductTableScreen> {
   int rowsPerPage = 10;
   int currentPage = 1;
+
   int get totalItems => widget.productList.length;
 
   String? _getBrandName(String brandId) {
@@ -68,8 +70,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
     productNameController.text = widget.productList[index].productName;
     skuController.text = widget.productList[index].sku;
     priceController.text = widget.productList[index].price.toString();
-    discountController.text =
-        widget.productList[index].discount.toString();
+    discountController.text = widget.productList[index].discount.toString();
 
     showDialog(
       context: context,
@@ -196,10 +197,12 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                       price: double.parse(priceController.text.toString()),
                       sku: skuController.text,
                       discount: double.parse(discountController.text),
+                      productType: widget.productList[index].productType,
                     );
                     FirebaseFirestore.instance
                         .collection('Enrolled Entities')
-                        .doc(widget.userModel.tenantId) // Replace with tenant ID
+                        .doc(
+                            widget.userModel.tenantId) // Replace with tenant ID
                         .collection('Products')
                         .doc(widget.productList[index].productId)
                         .update(newProduct.toFirestore());
@@ -274,18 +277,20 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
   Widget build(BuildContext context) {
     return Container(
       height: AppUtils.deviceScreenSize(context).height - 200,
-
       child: Column(
         children: [
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+                  scrollDirection: Axis.horizontal,
+                  // Enable horizontal scrolling
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: constraints.maxWidth), // Ensure it uses available width
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                    // Ensure it uses available width
                     child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical, // Enable vertical scrolling
+                      scrollDirection: Axis.vertical,
+                      // Enable vertical scrolling
                       child: DataTable(
                         columns: const [
                           // DataColumn(
@@ -294,48 +299,64 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                               label: Text('PRODUCT NAME',
                                   style: TextStyle(color: Colors.white))),
                           DataColumn(
-                              label: Text('BRAND', style: TextStyle(color: Colors.white))),
+                              label: Text('BRAND',
+                                  style: TextStyle(color: Colors.white))),
                           DataColumn(
                               label: Text('CATEGORY',
                                   style: TextStyle(color: Colors.white))),
                           DataColumn(
-                              label: Text('SKU', style: TextStyle(color: Colors.white))),
+                              label: Text('SKU',
+                                  style: TextStyle(color: Colors.white))),
                           DataColumn(
-                              label: Text('PRICE', style: TextStyle(color: Colors.white))),
+                              label: Text('PRICE',
+                                  style: TextStyle(color: Colors.white))),
                           DataColumn(
-                              label: Text('Discount(%)', style: TextStyle(color: Colors.white))),
+                              label: Text('Discount(%)',
+                                  style: TextStyle(color: Colors.white))),
                           DataColumn(
-                              label: Text('ACTIONS', style: TextStyle(color: Colors.white))),
+                              label: Text('ACTIONS',
+                                  style: TextStyle(color: Colors.white))),
                         ],
                         rows: List.generate(paginatedProducts.length, (index) {
-                          final productIndex = (currentPage - 1) * rowsPerPage + index;
+                          final productIndex =
+                              (currentPage - 1) * rowsPerPage + index;
                           return DataRow(cells: [
                             // DataCell(Text((index + 1).toString(),
                             //     style: const TextStyle(color: Colors.white))),
                             DataCell(Text(paginatedProducts[index].productName,
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Text(
-                                _getBrandName(paginatedProducts[index].brandId ?? '') ?? '',
+                                _getBrandName(
+                                        paginatedProducts[index].brandId ??
+                                            '') ??
+                                    '',
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Text(
-                                _getCategoryName(paginatedProducts[index].categoryId ?? '') ?? '',
+                                _getCategoryName(
+                                        paginatedProducts[index].categoryId ??
+                                            '') ??
+                                    '',
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Text(paginatedProducts[index].sku,
                                 style: const TextStyle(color: Colors.white))),
-                            DataCell(Text(paginatedProducts[index].price.toString(),
+                            DataCell(Text(
+                                paginatedProducts[index].price.toString(),
                                 style: const TextStyle(color: Colors.white))),
-                            DataCell(Text(paginatedProducts[index].discount.toString(),
+                            DataCell(Text(
+                                paginatedProducts[index].discount.toString(),
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Row(
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.blue),
                                   onPressed: () {
                                     _editProduct(productIndex);
                                   },
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
                                   onPressed: () {
                                     _deleteProduct(productIndex,
                                         paginatedProducts[index].productId);
@@ -360,7 +381,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 (totalItems / rowsPerPage).ceil(),
-                    (index) => GestureDetector(
+                (index) => GestureDetector(
                   onTap: () {
                     setState(() {
                       currentPage = index + 1;
@@ -388,7 +409,6 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
               ),
             ),
           ),
-
         ],
       ),
     );

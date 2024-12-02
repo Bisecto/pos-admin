@@ -5,6 +5,7 @@ import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/main_d
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/main_product_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/role_page_screens/main_role_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/settings/settings_page.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/tables_page_screen/main_table_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/tenant_profile/tenant_profile.dart';
 import 'package:sidebarx/sidebarx.dart';
 
@@ -65,6 +66,9 @@ class _PageSelectorState extends State<PageSelector> {
                     userModel: widget.userModel,
                   );
                 case 4:
+                  return MainTableScreen(
+                     userModel: widget.userModel,
+                  );case 4:
                   return OrderManagementPage(
                     tenantId: widget.userModel.tenantId, tenantModel: widget.tenantModel,
                   );

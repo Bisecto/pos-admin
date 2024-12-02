@@ -20,7 +20,8 @@ import '../../../important_pages/app_loading_page.dart';
 
 class MainProductScreen extends StatefulWidget {
   UserModel userModel;
-   MainProductScreen({super.key,required this.userModel});
+
+  MainProductScreen({super.key, required this.userModel});
 
   @override
   State<MainProductScreen> createState() => _MainProductScreenState();
@@ -87,23 +88,27 @@ class _MainProductScreenState extends State<MainProductScreen> {
   }
 
   void _clearFilter() {
-   setState(() {
+    setState(() {
       selectedBrandId = '';
-      selectedCategory='';
-      selectedBrand='';
+      selectedCategory = '';
+      selectedBrand = '';
       selectedCategoryId = '';
       searchController.clear();
       print(1234567);
-   });
-   _filterProducts();
+    });
+    _filterProducts();
   }
+
   void _addProduct() {
     final TextEditingController skuController = TextEditingController();
     final TextEditingController nameController = TextEditingController();
     final TextEditingController quantityController = TextEditingController();
-    final TextEditingController priceController = TextEditingController(text: '0');
-    final TextEditingController discountController = TextEditingController(text: '0');
+    final TextEditingController priceController =
+        TextEditingController(text: '0');
+    final TextEditingController discountController =
+        TextEditingController(text: '0');
     final TextEditingController selectedCategoryName = TextEditingController();
+    final TextEditingController selectedProductType = TextEditingController();
     final TextEditingController selectedBrandName = TextEditingController();
     final TextEditingController selectedCategoryId = TextEditingController();
     final TextEditingController selectedBrandId = TextEditingController();
@@ -145,12 +150,12 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                 width: 150,
                                 fit: BoxFit.contain,
                               )
-                            : Icon(
+                            : const Icon(
                                 Icons.image,
                                 size: 200,
                                 color: AppColors.grey,
                               ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () async {
                             await _pickImage();
@@ -167,14 +172,14 @@ class _MainProductScreenState extends State<MainProductScreen> {
                       width: 250,
                       hint: 'Enter product sku',
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     CustomTextFormField(
                       controller: nameController,
                       label: 'Product Name*',
                       width: 250,
                       hint: 'Enter product name',
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     CustomTextFormField(
                       controller: quantityController,
                       label: 'Quantity(optional)',
@@ -182,7 +187,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                       hint: 'Enter qty of product',
                       textInputType: TextInputType.number,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     CustomTextFormField(
                       controller: priceController,
                       label: 'Price',
@@ -190,7 +195,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                       hint: 'Enter price',
                       textInputType: TextInputType.number,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     CustomTextFormField(
                       controller: discountController,
                       label: 'Discount',
@@ -228,7 +233,23 @@ class _MainProductScreenState extends State<MainProductScreen> {
                         });
                       },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
+                    DropDown(
+                      width: 250,
+                      borderColor: AppColors.white,
+                      selectedValue: selectedProductType.text,
+                      borderRadius: 10,
+                      hint: "Product Type*",
+                      items: const ['food', 'drinks'],
+                      onChanged: (value) {
+                        int index = categories.indexOf(value);
+                        setState(() {
+                          selectedCategoryId.text = categoriesIds[index];
+                          _filterProducts();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -253,18 +274,23 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                   "Discount cannot be greater than 100.");
                             } else {
                               if (_imageFile == null) {
-                                MSG.warningSnackBar(context,
-                                    "Select product image");
+                                MSG.warningSnackBar(
+                                    context, "Select product image");
                                 return;
                               }
                               setState(() {
-                                productBloc.add(AddProductEvent(
-                                    nameController.text,
-                                    double.parse(priceController.text),
-                                    skuController.text,
-                                    selectedCategoryId.text,
-                                    selectedBrandId.text,
-                                    double.parse(discountController.text),_imageFile!,widget.userModel.tenantId));
+                                productBloc.add(
+                                  AddProductEvent(
+                                      nameController.text,
+                                      double.parse(priceController.text),
+                                      skuController.text,
+                                      selectedCategoryId.text,
+                                      selectedBrandId.text,
+                                      double.parse(discountController.text),
+                                      _imageFile!,
+                                      widget.userModel.tenantId,
+                                      selectedProductType.text),
+                                );
                               });
                             }
                             Navigator.of(context).pop();
@@ -372,7 +398,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                 )
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Expanded(
@@ -425,7 +451,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                 });
                               },
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 20,
                             ),
                             DropDown(
@@ -445,7 +471,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                 });
                               },
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 20,
                             ),
                             Padding(
@@ -461,9 +487,9 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                   child: const Padding(
                                     padding: EdgeInsets.all(0.0),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-
                                         CustomText(
                                           text: "Clear Filter",
                                           size: 18,
@@ -514,7 +540,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                             // ),
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 40,
                         ),
                         if (filteredProducts.isEmpty)
@@ -528,7 +554,8 @@ class _MainProductScreenState extends State<MainProductScreen> {
                               child: ProductTableScreen(
                             productList: filteredProducts,
                             brandList: brandList,
-                            categoryList: categoryList, userModel: widget.userModel,
+                            categoryList: categoryList,
+                            userModel: widget.userModel,
                           )),
                       ],
                     );

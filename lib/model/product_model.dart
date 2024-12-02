@@ -8,6 +8,7 @@ class Product {
   String productId;
   String productImageUrl;
   String productName;
+  String productType;
   String sku;
   double price;
   double discount;
@@ -24,6 +25,7 @@ class Product {
     required this.productId,
     required this.productImageUrl,
     required this.productName,
+    required this.productType,
     required this.sku,
     required this.updatedAt,
     required this.updatedBy,
@@ -38,10 +40,11 @@ class Product {
       createdBy: data['createdBy'],
       brandId: data['brandId'],
       price: double.parse(data['price'].toString()),
-      discount: double.parse(data['discount'].toString()),
+      discount: double.parse(data['discount'].toString()) ,
       productId: data['productId'],
       productImageUrl: data['productImageUrl'],
       productName: data['productName'],
+      productType: data['productType'],
       sku: data['sku'],
       updatedAt: data['updatedAt'],
       updatedBy: data['updatedBy'],
@@ -58,6 +61,7 @@ class Product {
       'productId': productId,
       'productImageUrl': productImageUrl,
       'productName': productName,
+      'productType': productType,
       'price': price,
       'discount': discount,
       'sku': sku,
