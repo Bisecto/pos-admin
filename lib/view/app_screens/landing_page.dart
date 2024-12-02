@@ -27,7 +27,8 @@ import '../widgets/app_custom_text.dart';
 class LandingPage extends StatefulWidget {
   TenantModel tenantModel;
   UserModel userModel;
-   LandingPage({super.key,required this.tenantModel,required this.userModel});
+
+  LandingPage({super.key, required this.tenantModel, required this.userModel});
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -40,7 +41,7 @@ class _LandingPageState extends State<LandingPage> {
 
   StreamSubscription<ConnectivityStatus>? _connectivitySubscription;
   bool isNotification = false;
-  String pt='';
+  String pt = '';
 
   @override
   void initState() {
@@ -52,6 +53,7 @@ class _LandingPageState extends State<LandingPage> {
 
     super.initState();
   }
+
   getPt() async {
     pt = await SharedPref.getString('password');
     print(pt);
@@ -110,6 +112,7 @@ class _LandingPageState extends State<LandingPage> {
       },
     );
   }
+
   // Future<void> _checkConnectivity() async {
   //   var connectivityResult = await Connectivity().checkConnectivity();
   //   _handleConnectivity(connectivityResult);
@@ -164,7 +167,12 @@ class _LandingPageState extends State<LandingPage> {
               children: [
                 if (!isSmallScreen) ExampleSidebarX(controller: _controller),
                 Expanded(
-                  child: Center(child: PageSelector(controller: _controller, tenantModel: widget.tenantModel, userModel: widget.userModel,)),
+                  child: Center(
+                      child: PageSelector(
+                    controller: _controller,
+                    tenantModel: widget.tenantModel,
+                    userModel: widget.userModel,
+                  )),
                 ),
               ],
             ),
@@ -188,7 +196,8 @@ class ExampleSidebarX extends StatelessWidget {
       idleTime: const Duration(minutes: 10),
       onIdle: () async {
         await FirebaseAuth.instance.signOut();
-        AppNavigator.pushAndRemovePreviousPages(context, page: SignInScreen());
+        AppNavigator.pushAndRemovePreviousPages(context,
+            page: const SignInScreen());
       },
       child: Container(
         color: AppColors.scaffoldBackgroundColor,
@@ -261,7 +270,8 @@ class ExampleSidebarX extends StatelessWidget {
                 onTap: () {
                   //debugPrint('Products');
                 },
-              ),SidebarXItem(
+              ),
+              SidebarXItem(
                 icon: Icons.storage,
                 label: 'Products',
                 onTap: () {
@@ -276,7 +286,13 @@ class ExampleSidebarX extends StatelessWidget {
                 icon: Icons.category,
                 label: 'Category',
               ),
-              SidebarXItem(
+              const SidebarXItem(
+                icon: Icons.table_restaurant_rounded,
+                label: 'Tables',
+                //selectable: false,
+                //onTap: () => _showDisabledAlert(context),
+              ),
+              const SidebarXItem(
                 icon: Icons.inventory_rounded,
                 label: 'Invoice',
                 //selectable: false,
@@ -289,7 +305,8 @@ class ExampleSidebarX extends StatelessWidget {
               const SidebarXItem(
                 icon: Icons.person,
                 label: 'Profile',
-              ),const SidebarXItem(
+              ),
+              const SidebarXItem(
                 icon: Icons.settings,
                 label: 'Settings',
               ),
@@ -299,7 +316,7 @@ class ExampleSidebarX extends StatelessWidget {
                 selectable: false,
                 onTap: () {
                   AppNavigator.pushAndRemovePreviousPages(context,
-                      page: SignInScreen());
+                      page: const SignInScreen());
                 },
               ),
             ],
@@ -333,14 +350,16 @@ String _getTitleByIndex(int index) {
     case 3:
       return 'Category';
     case 4:
-      return 'Invoices';
+      return 'Tables';
     case 5:
-      return 'Roles';
+      return 'Invoices';
     case 6:
-      return 'Profile';
+      return 'Roles';
     case 7:
-      return 'Settings';
+      return 'Profile';
     case 8:
+      return 'Settings';
+    case 9:
       return 'Logout';
 
     default:
