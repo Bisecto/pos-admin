@@ -142,16 +142,15 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                             ? const [
                                                 'Manager',
                                                 "Admin",
-                                                "Attendant",
                                                 "Cashier",
-                                                "Chef",
-                                                "Bartender"
+                                                // "Chef",
+                                                // "Bartender",
+                                                "Waiter"
                                               ]
                                             : const [
-                                                "Attendant",
-                                                "Cashier",
-                                                "Chef",
-                                                "Bartender"
+                                              //  "Chef",
+                                               // "Bartender",
+                                                    "Cashier","Waiter"
                                               ],
                                         onChanged: (value) {
                                           roleController.text = value;

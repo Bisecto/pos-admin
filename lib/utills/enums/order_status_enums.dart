@@ -1,6 +1,6 @@
 enum OrderStatus {
   pending,
-  foodServed,
+  booked,
   paymentMade,
   completed,
   canceled,

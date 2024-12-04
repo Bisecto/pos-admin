@@ -17,10 +17,7 @@ class UserTableScreen extends StatefulWidget {
   final List<UserModel> userList;
   final UserModel userModel;
 
-  UserTableScreen({
-    required this.userList,
-    required this.userModel
-  });
+  UserTableScreen({required this.userList, required this.userModel});
 
   @override
   _UserTableScreenState createState() => _UserTableScreenState();
@@ -91,7 +88,20 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     borderRadius: 10,
                     hint: "Select role of user",
                     selectedValue: roleController.text,
-                    items:widget.userModel.role.toLowerCase()=='admin'? const ['Manager', "Admin", "Registerer"]:const ['Manager', "Registerer"],
+                    items: widget.userModel.role.toLowerCase() == 'admin'
+                        ? const [
+                            'Manager',
+                            "Admin",
+                            "Cashier",
+                            // "Chef",
+                            // "Bartender",
+                            "Waiter"
+                          ]
+                        : const [
+                            //  "Chef",
+                            // "Bartender",
+                            "Cashier", "Waiter"
+                          ],
                     onChanged: (value) {
                       roleController.text = value;
                     },
@@ -200,7 +210,10 @@ class _UserTableScreenState extends State<UserTableScreen> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal, // Enable horizontal scrolling
             child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width), // Ensure it fits within screen width
+              constraints: BoxConstraints(
+                  minWidth: MediaQuery.of(context)
+                      .size
+                      .width), // Ensure it fits within screen width
               child: SingleChildScrollView(
                 scrollDirection: Axis.vertical, // Enable vertical scrolling
                 child: DataTable(
@@ -208,17 +221,23 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     // DataColumn(
                     //     label: Text('INDEX', style: TextStyle(color: Colors.white))),
                     DataColumn(
-                        label: Text('EMAIL', style: TextStyle(color: Colors.white))),
+                        label: Text('EMAIL',
+                            style: TextStyle(color: Colors.white))),
                     DataColumn(
-                        label: Text('FULL NAME', style: TextStyle(color: Colors.white))),
+                        label: Text('FULL NAME',
+                            style: TextStyle(color: Colors.white))),
                     DataColumn(
-                        label: Text('PHONE', style: TextStyle(color: Colors.white))),
+                        label: Text('PHONE',
+                            style: TextStyle(color: Colors.white))),
                     DataColumn(
-                        label: Text('ROLE', style: TextStyle(color: Colors.white))),
+                        label: Text('ROLE',
+                            style: TextStyle(color: Colors.white))),
                     DataColumn(
-                        label: Text('IS ACTIVE', style: TextStyle(color: Colors.white))),
+                        label: Text('IS ACTIVE',
+                            style: TextStyle(color: Colors.white))),
                     DataColumn(
-                        label: Text('ACTIONS', style: TextStyle(color: Colors.white))),
+                        label: Text('ACTIONS',
+                            style: TextStyle(color: Colors.white))),
                   ],
                   rows: List.generate(paginatedUsers.length, (index) {
                     final userIndex = (currentPage - 1) * rowsPerPage + index;
@@ -234,8 +253,12 @@ class _UserTableScreenState extends State<UserTableScreen> {
                       DataCell(Text(paginatedUsers[index].role.toString() ?? '',
                           style: const TextStyle(color: Colors.white))),
                       DataCell(Icon(
-                        paginatedUsers[index].accountStatus ? Icons.verified:Icons.block,
-                        color: paginatedUsers[index].accountStatus ? Colors.green : Colors.red,
+                        paginatedUsers[index].accountStatus
+                            ? Icons.verified
+                            : Icons.block,
+                        color: paginatedUsers[index].accountStatus
+                            ? Colors.green
+                            : Colors.red,
                       )),
                       DataCell(Row(
                         children: [
@@ -248,7 +271,8 @@ class _UserTableScreenState extends State<UserTableScreen> {
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              _deleteUser(userIndex, paginatedUsers[index].userId!);
+                              _deleteUser(
+                                  userIndex, paginatedUsers[index].userId!);
                             },
                           ),
                         ],
