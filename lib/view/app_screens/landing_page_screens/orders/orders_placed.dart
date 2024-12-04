@@ -156,19 +156,20 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                 headingRowColor:
                     MaterialStateProperty.all<Color>(AppColors.darkYellow),
                 columns: [
+                  // DataColumn(
+                  //   label: Container(
+                  //     padding: EdgeInsets.all(8.0),
+                  //     child:
+                  //         CustomText(text: 'Order No', color: AppColors.white),
+                  //   ),
+                  // ),DataColumn(
+                  //   label: Container(
+                  //     padding: EdgeInsets.all(8.0),
+                  //     child:
+                  //         CustomText(text: 'Sent To', color: AppColors.white),
+                  //   ),
+                  //),
                   DataColumn(
-                    label: Container(
-                      padding: EdgeInsets.all(8.0),
-                      child:
-                          CustomText(text: 'Order No', color: AppColors.white),
-                    ),
-                  ),DataColumn(
-                    label: Container(
-                      padding: EdgeInsets.all(8.0),
-                      child:
-                          CustomText(text: 'Sent To', color: AppColors.white),
-                    ),
-                  ),DataColumn(
                     label: Container(
                       padding: EdgeInsets.all(8.0),
                       child:
@@ -181,7 +182,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       child: CustomText(
                           text: 'Created At', color: AppColors.white),
                     ),
-                  ), DataColumn(
+                  ),
+                  DataColumn(
                     label: Container(
                       padding: EdgeInsets.all(8.0),
                       child: CustomText(
@@ -219,23 +221,28 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                           : null; // Use default value for unselected rows
                     }),
                     cells: [
+                      // DataCell(
+                      //   Container(
+                      //     padding: EdgeInsets.all(8.0),
+                      //     child: CustomText(
+                      //         text: orderData['orderCode'],
+                      //         color: AppColors.white),
+                      //   ),
+                      // ),
+                      // DataCell(
+                      //   Container(
+                      //     padding: EdgeInsets.all(8.0),
+                      //     child: CustomText(
+                      //         text: orderData['orderTo'],
+                      //         color: AppColors.white),
+                      //   ),
+                      // ),
                       DataCell(
                         Container(
                           padding: EdgeInsets.all(8.0),
-                          child:
-                              CustomText(text: orderData['orderCode'], color: AppColors.white),
-                        ),
-                      ),DataCell(
-                        Container(
-                          padding: EdgeInsets.all(8.0),
-                          child:
-                              CustomText(text: orderData['orderTo'], color: AppColors.white),
-                        ),
-                      ), DataCell(
-                        Container(
-                          padding: EdgeInsets.all(8.0),
-                          child:
-                              CustomText(text: orderData['tableNo'], color: AppColors.white),
+                          child: CustomText(
+                              text: orderData['tableNo'],
+                              color: AppColors.white),
                         ),
                       ),
                       DataCell(
@@ -245,7 +252,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                               text: formatDate(orderData['createdAt']),
                               color: AppColors.white),
                         ),
-                      ),DataCell(
+                      ),
+                      DataCell(
                         Container(
                           padding: EdgeInsets.all(8.0),
                           child: CustomText(
@@ -265,7 +273,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                         Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.edit, color: AppColors.darkYellow),
+                              icon:
+                                  Icon(Icons.edit, color: AppColors.darkYellow),
                               onPressed: () async {
                                 await fetchOrderDetails(orderId);
                                 showEditPopup(context, orderId);
@@ -598,7 +607,6 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     'Payment Made',
     'Order Completed',
     'Canceled',
-
   ];
 
   Future<void> fetchOrderDetails(orderId) async {
@@ -728,7 +736,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     });
                     updateOrderStatus(selectedStatus, orderId);
                   },
-                  items:  statusOptions.map((status) {
+                  items: statusOptions.map((status) {
                     return DropdownMenuItem(
                       value: status,
                       child: Text(status),
@@ -837,8 +845,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Discounted price:',
-                          style: TextStyle(fontSize: 14)),
+                      Text('Discounted price:', style: TextStyle(fontSize: 14)),
                       Text('NGN ${calculateAmtToPay().toStringAsFixed(2)}',
                           style: TextStyle(fontSize: 14)),
                     ],
