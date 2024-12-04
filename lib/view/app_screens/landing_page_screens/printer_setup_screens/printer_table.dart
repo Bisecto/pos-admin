@@ -140,6 +140,10 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                   setState(() {
                     widget.printerList[index].printerName =
                         printerNameController.text;
+                    widget.printerList[index].port =
+                        int.parse(printerPortController.text);
+                    widget.printerList[index].ip =
+                        printerIpController.text;
                   });
                   print(
                       'Printer ${widget.printerList[index].printerName} edited');
@@ -267,11 +271,22 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                       //   label: Text('INDEX', style: TextStyle(color: Colors.white)),
                       // ),
                       // DataColumn(
-                      //   label: Text('CATEGORY ID',
+                      //   label: Text('Printer ID',
                       //       style: TextStyle(color: Colors.white)),
                       // ),
                       DataColumn(
-                        label: Text('CATEGORY NAME',
+                        label: Text('PRINTER NAME',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      DataColumn(
+                        label: Text('PRINTER IP ADDRESS',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      DataColumn(
+                        label: Text('PRINTER PORT',
+                            style: TextStyle(color: Colors.white)),
+                      ),DataColumn(
+                        label: Text('PRINTER TYPE',
                             style: TextStyle(color: Colors.white)),
                       ),
                       DataColumn(
@@ -293,6 +308,16 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                         // )),
                         DataCell(Text(
                           paginatedprinters[index].printerName.toString(),
+                          style: const TextStyle(color: Colors.white),
+                        )),  DataCell(Text(
+                          paginatedprinters[index].ip.toString(),
+                          style: const TextStyle(color: Colors.white),
+                        )), DataCell(Text(
+                          paginatedprinters[index].port.toString(),
+                          style: const TextStyle(color: Colors.white),
+                        )),
+                        DataCell(Text(
+                          paginatedprinters[index].type.toString(),
                           style: const TextStyle(color: Colors.white),
                         )),
                         DataCell(Row(

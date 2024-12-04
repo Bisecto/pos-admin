@@ -3,13 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class PrinterModel {
    String printerId; // Firestore document ID
    String printerName; // Printer name
-  final String ip; // Printer IP address
-  final int port; // Printer port
-  final String type; // Printer type (e.g., thermal, inkjet)
-  final String createdBy; // User ID of creator
-  final String updatedBy; // User ID of last updater
-  final Timestamp createdAt; // Timestamp for creation
-  final Timestamp updatedAt; // Timestamp for last update
+   String ip; // Printer IP address
+   int port; // Printer port
+   String type; // Printer type (e.g., thermal, inkjet)
+   String createdBy; // User ID of creator
+   String updatedBy; // User ID of last updater
+   Timestamp createdAt; // Timestamp for creation
+   Timestamp updatedAt; // Timestamp for last update
 
   PrinterModel({
     required this.printerId,

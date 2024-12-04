@@ -57,7 +57,7 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
       }).toList();
 
       // Debug statement to check if filteredPrinters is being updated
-      print("Filtered categories: ${filteredPrinters.length}dgdghb");
+      print("Filtered printers: ${filteredPrinters.length}dgdghb");
     });
   }
 
@@ -106,7 +106,6 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                 SizedBox(
                   height: 10,
                 ),
-
               ],
             ),
           ),
@@ -124,7 +123,6 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
             ),
             FormButton(
               onPressed: () {
-
                 if (printerNameController.text.isNotEmpty) {
                   if (printerIpController.text.isNotEmpty) {
                     if (printerPortController.text.isNotEmpty) {
@@ -135,10 +133,12 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                           int.parse(printerPortController.text),
                           'thermal'));
                     } else {
-                      MSG.warningSnackBar(context, "Printer port cannot be empty.");
+                      MSG.warningSnackBar(
+                          context, "Printer port cannot be empty.");
                     }
                   } else {
-                    MSG.warningSnackBar(context, "Printer ip address cannot be empty.");
+                    MSG.warningSnackBar(
+                        context, "Printer ip address cannot be empty.");
                   }
                 } else {
                   MSG.warningSnackBar(context, "Printer name cannot be empty.");
@@ -184,9 +184,9 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
               //     child: CircularProgressIndicator(),
               //   );
               case GetPrinterSuccessState:
-                final getCategories = state as GetPrinterSuccessState;
-                //print(getCategories.printerList);
-                allPrinters = getCategories.printerList;
+                final getPrinters = state as GetPrinterSuccessState;
+                //print(getPrinters.printerList);
+                allPrinters = getPrinters.printerList;
                 filteredPrinters = allPrinters.where((printer) {
                   final matchesSearch =
                       searchTextEditingController.text.isEmpty ||
@@ -197,9 +197,9 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                 }).toList();
 
                 // Debug statement to check if filteredPrinters is being updated
-                print("Filtered categories: ${filteredPrinters.length}dgdghb");
-                print('All Categories: ${allPrinters.length}');
-                print('Filtered Categories: ${filteredPrinters.length}');
+                print("Filtered printers: ${filteredPrinters.length}dgdghb");
+                print('All Printers: ${allPrinters.length}');
+                print('Filtered Printers: ${filteredPrinters.length}');
 
                 return Container(
                   //height: 200,
@@ -217,7 +217,7 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                                   children: [
                                     if (!isSmallScreen)
                                       TextStyles.textHeadings(
-                                        textValue: "Categories",
+                                        textValue: "Printers",
                                         textSize: 25,
                                         textColor: AppColors.white,
                                       ),
@@ -275,17 +275,17 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          if (getCategories.printerList.isEmpty)
+                          if (getPrinters.printerList.isEmpty)
                             const Center(
                               child: CustomText(
-                                text: "No categories have been added yet.",
+                                text: "No printers have been added yet.",
                                 weight: FontWeight.bold,
                                 color: AppColors.white,
                                 maxLines: 3,
                                 size: 12,
                               ),
                             ),
-                          if (getCategories.printerList.isNotEmpty)
+                          if (getPrinters.printerList.isNotEmpty)
                             PrinterTableScreen(
                               printerList: filteredPrinters,
                               userModel:
@@ -299,11 +299,11 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
 
               case PrinterLoadingState || AddPrinterLoadingState:
                 return const Center(
-                  child: AppLoadingPage("Getting Categories..."),
+                  child: AppLoadingPage("Getting Printers..."),
                 );
               default:
                 return const Center(
-                  child: AppLoadingPage("Getting Categories..."),
+                  child: AppLoadingPage("Getting Printers..."),
                 );
             }
           }),
