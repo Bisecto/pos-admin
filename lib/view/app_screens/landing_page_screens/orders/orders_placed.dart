@@ -594,7 +594,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   bool isContainerExpanded = true;
   final List<String> statusOptions = [
     'Pending',
-    'Food Served',
+    'Booked',
     'Payment Made',
     'Order Completed',
     'Canceled',
