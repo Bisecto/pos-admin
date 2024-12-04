@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_colors.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/main_dashboard_page.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/printer_setup_screens/main_printer_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/main_product_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/role_page_screens/main_role_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/settings/settings_page.dart';
@@ -67,22 +68,29 @@ class _PageSelectorState extends State<PageSelector> {
                   );
                 case 4:
                   return MainTableScreen(
-                     userModel: widget.userModel,
-                  );case 4:
-                  return OrderManagementPage(
-                    tenantId: widget.userModel.tenantId, tenantModel: widget.tenantModel,
+                    userModel: widget.userModel,
                   );
                 case 5:
+                  return OrderManagementPage(
+                    tenantId: widget.userModel.tenantId,
+                    tenantModel: widget.tenantModel,
+                  );
+                case 6:
                   return MainUserScreen(
                     tenantModel: widget.tenantModel,
                     userModel: widget.userModel,
                   );
-                case 6:
+                case 7:
                   return TenantProfilePage(
                     tenantModel: widget.tenantModel,
                     userModel: widget.userModel,
-                  );case 7:
+                  );
+                case 8:
                   return const SettingsPage();
+                case 9:
+                  return   MainPrinterScreen(
+                    userModel: widget.userModel,
+                  );
                 default:
                   return TextStyles.textHeadings(
                     textValue: pageTitle,
@@ -113,7 +121,7 @@ String _getTitleByIndex(int index) {
     case 5:
       return 'Profile';
     case 6:
-      return 'Settings';
+      return 'Change Password';
     default:
       return 'Not found page';
   }

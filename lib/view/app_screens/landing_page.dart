@@ -307,8 +307,12 @@ class ExampleSidebarX extends StatelessWidget {
                 label: 'Profile',
               ),
               const SidebarXItem(
-                icon: Icons.settings,
-                label: 'Settings',
+                icon: Icons.password,
+                label: 'Change Password',
+              ),
+              const SidebarXItem(
+                icon: Icons.print,
+                label: 'Printers',
               ),
               SidebarXItem(
                 icon: Icons.logout,
@@ -358,8 +362,10 @@ String _getTitleByIndex(int index) {
     case 7:
       return 'Profile';
     case 8:
-      return 'Settings';
+      return 'Change Password';
     case 9:
+      return 'Printers';
+    case 10:
       return 'Logout';
 
     default:
