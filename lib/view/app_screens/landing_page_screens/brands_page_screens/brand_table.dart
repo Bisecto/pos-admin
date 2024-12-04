@@ -238,10 +238,10 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                       //     label:
                       //     Text('INDEX', style: TextStyle(color: Colors.white))),
                       // DataColumn(
-                      //     label: Text('CATEGORY ID',
+                      //     label: Text(' ID',
                       //         style: TextStyle(color: Colors.white))),
                       DataColumn(
-                          label: Text('CATEGORY NAME',
+                          label: Text('BRAND NAME',
                               style: TextStyle(color: Colors.white))),
                       DataColumn(
                           label: Text('ACTIONS',
