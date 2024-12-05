@@ -186,9 +186,11 @@ class _MainTableScreenState extends State<MainTableScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 20.0,),
+                  padding: const EdgeInsets.only(top: 20.0,left: 10),
                   child: GestureDetector(
-                    onTap: _addTable,
+                    onTap: (){
+                      tableBloc.add(GetTableEvent(widget.userModel.tenantId));
+                    },
                     child: Container(
                       width: 100,
                       height: 45,
@@ -208,8 +210,9 @@ class _MainTableScreenState extends State<MainTableScreen> {
                     ),
                   ),
                 ),
+
                 Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
+                  padding: const EdgeInsets.only(top: 20.0,left: 10),
                   child: GestureDetector(
                     onTap: _addTable,
                     child: Container(
