@@ -1,20 +1,26 @@
 class ActivityModel {
   final String attendantId;
   final String attendantName;
+  final String currentOrderId;
+  final bool isMerged;
   final bool isActive;
 
   ActivityModel({
     required this.attendantId,
     required this.attendantName,
+    required this.currentOrderId,
+    required this.isMerged,
     required this.isActive,
   });
 
   // Factory method to create an ActivityModel instance from a Map
   factory ActivityModel.fromMap(Map<String, dynamic> data) {
     return ActivityModel(
-      attendantId: data['attendantId'] as String,
-      attendantName: data['attendantName'] as String,
-      isActive: data['isActive'] as bool,
+      attendantId: data['attendantId'] ??'',
+      attendantName: data['attendantName'] ??'',
+      currentOrderId: data['currentOrderId']??'',
+      isMerged: data['isMerged'] ??false,
+      isActive: data['isActive'] ?? false,
     );
   }
 
@@ -23,6 +29,8 @@ class ActivityModel {
     return {
       'attendantId': attendantId,
       'attendantName': attendantName,
+      'currentOrderId': currentOrderId,
+      'isMerged': isMerged,
       'isActive': isActive,
     };
   }

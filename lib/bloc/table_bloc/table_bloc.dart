@@ -72,7 +72,7 @@ Future<void> addTableEvent(
         .collection('Tables');
     TableModel tableModel = TableModel(
         activity:
-            ActivityModel(attendantId: '', attendantName: '', isActive: false),
+            ActivityModel(attendantId: '', attendantName: '', isActive: false, currentOrderId: '', isMerged: false),
         tableId: generatedId,
         tableName: event.tableName,
         createdAt: Timestamp.now(),
