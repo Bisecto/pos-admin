@@ -436,7 +436,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                         Row(
                           children: [
                             DropDown(
-                              width: 250,
+                              width: 170,
                               borderColor: AppColors.white,
                               borderRadius: 10,
                               hint: "Brands",
@@ -455,7 +455,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                               width: 20,
                             ),
                             DropDown(
-                              width: 250,
+                              width: 170,
                               borderColor: AppColors.white,
                               selectedValue: selectedCategory,
                               borderRadius: 10,
