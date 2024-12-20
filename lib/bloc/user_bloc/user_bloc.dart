@@ -30,7 +30,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(UserLoadingState());
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('Users').get();
+          await FirebaseFirestore.instance.collection('Users').where('tenantId',isEqualTo: event.tenantId.trim()).get();
       print(querySnapshot.docs);
       List<UserModel> userList = querySnapshot.docs
           .map((doc) => UserModel.fromFirestore(doc))
