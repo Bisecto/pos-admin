@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:pos_admin/model/user_model.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/recent_orders.dart';
 
 import '../../../../res/app_colors.dart';
 import 'dashboard_chart.dart';
@@ -8,8 +10,9 @@ import 'metrics_overview.dart'; // For charts
 
 class Dashboard extends StatelessWidget {
   final String tenantId;
+  final UserModel userModel;
 
-  Dashboard({required this.tenantId});
+  Dashboard({required this.tenantId, required this.userModel});
 
   @override
   Widget build(BuildContext context) {
@@ -19,16 +22,29 @@ class Dashboard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-              MetricsOverview(tenantId: tenantId, ),
-              // Fetch and display metrics
-              SizedBox(height: 20),
-              DashboardCharts(tenantId: tenantId),
-              // Fetch and display charts
-              SizedBox(height: 20),
-              // Fetch and display recent orders
+              // Metrics Overview
+              MetricsOverview(tenantId: tenantId),
+              const SizedBox(height: 20),
+
+              // Dashboard Charts
+              // SizedBox(
+              //   height: 300, // Define a fixed height for the charts
+              //   child: DashboardCharts(tenantId: tenantId),
+              // ),
+              // const SizedBox(height: 20),
+
+              // Recent Orders
+              SizedBox(
+                height: 400, // Define a fixed height for recent orders
+                child: RecentOrders(
+                  tenantId: tenantId.trim(),
+                  userModel: userModel,
+                ),
+              ),
             ],
           ),
         ),

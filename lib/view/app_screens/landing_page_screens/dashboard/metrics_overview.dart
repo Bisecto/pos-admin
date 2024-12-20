@@ -44,8 +44,8 @@ class MetricsOverview extends StatelessWidget {
             var products = order['products'] as List;
             double orderTotal = products.fold(0, (sum, item) {
               var product = item as Map<String, dynamic>;
-              double price = product['price'];
-              double discount = product['discount'];
+              double price = double.parse(product['price'].toString());
+              double discount = double.parse(product['discount'].toString());
               int quantity = product['quantity'];
               return sum + ((price - discount) * quantity);
             });

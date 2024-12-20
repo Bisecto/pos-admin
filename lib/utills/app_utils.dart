@@ -17,8 +17,6 @@ import '../res/sharedpref_key.dart';
 import '../view/app_screens/auth/sign_in_screen.dart';
 import 'app_navigator.dart';
 
-
-
 class AppUtils {
   static Color hexToColor(String code) {
     return Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
@@ -30,10 +28,6 @@ class AppUtils {
       // debugPrint(object.toString());
     }
   }
-
-
-
-
 
   openApp(context) async {
     // bool isFirstOpen =
@@ -50,9 +44,11 @@ class AppUtils {
           page: const SignInScreen());
     });
   }
+
   String generateFirestoreUniqueId() {
     return FirebaseFirestore.instance.collection('dummy').doc().id;
   }
+
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
     // Check if the user is properly signed out
@@ -138,7 +134,7 @@ class AppUtils {
   static String formateSimpleDate({String? dateTime}) {
     var inputDate = DateTime.parse(dateTime!);
 
-    var outputFormat = DateFormat('yyyy MMM d, hh:mm a');
+    var outputFormat = DateFormat('yyyy MMM d');
     var outputDate = outputFormat.format(inputDate);
 
     return outputDate;
