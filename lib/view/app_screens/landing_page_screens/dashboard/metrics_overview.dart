@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for number formatting
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'date_filter.dart';
 import 'metric_card.dart';
 
 class MetricsOverview extends StatelessWidget {
@@ -10,6 +11,8 @@ class MetricsOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedDate = Provider.of<DateFilterProvider>(context).selectedDate;
+
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('Enrolled Entities')
@@ -18,72 +21,64 @@ class MetricsOverview extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return CircularProgressIndicator(); // Loading state
+          return const Center(child: CircularProgressIndicator());
         }
 
-        // Fetch order data
-        var orders = snapshot.data!.docs;
+        final allOrders = snapshot.data!.docs;
 
-        // Metrics initialization
-        int totalOrders = orders.length;
-        int completedOrders = 0;
-        double totalAmountPaid = 0;
-        double todayAmountPaid = 0;
+        // Calculate today's orders
+        final todayOrders = allOrders.where((order) {
+          DateTime orderDate = (order['createdAt'] as Timestamp).toDate();
+          return orderDate.year == selectedDate.year &&
+              orderDate.month == selectedDate.month &&
+              orderDate.day == selectedDate.day;
+        }).toList();
 
-        // Date setup for today's orders
-        DateTime now = DateTime.now();
-        int todayOrders = 0;
-        int todayCompletedOrders = 0;
+        // Calculate completed orders
+        final completedOrders = allOrders.where((order) {
+          return order['status'] == 'completed';
+        }).toList();
 
-        // Format numbers as money
-        final currencyFormatter = NumberFormat.currency(locale: 'en_US', symbol: '₦');
+        // Calculate today's completed orders
+        final todayCompletedOrders = todayOrders.where((order) {
+          return order['status'] == 'completed';
+        }).toList();
 
-        // Iterate over orders and calculate totals for completed orders only
-        for (var order in orders) {
-          if (order['status'] == 3) { // Only completed orders
-            var products = order['products'] as List;
-            double orderTotal = products.fold(0, (sum, item) {
-              var product = item as Map<String, dynamic>;
-              double price = double.parse(product['price'].toString());
-              double discount = double.parse(product['discount'].toString());
-              int quantity = product['quantity'];
-              return sum + ((price - discount) * quantity);
-            });
+        // Calculate total amount paid for completed orders
+        final totalAmountPaid = completedOrders.fold<double>(
+          0.0,
+              (sum, order) => sum + (order['amountPaid'] ?? 0.0),
+        );
 
-            // Add to total amount for completed orders
-            totalAmountPaid += orderTotal;
-            completedOrders++;
+        // Calculate today's amount paid for completed orders
+        final todayAmountPaid = todayCompletedOrders.fold<double>(
+          0.0,
+              (sum, order) => sum + (order['amountPaid'] ?? 0.0),
+        );
 
-            // Check if the order is from today
-            DateTime orderDate = (order['createdAt'] as Timestamp).toDate();
-            if (orderDate.year == now.year &&
-                orderDate.month == now.month &&
-                orderDate.day == now.day) {
-              todayOrders++;
-              todayAmountPaid += orderTotal;
-              todayCompletedOrders++;
-            }
-          }
-        }
+        // Format amount paid for display
+
+        final todayAmountPaidFormatted =
+            '\$${todayAmountPaid.toStringAsFixed(2)}';
 
         return Wrap(
           spacing: 16,
           runSpacing: 16,
           children: [
-            MetricCard(title: 'Total Orders', value: totalOrders.toString()),
+
             MetricCard(
-                title: 'Completed Orders', value: completedOrders.toString()),
+              title: 'Orders',
+              value: todayOrders.length.toString(),
+            ),
             MetricCard(
-                title: 'Today\'s Orders', value: todayOrders.toString()),
+              title: 'Completed Orders',
+              value: todayCompletedOrders.length.toString(),
+            ),
+
             MetricCard(
-                title: 'Completed Today', value: todayCompletedOrders.toString()),
-            MetricCard(
-                title: 'Total Amount Paid (Completed)',
-                value: currencyFormatter.format(totalAmountPaid)),
-            MetricCard(
-                title: 'Today\'s Amount Paid (Completed)',
-                value: currencyFormatter.format(todayAmountPaid)),
-            // Add more cards as needed for additional metrics
+              title: 'Amount Paid',
+              value: todayAmountPaidFormatted,
+            ),
           ],
         );
       },
