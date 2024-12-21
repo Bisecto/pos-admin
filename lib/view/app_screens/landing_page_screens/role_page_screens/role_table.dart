@@ -24,7 +24,7 @@ class UserTableScreen extends StatefulWidget {
 }
 
 class _UserTableScreenState extends State<UserTableScreen> {
-  int rowsPerPage = 10;
+  int rowsPerPage = 100;
   int currentPage = 1;
 
   List<UserModel> get paginatedUsers {
