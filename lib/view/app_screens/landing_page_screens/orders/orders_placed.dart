@@ -600,7 +600,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   List<OrderProduct> products = [];
   String selectedStatus = 'Pending'; // Default status
   bool isLoading = true;
-  bool isContainerExpanded = true;
+
+//  bool isContainerExpanded = true;
   final List<String> statusOptions = [
     'Pending',
     'Booked',
@@ -680,207 +681,214 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Edit Order',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Edit Order',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
                       ),
+                      // Row(
+                      //   children: [
+                      //     GestureDetector(
+                      //       onTap: () {
+                      //         // Clear all selected products (implement logic)
+                      //       },
+                      //       child: Icon(
+                      //         Icons.delete,
+                      //         color: Colors.red,
+                      //       ),
+                      //     ),
+                      //     SizedBox(width: 10),
+                      //     GestureDetector(
+                      //       onTap: () {
+                      //         setState(() {
+                      //           isContainerExpanded = !isContainerExpanded;
+                      //         });
+                      //       },
+                      //       child: Icon(
+                      //         isContainerExpanded
+                      //             ? Icons.expand_less
+                      //             : Icons.expand_more,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Status Dropdown
+                  DropdownButtonFormField<String>(
+                    value: selectedStatus,
+                    decoration: const InputDecoration(
+                      labelText: 'Order Status',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (newStatus) {
+                      setState(() {
+                        selectedStatus = newStatus!;
+                      });
+                    },
+                    items: statusOptions.map((status) {
+                      return DropdownMenuItem(
+                        value: status,
+                        child: Text(status),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 5),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    height: MediaQuery.of(context).size.height - 300,
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        ...products.map((product) {
+                          double discountedPrice =
+                              product.price * (1 - product.discount / 100);
+
+                          return Container(
+                            padding: const EdgeInsets.all(8),
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Image.network(
+                                  product.productImage,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                                const SizedBox(width: 2),
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product.productName,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      CustomText(
+                                        text:
+                                            'Price: ₦${product.price.toStringAsFixed(2)}',
+                                        size: 12,
+                                      ),
+                                      CustomText(
+                                        text:
+                                            'Discounted: ₦${discountedPrice.toStringAsFixed(2)}',
+                                        size: 12,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Row(
+                                //   children: [
+                                //     IconButton(
+                                //       icon: Icon(Icons.remove_circle_outline),
+                                //       onPressed: () {
+                                //         // Remove product logic
+                                //       },
+                                //     ),
+                                //     CustomText(
+                                //       text: product.quantity.toString(),
+                                //       size: 12,
+                                //     ),
+                                //     IconButton(
+                                //       icon: Icon(Icons.add_circle_outline),
+                                //       onPressed: () {
+                                //         // Add product logic
+                                //       },
+                                //     ),
+                                //   ],
+                                // ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  if (products.isNotEmpty) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Subtotal:', style: TextStyle(fontSize: 14)),
+                        Text(
+                            'NGN ${calculateTotalOrderPrice().toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Discounted price:',
+                            style: TextStyle(fontSize: 14)),
+                        Text('NGN ${calculateAmtToPay().toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('VAT(${widget.tenantModel.vat}%):',
+                            style: TextStyle(fontSize: 14)),
+                        Text(
+                            'NGN ${calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100).toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 14)),
+                      ],
                     ),
                     // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     //   children: [
-                    //     GestureDetector(
-                    //       onTap: () {
-                    //         // Clear all selected products (implement logic)
-                    //       },
-                    //       child: Icon(
-                    //         Icons.delete,
-                    //         color: Colors.red,
-                    //       ),
-                    //     ),
-                    //     SizedBox(width: 10),
-                    //     GestureDetector(
-                    //       onTap: () {
-                    //         setState(() {
-                    //           isContainerExpanded = !isContainerExpanded;
-                    //         });
-                    //       },
-                    //       child: Icon(
-                    //         isContainerExpanded
-                    //             ? Icons.expand_less
-                    //             : Icons.expand_more,
-                    //       ),
-                    //     ),
+                    //     Text('Payment Method:',
+                    //         style: TextStyle(fontSize: 14)),
+                    //     Text('Cash/Card', style: TextStyle(fontSize: 14)),
                     //   ],
                     // ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Total:', style: TextStyle(fontSize: 15)),
+                        Text(
+                            'NGN ${(calculateAmtToPay() + calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100)).toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 15)),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
                   ],
-                ),
-                const SizedBox(height: 10),
-                // Status Dropdown
-                DropdownButtonFormField<String>(
-                  value: selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Order Status',
-                    border: OutlineInputBorder(),
+                  FormButton(
+                    onPressed: () {
+                      updateOrderStatus(selectedStatus, orderId);
+                    },
+                    text: "Update Product",
                   ),
-                  onChanged: (newStatus) {
-                    setState(() {
-                      selectedStatus = newStatus!;
-                    });
-                    updateOrderStatus(selectedStatus, orderId);
-                  },
-                  items: statusOptions.map((status) {
-                    return DropdownMenuItem(
-                      value: status,
-                      child: Text(status),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 5),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: isContainerExpanded
-                      ? MediaQuery.of(context).size.height - 300
-                      : 50, // Collapsed height
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      ...products.map((product) {
-                        double discountedPrice =
-                            product.price * (1 - product.discount / 100);
-
-                        return Container(
-                          padding: const EdgeInsets.all(8),
-                          margin: const EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Image.network(
-                                product.productImage,
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                              ),
-                              const SizedBox(width: 2),
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      product.productName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    CustomText(
-                                      text:
-                                          'Price: ₦${product.price.toStringAsFixed(2)}',
-                                      size: 12,
-                                    ),
-                                    CustomText(
-                                      text:
-                                          'Discounted: ₦${discountedPrice.toStringAsFixed(2)}',
-                                      size: 12,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Row(
-                              //   children: [
-                              //     IconButton(
-                              //       icon: Icon(Icons.remove_circle_outline),
-                              //       onPressed: () {
-                              //         // Remove product logic
-                              //       },
-                              //     ),
-                              //     CustomText(
-                              //       text: product.quantity.toString(),
-                              //       size: 12,
-                              //     ),
-                              //     IconButton(
-                              //       icon: Icon(Icons.add_circle_outline),
-                              //       onPressed: () {
-                              //         // Add product logic
-                              //       },
-                              //     ),
-                              //   ],
-                              // ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (products.isNotEmpty) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Subtotal:', style: TextStyle(fontSize: 14)),
-                      Text(
-                          'NGN ${calculateTotalOrderPrice().toStringAsFixed(2)}',
-                          style: TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Discounted price:', style: TextStyle(fontSize: 14)),
-                      Text('NGN ${calculateAmtToPay().toStringAsFixed(2)}',
-                          style: TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('VAT(${widget.tenantModel.vat}%):',
-                          style: TextStyle(fontSize: 14)),
-                      Text(
-                          'NGN ${calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100).toStringAsFixed(2)}',
-                          style: TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     Text('Payment Method:',
-                  //         style: TextStyle(fontSize: 14)),
-                  //     Text('Cash/Card', style: TextStyle(fontSize: 14)),
-                  //   ],
-                  // ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Total:', style: TextStyle(fontSize: 15)),
-                      Text(
-                          'NGN ${(calculateAmtToPay() + calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100)).toStringAsFixed(2)}',
-                          style: TextStyle(fontSize: 15)),
-                    ],
-                  ),
-
-                  const SizedBox(height: 10),
-                ]
-              ],
+                ],
+              ),
             ),
           ),
         );

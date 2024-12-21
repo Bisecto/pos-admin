@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pos_admin/model/table_model.dart';
+import '../../../../model/tenant_model.dart';
+import '../../../../model/user_model.dart';
+import '../../../../utills/app_navigator.dart';
 import '../../../widgets/app_custom_text.dart';
 import '../../../../res/app_colors.dart';
+import 'order/table_order_page.dart';
 
 class ListTable extends StatefulWidget {
   final List<TableModel> tableList;
-
-  ListTable({required this.tableList});
+final   UserModel userModel;
+ final  TenantModel tenantModel;
+  ListTable({required this.tableList, required this.userModel, required this.tenantModel});
 
   @override
   _ListTableState createState() => _ListTableState();
@@ -42,35 +47,46 @@ class _ListTableState extends State<ListTable> {
               itemCount: widget.tableList.length,
               itemBuilder: (context, index) {
                 final table = widget.tableList[index];
-                return Container(
-                  decoration: BoxDecoration(
-                    color:table.activity.isActive?AppColors.darkYellow: AppColors.darkModeBackgroundContainerColor,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  padding: const EdgeInsets.all(0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        table.tableName,
-                        style:  const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 18,
+                return GestureDetector(
+                  onTap: (){
+                    AppNavigator.pushAndStackPage(context,
+                        page: TableOrderPage(
+                          tableModel: table,
+                          userModel: widget.userModel,
+                          tableList: widget.tableList,
+                          tenantModel: widget.tenantModel,
+                        ));
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color:table.activity.isActive?AppColors.darkYellow: AppColors.darkModeBackgroundContainerColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white),
+                    ),
+                    padding: const EdgeInsets.all(0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          table.tableName,
+                          style:  const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 3),
-                      if(table.activity.isActive)
-                      Text(
-                        "${table.activity.attendantName}",
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
+                        const SizedBox(height: 3),
+                        if(table.activity.isActive)
+                        Text(
+                          "${table.activity.attendantName}",
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

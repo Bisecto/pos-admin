@@ -52,7 +52,7 @@ class _PageSelectorState extends State<PageSelector> {
               switch (widget.controller.selectedIndex) {
                 case 0:
                   return Dashboard(
-                    tenantId: widget.userModel.tenantId, userModel: widget.userModel,
+                    tenantId: widget.userModel.tenantId,
                   );
                 case 1:
                   return MainProductScreen(
@@ -69,6 +69,7 @@ class _PageSelectorState extends State<PageSelector> {
                 case 4:
                   return MainTableScreen(
                     userModel: widget.userModel,
+                    tenantModel: widget.tenantModel,
                   );
                 case 5:
                   return OrderManagementPage(
@@ -88,7 +89,7 @@ class _PageSelectorState extends State<PageSelector> {
                 case 8:
                   return const SettingsPage();
                 case 9:
-                  return   MainPrinterScreen(
+                  return MainPrinterScreen(
                     userModel: widget.userModel,
                   );
                 default:

@@ -8,6 +8,7 @@ import '../../../../model/brand_model.dart';
 import '../../../../model/category_model.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/app_custom_text.dart';
+import '../../../widgets/drop_down.dart';
 import '../../../widgets/form_button.dart';
 import '../../../widgets/form_input.dart';
 import '../../../../res/app_colors.dart';
@@ -66,7 +67,8 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
     final TextEditingController skuController = TextEditingController();
     final TextEditingController discountController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
-
+    final TextEditingController selectedProductType = TextEditingController();
+    selectedProductType.text=widget.productList[index].productType;
     productNameController.text = widget.productList[index].productName;
     skuController.text = widget.productList[index].sku;
     priceController.text = widget.productList[index].price.toString();
@@ -104,13 +106,21 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                // CustomTextFormField(
-                //   controller: quantityController,
-                //   label: 'Quantity(optional)',
-                //   width: 250,
-                //   hint: 'Enter product name',
-                //   textInputType: TextInputType.number,
-                // ),
+                DropDown(
+                  width: 250,
+                  borderColor: AppColors.white,
+                  selectedValue: selectedProductType.text,
+                  borderRadius: 10,
+                  hint: "Product Type*",
+                  items: const ['food', 'drinks'],
+                  onChanged: (value) {
+                    //int index = categories.indexOf(value);
+                    setState(() {
+                      selectedProductType.text = value;
+                      //_filterProducts();
+                    });
+                  },
+                ),
                 SizedBox(
                   height: 10,
                 ),
@@ -197,7 +207,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                       price: double.parse(priceController.text.toString()),
                       sku: skuController.text,
                       discount: double.parse(discountController.text),
-                      productType: widget.productList[index].productType,
+                      productType:selectedProductType.text,// widget.productList[index].productType,
                     );
                     FirebaseFirestore.instance
                         .collection('Enrolled Entities')
@@ -297,6 +307,8 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                           //     label: Text('INDEX', style: TextStyle(color: Colors.white))),
                           DataColumn(
                               label: Text('PRODUCT NAME',
+                                  style: TextStyle(color: Colors.white))),DataColumn(
+                              label: Text('PRODUCT TYPE',
                                   style: TextStyle(color: Colors.white))),
                           DataColumn(
                               label: Text('BRAND',
@@ -324,6 +336,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                             // DataCell(Text((index + 1).toString(),
                             //     style: const TextStyle(color: Colors.white))),
                             DataCell(Text(paginatedProducts[index].productName,
+                                style: const TextStyle(color: Colors.white))),DataCell(Text(paginatedProducts[index].productType.toUpperCase(),
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Text(
                                 _getBrandName(

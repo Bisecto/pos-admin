@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pos_admin/model/category_model.dart';
+import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/tables_page_screen/list_table.dart';
 import 'package:pos_admin/view/widgets/drop_down.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
@@ -20,8 +21,8 @@ import '../../../important_pages/app_loading_page.dart';
 
 class MainTableScreen extends StatefulWidget {
   UserModel userModel;
-
-  MainTableScreen({super.key, required this.userModel});
+final TenantModel tenantModel;
+  MainTableScreen({super.key, required this.userModel, required this.tenantModel});
 
   @override
   State<MainTableScreen> createState() => _MainTableScreenState();
@@ -274,7 +275,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
                         if (filteredTables.isNotEmpty)
                           Expanded(
                               child: ListTable(
-                            tableList: filteredTables,
+                            tableList: filteredTables, userModel: widget.userModel, tenantModel: widget.tenantModel,
 
                             //userModel: widget.userModel,
                           )),

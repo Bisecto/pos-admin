@@ -242,9 +242,9 @@ class _MainProductScreenState extends State<MainProductScreen> {
                       hint: "Product Type*",
                       items: const ['food', 'drinks'],
                       onChanged: (value) {
-                        int index = categories.indexOf(value);
+                        //int index = categories.indexOf(value);
                         setState(() {
-                          selectedCategoryId.text = categoriesIds[index];
+                          selectedProductType.text = value;
                           _filterProducts();
                         });
                       },

@@ -89,6 +89,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         productImageUrl: productUrl!,
         price: event.price,
         sku: event.sku,
+        //productType:event.productType,
         discount: event.discount, productType: event.productType,
       );
 

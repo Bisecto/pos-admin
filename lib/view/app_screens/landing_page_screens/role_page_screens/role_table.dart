@@ -130,10 +130,10 @@ class _UserTableScreenState extends State<UserTableScreen> {
                 UserModel userModel = UserModel(
                     userId: widget.userList[index].userId,
                     email: widget.userList[index].email,
-                    fullname: widget.userList[index].fullname,
+                    fullname:fullNameController.text, //widget.userList[index].fullname,
                     imageUrl: 'imageUrl',
-                    phone: widget.userList[index].phone,
-                    role: roleController.text,
+                    phone:  phoneController.text,//widget.userList[index].phone,
+                    role: roleController.text,//roleController.text,
                     tenantId: widget.userModel.tenantId,
                     createdAt: widget.userList[index].createdAt,
                     updatedAt: Timestamp.fromDate(DateTime.now()),
