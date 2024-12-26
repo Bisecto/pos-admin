@@ -52,7 +52,7 @@ class _PageSelectorState extends State<PageSelector> {
               switch (widget.controller.selectedIndex) {
                 case 0:
                   return Dashboard(
-                    tenantId: widget.userModel.tenantId,
+                    tenantId: widget.userModel.tenantId, userModel: widget.userModel,
                   );
                 case 1:
                   return MainProductScreen(
