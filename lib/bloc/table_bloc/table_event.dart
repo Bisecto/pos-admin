@@ -13,8 +13,9 @@ class AddTableEvent extends TableEvent {
   final String tenantId;
 
   final String tableName;
+  final UserModel userModel;
 
-  AddTableEvent(this.tableName, this.tenantId);
+  AddTableEvent(this.tableName, this.tenantId, this.userModel);
 }
 class DeleteTableEvent extends TableEvent {
   final String tableId;

@@ -289,7 +289,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                       double.parse(discountController.text),
                                       _imageFile!,
                                       widget.userModel.tenantId,
-                                      selectedProductType.text),
+                                      selectedProductType.text,widget.userModel),
                                 );
                               });
                             }

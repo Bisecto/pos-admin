@@ -268,121 +268,121 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
         });
   }
 
-  Future<void> clearAllSelectedProducts() async {
-    final ordersRef = FirebaseFirestore.instance
-        .collection('Enrolled Entities')
-        .doc(widget.tenantId)
-        .collection('Orders');
+  // Future<void> clearAllSelectedProducts() async {
+  //   final ordersRef = FirebaseFirestore.instance
+  //       .collection('Enrolled Entities')
+  //       .doc(widget.tenantId)
+  //       .collection('Orders');
+  //
+  //   final querySnapshot = await ordersRef
+  //       .where('tableNo', isEqualTo: widget.tableModel.tableId)
+  //       .where('status', isEqualTo: OrderStatus.pending.index)
+  //       .get();
+  //
+  //   if (querySnapshot.docs.isNotEmpty) {
+  //     final orderDoc = querySnapshot.docs.first;
+  //     await ordersRef.doc(orderDoc.id).update({'products': []});
+  //   }
+  //   setState(() {
+  //     selectedProducts.clear();
+  //   });
+  // }
 
-    final querySnapshot = await ordersRef
-        .where('tableNo', isEqualTo: widget.tableModel.tableId)
-        .where('status', isEqualTo: OrderStatus.pending.index)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      final orderDoc = querySnapshot.docs.first;
-      await ordersRef.doc(orderDoc.id).update({'products': []});
-    }
-    setState(() {
-      selectedProducts.clear();
-    });
-  }
-
-  Future<void> saveSelectedProducts() async {
-    final ordersRef = FirebaseFirestore.instance
-        .collection('Enrolled Entities')
-        .doc(widget.tenantId)
-        .collection('Orders');
-
-    final querySnapshot = await ordersRef
-        .where('tableNo', isEqualTo: widget.tableModel.tableId)
-        .where('status', isEqualTo: OrderStatus.pending.index)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      // Update the ongoing order
-      final orderDoc = querySnapshot.docs.first;
-      final List<Map<String, dynamic>> updatedProducts =
-      selectedProducts.entries
-          .map((entry) => {
-        'productName': entry.key.productName,
-        'productId': entry.key.productId,
-        'quantity': entry.value,
-        'price': entry.key.price,
-        'discount': entry.key.discount,
-        'productImage': entry.key.productImageUrl,
-        'brandId': entry.key.brandId,
-        'categoryId': entry.key.categoryId,
-        'productType': entry.key.productType,
-        'sku': entry.key.sku,
-      })
-          .toList();
-      await ordersRef.doc(orderDoc.id).update({'products': updatedProducts});
-    } else {
-      // Create a new order if none exists
-      await ordersRef.add({
-        'products': selectedProducts.entries
-            .map((entry) => {
-          'productName': entry.key.productName,
-          'productId': entry.key.productId,
-          'quantity': entry.value,
-          'price': entry.key.price,
-          'discount': entry.key.discount,
-          'productImage': entry.key.productImageUrl,
-          'brandId': entry.key.brandId,
-          'categoryId': entry.key.categoryId,
-          'productType': entry.key.productType,
-          'sku': entry.key.sku,
-        })
-            .toList(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'createdBy': FirebaseAuth.instance.currentUser!.uid,
-        'updatedBy': FirebaseAuth.instance.currentUser!.uid,
-        'tableNo': widget.tableModel.tableId,
-        'status': OrderStatus.pending.index,
-        'orderId': ordersRef.id
-      });
-    }
-  }
+  // Future<void> saveSelectedProducts() async {
+  //   final ordersRef = FirebaseFirestore.instance
+  //       .collection('Enrolled Entities')
+  //       .doc(widget.tenantId)
+  //       .collection('Orders');
+  //
+  //   final querySnapshot = await ordersRef
+  //       .where('tableNo', isEqualTo: widget.tableModel.tableId)
+  //       .where('status', isEqualTo: OrderStatus.pending.index)
+  //       .get();
+  //
+  //   if (querySnapshot.docs.isNotEmpty) {
+  //     // Update the ongoing order
+  //     final orderDoc = querySnapshot.docs.first;
+  //     final List<Map<String, dynamic>> updatedProducts =
+  //     selectedProducts.entries
+  //         .map((entry) => {
+  //       'productName': entry.key.productName,
+  //       'productId': entry.key.productId,
+  //       'quantity': entry.value,
+  //       'price': entry.key.price,
+  //       'discount': entry.key.discount,
+  //       'productImage': entry.key.productImageUrl,
+  //       'brandId': entry.key.brandId,
+  //       'categoryId': entry.key.categoryId,
+  //       'productType': entry.key.productType,
+  //       'sku': entry.key.sku,
+  //     })
+  //         .toList();
+  //     await ordersRef.doc(orderDoc.id).update({'products': updatedProducts});
+  //   } else {
+  //     // Create a new order if none exists
+  //     await ordersRef.add({
+  //       'products': selectedProducts.entries
+  //           .map((entry) => {
+  //         'productName': entry.key.productName,
+  //         'productId': entry.key.productId,
+  //         'quantity': entry.value,
+  //         'price': entry.key.price,
+  //         'discount': entry.key.discount,
+  //         'productImage': entry.key.productImageUrl,
+  //         'brandId': entry.key.brandId,
+  //         'categoryId': entry.key.categoryId,
+  //         'productType': entry.key.productType,
+  //         'sku': entry.key.sku,
+  //       })
+  //           .toList(),
+  //       'updatedAt': FieldValue.serverTimestamp(),
+  //       'createdAt': FieldValue.serverTimestamp(),
+  //       'createdBy': FirebaseAuth.instance.currentUser!.uid,
+  //       'updatedBy': FirebaseAuth.instance.currentUser!.uid,
+  //       'tableNo': widget.tableModel.tableId,
+  //       'status': OrderStatus.pending.index,
+  //       'orderId': ordersRef.id
+  //     });
+  //   }
+  // }
 
   // Clear the selected products from shared preferences
-  Future<void> clearSelectedProducts() async {
-    final ordersRef = FirebaseFirestore.instance
-        .collection('Enrolled Entities')
-        .doc(widget.tenantId)
-        .collection('Orders');
-
-    // Find the pending order for the current table
-    final querySnapshot = await ordersRef
-        .where('tableNo', isEqualTo: widget.tableModel.tableId)
-        .where('status', isEqualTo: OrderStatus.pending.index)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      // Update the order's products to an empty array
-      final orderDoc = querySnapshot.docs.first;
-      await ordersRef.doc(orderDoc.id).update({'products': []});
-    } else {
-      print('No ongoing order to clear.');
-    }
-  }
+  // Future<void> clearSelectedProducts() async {
+  //   final ordersRef = FirebaseFirestore.instance
+  //       .collection('Enrolled Entities')
+  //       .doc(widget.tenantId)
+  //       .collection('Orders');
+  //
+  //   // Find the pending order for the current table
+  //   final querySnapshot = await ordersRef
+  //       .where('tableNo', isEqualTo: widget.tableModel.tableId)
+  //       .where('status', isEqualTo: OrderStatus.pending.index)
+  //       .get();
+  //
+  //   if (querySnapshot.docs.isNotEmpty) {
+  //     // Update the order's products to an empty array
+  //     final orderDoc = querySnapshot.docs.first;
+  //     await ordersRef.doc(orderDoc.id).update({'products': []});
+  //   } else {
+  //     print('No ongoing order to clear.');
+  //   }
+  // }
 
   // Pagination query
 
-  void removeProduct(Product product) {
-    setState(() {
-      if (selectedProducts.containsKey(product)) {
-        selectedProducts[product] =
-            (selectedProducts[product] ?? 1) - 1; // Decrease quantity
-        if (selectedProducts[product] == 0) {
-          selectedProducts
-              .remove(product); // Remove product if quantity is zero
-        }
-      }
-    });
-    saveSelectedProducts(); // Save changes
-  }
+  // void removeProduct(Product product) {
+  //   setState(() {
+  //     if (selectedProducts.containsKey(product)) {
+  //       selectedProducts[product] =
+  //           (selectedProducts[product] ?? 1) - 1; // Decrease quantity
+  //       if (selectedProducts[product] == 0) {
+  //         selectedProducts
+  //             .remove(product); // Remove product if quantity is zero
+  //       }
+  //     }
+  //   });
+  //   saveSelectedProducts(); // Save changes
+  // }
 
   List<OrderProduct> orderProducts = [];
 
@@ -464,12 +464,12 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
     });
   }
 
-  void updateFloatingContainerPosition(DragUpdateDetails details) {
-    setState(() {
-      floatingContainerPosition +=
-          details.delta; // Update position based on drag
-    });
-  }
+  // void updateFloatingContainerPosition(DragUpdateDetails details) {
+  //   setState(() {
+  //     floatingContainerPosition +=
+  //         details.delta; // Update position based on drag
+  //   });
+  // }
 
   double calculateTotalOrderPrice() {
     double total = 0.0;

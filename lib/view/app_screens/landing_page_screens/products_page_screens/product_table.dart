@@ -6,6 +6,9 @@ import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import '../../../../model/brand_model.dart';
 import '../../../../model/category_model.dart';
+import '../../../../model/log_model.dart';
+import '../../../../repository/log_actions.dart';
+import '../../../../res/app_enums.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/app_custom_text.dart';
 import '../../../widgets/drop_down.dart';
@@ -216,6 +219,13 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                         .collection('Products')
                         .doc(widget.productList[index].productId)
                         .update(newProduct.toFirestore());
+                    LogActivity logActivity = LogActivity();
+                    LogModel logModel = LogModel(
+                        actionType: LogActionType.productEdit.toString(),
+                        actionDescription: "${widget.userModel.fullname} edited product with Id from ${widget.productList[index]} to ${newProduct}",
+                        performedBy: widget.userModel.fullname,
+                        userId: widget.userModel.userId);
+                    logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                     setState(() {
                       widget.productList[index].productName =
                           productNameController.text;
@@ -245,7 +255,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
     );
   }
 
-  void _deleteProduct(int index, String productId) {
+  void _deleteProduct(int index, String productId,String productName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -273,6 +283,13 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                     .collection('Products')
                     .doc(productId)
                     .delete();
+                LogActivity logActivity = LogActivity();
+                LogModel logModel = LogModel(
+                    actionType: LogActionType.systemStartStopDay.toString(),
+                    actionDescription: "${widget.userModel.fullname} deleted product with id $productId and name $productName",
+                    performedBy: widget.userModel.fullname,
+                    userId: widget.userModel.userId);
+                logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                 print('Product deleted');
                 Navigator.of(context).pop();
               },
@@ -372,7 +389,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                                       color: Colors.red),
                                   onPressed: () {
                                     _deleteProduct(productIndex,
-                                        paginatedProducts[index].productId);
+                                        paginatedProducts[index].productId,paginatedProducts[index].productName,);
                                   },
                                 ),
                               ],

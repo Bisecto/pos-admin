@@ -3,14 +3,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
+import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
 
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../model/log_model.dart';
 import '../../../../model/order_model.dart';
 import '../../../../model/tenant_model.dart';
+import '../../../../repository/log_actions.dart';
 import '../../../../res/app_colors.dart';
+import '../../../../res/app_enums.dart';
 import '../../../../res/app_images.dart';
 import '../../../../utills/enums/order_status_enums.dart';
 import '../../../widgets/app_custom_text.dart';
@@ -19,8 +23,9 @@ import '../../../widgets/form_button.dart';
 class OrderManagementPage extends StatefulWidget {
   final String tenantId;
   final TenantModel tenantModel;
+  final UserModel userModel;
 
-  OrderManagementPage({required this.tenantId, required this.tenantModel});
+  OrderManagementPage({required this.tenantId, required this.tenantModel, required this.userModel});
 
   @override
   _OrderManagementPageState createState() => _OrderManagementPageState();
@@ -610,7 +615,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     'Canceled',
   ];
 
-  Future<void> fetchOrderDetails(orderId) async {
+  Future<void> fetchOrderDetails(orderId) async   {
     final orderRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.tenantId)
@@ -643,6 +648,13 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
     int statusIndex = statusOptions.indexOf(status);
     await orderRef.update({'status': statusIndex});
+    LogActivity logActivity = LogActivity();
+    LogModel logModel = LogModel(
+        actionType: LogActionType.orderStatusChange.toString(),
+        actionDescription: "${widget.userModel.fullname} change the order status of order Id $orderId to $status",
+        performedBy: widget.userModel.fullname,
+        userId: widget.userModel.userId);
+    logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
   }
 
   // Calculate total order price

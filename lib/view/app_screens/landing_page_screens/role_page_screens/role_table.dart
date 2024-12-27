@@ -5,6 +5,9 @@ import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import '../../../../model/brand_model.dart';
 import '../../../../model/category_model.dart';
+import '../../../../model/log_model.dart';
+import '../../../../repository/log_actions.dart';
+import '../../../../res/app_enums.dart';
 import '../../../../utills/app_validator.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/app_custom_text.dart';
@@ -146,6 +149,13 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     .collection('Users')
                     .doc(widget.userList[index].userId)
                     .update(userModel.toFirestore());
+                LogActivity logActivity = LogActivity();
+                LogModel logModel = LogModel(
+                    actionType: LogActionType.userEdit.toString(),
+                    actionDescription: "${widget.userModel.fullname} edited user with Id from ${widget.userList[index]} to $userModel",
+                    performedBy: widget.userModel.fullname,
+                    userId: widget.userModel.userId);
+                logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                 setState(() {
                   widget.userList[index].fullname = fullNameController.text;
                   widget.userList[index].phone = phoneController.text;
@@ -194,7 +204,13 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     .collection('Users')
                     .doc(widget.userList[index].userId)
                     .update({"accountStatus": false});
-
+                LogActivity logActivity = LogActivity();
+                LogModel logModel = LogModel(
+                    actionType: LogActionType.userEdit.toString(),
+                    actionDescription: "${widget.userModel.fullname} deactivated user with Id  ${widget.userList[index].userId} and name ${widget.userList[index].fullname} ",
+                    performedBy: widget.userModel.fullname,
+                    userId: widget.userModel.userId);
+                logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                 print('User deleted');
                 Navigator.of(context).pop();
               },

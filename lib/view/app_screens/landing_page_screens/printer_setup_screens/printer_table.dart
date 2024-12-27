@@ -6,9 +6,12 @@ import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
 import '../../../../bloc/printer_bloc/printer_bloc.dart';
+import '../../../../model/log_model.dart';
 import '../../../../model/printer_model.dart';
 import '../../../../model/user_model.dart';
+import '../../../../repository/log_actions.dart';
 import '../../../../res/app_colors.dart';
+import '../../../../res/app_enums.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/form_button.dart';
 import '../../../widgets/form_input.dart';
@@ -137,6 +140,13 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                       .collection('Printer')
                       .doc(widget.printerList[index].printerId)
                       .update(newPrinter.toFirestore());
+                  LogActivity logActivity = LogActivity();
+                  LogModel logModel = LogModel(
+                      actionType: LogActionType.printerEdit.toString(),
+                      actionDescription: "${widget.userModel.fullname} changed the pinter details from ${widget.printerList[index]} to ${newPrinter} ",
+                      performedBy: widget.userModel.fullname,
+                      userId: widget.userModel.userId);
+                  logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                   setState(() {
                     widget.printerList[index].printerName =
                         printerNameController.text;
@@ -195,7 +205,7 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
   //   );
   // }
 
-  void _deletePrinter(int index, String printerId) {
+  void _deletePrinter(int index, String printerId,String printerName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -230,6 +240,13 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                       .collection('Printer')
                       .doc(printerId)
                       .delete();
+                  LogActivity logActivity = LogActivity();
+                  LogModel logModel = LogModel(
+                      actionType: LogActionType.printerDelete.toString(),
+                      actionDescription: "${widget.userModel.fullname} deleted a printer with id $printerId and na me $printerName",
+                      performedBy: widget.userModel.fullname,
+                      userId: widget.userModel.userId);
+                  logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                 } catch (e) {
                   print(e);
                 }
@@ -334,6 +351,7 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                                 _deletePrinter(
                                   printerIndex,
                                   paginatedprinters[index].printerId!,
+                                  paginatedprinters[index].printerName!,
                                 );
                               },
                             ),

@@ -9,7 +9,11 @@ import 'package:meta/meta.dart';
 
 import '../../model/brand_model.dart';
 import '../../model/category_model.dart';
+import '../../model/log_model.dart';
 import '../../model/product_model.dart';
+import '../../model/user_model.dart';
+import '../../repository/log_actions.dart';
+import '../../res/app_enums.dart';
 import '../../utills/app_utils.dart';
 
 part 'product_event.dart';
@@ -70,7 +74,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     emit(ProductLoadingState());
     try {
       String? userId = FirebaseAuth.instance.currentUser!.uid;
-      String? productUrl = await uploadImageToFirebase(event.imageFile,event.productName);
+      // String? productUrl =
+      //     await uploadImageToFirebase(event.imageFile, event.productName);
       String generatedId = AppUtils().generateFirestoreUniqueId();
       var collection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
@@ -86,14 +91,23 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         updatedAt: Timestamp.fromDate(DateTime.now()),
         categoryId: event.categoryId,
         brandId: event.brandId,
-        productImageUrl: productUrl!,
+        productImageUrl: '',//productUrl!,
         price: event.price,
         sku: event.sku,
         //productType:event.productType,
-        discount: event.discount, productType: event.productType,
+        discount: event.discount,
+        productType: event.productType,
       );
 
       await collection.doc(generatedId).set(newProduct.toFirestore());
+      LogActivity logActivity = LogActivity();
+      LogModel logModel = LogModel(
+          actionType: LogActionType.productAdd.toString(),
+          actionDescription:
+              "${event.userModel.fullname} added a new product with id $generatedId and name ${event.productName}",
+          performedBy: event.userModel.fullname,
+          userId: event.userModel.userId);
+      await logActivity.logAction(event.userModel.tenantId.trim(), logModel);
       QuerySnapshot brandQuerySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
           .doc(event.tenantId)
@@ -143,6 +157,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           .doc(event.productId);
 
       await collection.delete();
+      LogActivity logActivity = LogActivity();
+      LogModel logModel = LogModel(
+          actionType: LogActionType.productDelete.toString(),
+          actionDescription:
+              "${event.userModel.fullname} deleted product with id ${event.productId}",
+          performedBy: event.userModel.fullname,
+          userId: event.userModel.userId);
+      await logActivity.logAction(event.userModel.tenantId.trim(), logModel);
       QuerySnapshot brandQuerySnapshot = await FirebaseFirestore.instance
           .collection('Enrolled Entities')
           .doc(event.tenantId)
@@ -179,30 +201,30 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   }
 }
 
-Future<String?> uploadImageToFirebase(File imageFile, String imageName) async {
-  try {
-    // Create a unique filename for the image using the current timestamp
-    String fileName = imageName.replaceAll(' ', '') +
-        DateTime.now().millisecondsSinceEpoch.toString();
-
-    // Define a Firebase Storage reference
-    Reference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('product_images/$fileName');
-
-    // Upload the file to Firebase Storage
-    UploadTask uploadTask = firebaseStorageRef.putFile(imageFile);
-
-    // Wait until the file upload completes
-    TaskSnapshot taskSnapshot = await uploadTask;
-
-    // Get the download URL of the uploaded file
-    String downloadURL = await taskSnapshot.ref.getDownloadURL();
-
-    print("Image uploaded successfully. URL: $downloadURL");
-
-    return downloadURL; // Return the URL of the uploaded image
-  } catch (e) {
-    print("Error uploading image: $e");
-    return null; // Return null if the upload fails
-  }
-}
+// Future<String?> uploadImageToFirebase(File imageFile, String imageName) async {
+//   try {
+//     // Create a unique filename for the image using the current timestamp
+//     String fileName = imageName.replaceAll(' ', '') +
+//         DateTime.now().millisecondsSinceEpoch.toString();
+//
+//     // Define a Firebase Storage reference
+//     Reference firebaseStorageRef =
+//         FirebaseStorage.instance.ref().child('product_images/$fileName');
+//
+//     // Upload the file to Firebase Storage
+//     UploadTask uploadTask = firebaseStorageRef.putFile(imageFile);
+//
+//     // Wait until the file upload completes
+//     TaskSnapshot taskSnapshot = await uploadTask;
+//
+//     // Get the download URL of the uploaded file
+//     String downloadURL = await taskSnapshot.ref.getDownloadURL();
+//
+//     print("Image uploaded successfully. URL: $downloadURL");
+//
+//     return downloadURL; // Return the URL of the uploaded image
+//   } catch (e) {
+//     print("Error uploading image: $e");
+//     return null; // Return null if the upload fails
+//   }
+// }

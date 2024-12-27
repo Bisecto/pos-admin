@@ -2,12 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/model/user_model.dart';
+import 'package:pos_admin/res/app_enums.dart';
 import 'package:pos_admin/utills/app_validator.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../model/address_model.dart';
 import '../../../../model/business_hours_model.dart';
+import '../../../../model/log_model.dart';
+import '../../../../repository/log_actions.dart';
 import '../../../../res/app_colors.dart';
 
 class TenantProfilePage extends StatefulWidget {
@@ -84,7 +87,13 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
             .collection('Enrolled Entities')
             .doc(widget.userModel.tenantId)
             .update(updatedTenant.toFirestore());
-
+        LogActivity logActivity = LogActivity();
+        LogModel logModel = LogModel(
+            actionType: LogActionType.businessProfileUpdate.toString(),
+            actionDescription: "${widget.userModel.fullname}  updated Business profile from ${widget.tenantModel} to ${updatedTenant}  ",
+            performedBy: widget.userModel.fullname,
+            userId: widget.userModel.userId);
+        logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Profile updated successfully')),
         );

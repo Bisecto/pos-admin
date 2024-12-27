@@ -6,8 +6,11 @@ import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
 import '../../../../bloc/category_bloc/category_bloc.dart';
+import '../../../../model/log_model.dart';
 import '../../../../model/user_model.dart';
+import '../../../../repository/log_actions.dart';
 import '../../../../res/app_colors.dart';
+import '../../../../res/app_enums.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/form_button.dart';
 import '../../../widgets/form_input.dart';
@@ -16,7 +19,7 @@ class CategoryTableScreen extends StatefulWidget {
   final List<Category> categoryList;
   final UserModel userModel;
 
-  CategoryTableScreen({required this.categoryList,required this.userModel});
+  CategoryTableScreen({required this.categoryList, required this.userModel});
 
   @override
   _CategoryTableScreenState createState() => _CategoryTableScreenState();
@@ -101,14 +104,25 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                     updatedBy: userId,
                     createdAt: widget.categoryList[index].createdAt,
                     updatedAt: Timestamp.fromDate(DateTime.now()),
-                    categoryId: widget.categoryList[index].categoryId, createdBy: widget.categoryList[index].createdBy,
+                    categoryId: widget.categoryList[index].categoryId,
+                    createdBy: widget.categoryList[index].createdBy,
                   );
                   FirebaseFirestore.instance
                       .collection('Enrolled Entities')
-                      .doc(widget.userModel.tenantId) // Replace with the tenant ID
+                      .doc(widget
+                          .userModel.tenantId) // Replace with the tenant ID
                       .collection('Category')
                       .doc(widget.categoryList[index].categoryId)
                       .update(newCategory.toFirestore());
+                  LogActivity logActivity = LogActivity();
+                  LogModel logModel = LogModel(
+                      actionType: LogActionType.categoryEdit.toString(),
+                      actionDescription:
+                          "${widget.userModel.fullname} edited category name from${widget.categoryList[index].categoryName} to ${categoryNameController.text}",
+                      performedBy: widget.userModel.fullname,
+                      userId: widget.userModel.userId);
+                  logActivity.logAction(
+                      widget.userModel.tenantId.trim(), logModel);
                   setState(() {
                     widget.categoryList[index].categoryName =
                         categoryNameController.text;
@@ -164,7 +178,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
   //   );
   // }
 
-  void _deleteCategory(int index, String categoryId) {
+  void _deleteCategory(int index, String categoryId,String categoryName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -194,10 +208,18 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                   print(categoryId);
                   FirebaseFirestore.instance
                       .collection('Enrolled Entities')
-                      .doc(widget.userModel.tenantId) // Replace with the tenant ID
+                      .doc(widget
+                          .userModel.tenantId) // Replace with the tenant ID
                       .collection('Category')
                       .doc(categoryId)
                       .delete();
+                  LogActivity logActivity = LogActivity();
+                  LogModel logModel = LogModel(
+                      actionType: LogActionType.categoryDelete.toString(),
+                      actionDescription: "${widget.userModel.fullname} deleted category with id $categoryId and name $categoryName",
+                      performedBy: widget.userModel.fullname,
+                      userId: widget.userModel.userId);
+                  logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                 } catch (e) {
                   print(e);
                 }
@@ -224,7 +246,8 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
               scrollDirection: Axis.horizontal, // Allow horizontal scrolling
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minWidth: MediaQuery.of(context).size.width, // Ensure full width
+                  minWidth:
+                      MediaQuery.of(context).size.width, // Ensure full width
                 ),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical, // Allow vertical scrolling
@@ -246,11 +269,13 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                             style: TextStyle(color: Colors.white)),
                       ),
                       DataColumn(
-                        label: Text('ACTIONS', style: TextStyle(color: Colors.white)),
+                        label: Text('ACTIONS',
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ],
                     rows: List.generate(paginatedcategorys.length, (index) {
-                      final categoryIndex = (currentPage - 1) * rowsPerPage + index;
+                      final categoryIndex =
+                          (currentPage - 1) * rowsPerPage + index;
                       return DataRow(cells: [
                         // DataCell(Text(
                         //   (index + 1).toString(),
@@ -278,6 +303,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                                 _deleteCategory(
                                   categoryIndex,
                                   paginatedcategorys[index].categoryId!,
+                                  paginatedcategorys[index].categoryName!,
                                 );
                               },
                             ),
@@ -300,7 +326,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 (totalItems / rowsPerPage).ceil(),
-                    (index) => GestureDetector(
+                (index) => GestureDetector(
                   onTap: () {
                     setState(() {
                       currentPage = index + 1;

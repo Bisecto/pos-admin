@@ -5,7 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:pos_admin/model/printer_model.dart';
+import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/utills/app_utils.dart';
+
+import '../../model/log_model.dart';
+import '../../repository/log_actions.dart';
+import '../../res/app_enums.dart';
 
 part 'printer_event.dart';
 
@@ -78,6 +83,13 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       List<PrinterModel> printerList = querySnapshot.docs
           .map((doc) => PrinterModel.fromFirestore(doc))
           .toList();
+      LogActivity logActivity = LogActivity();
+      LogModel logModel = LogModel(
+          actionType: LogActionType.printerAdd.toString(),
+          actionDescription: "${event.userModel.fullname} added a new printer with id $generatedId",
+          performedBy: event.userModel.fullname,
+          userId: event.userModel.userId);
+      await logActivity.logAction(event.userModel.tenantId.trim(), logModel);
       emit(GetPrinterSuccessState(printerList));
       // emit(GetPrinterSuccessState(printerList));
     } catch (e) {
@@ -109,6 +121,13 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
       List<PrinterModel> printerList = querySnapshot.docs
           .map((doc) => PrinterModel.fromFirestore(doc))
           .toList();
+      LogActivity logActivity = LogActivity();
+      LogModel logModel = LogModel(
+          actionType: LogActionType.printerDelete.toString(),
+          actionDescription: "${event.userModel.fullname} deleted a printer with id ${event.printerId}",
+          performedBy: event.userModel.fullname,
+          userId: event.userModel.userId);
+      await logActivity.logAction(event.userModel.tenantId.trim(), logModel);
       emit(GetPrinterSuccessState(printerList));
       // emit(GetPrinterSuccessState(printerList));
     } catch (e) {

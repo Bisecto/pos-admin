@@ -131,7 +131,7 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                           widget.userModel.tenantId,
                           printerIpController.text,
                           int.parse(printerPortController.text),
-                          'thermal'));
+                          'thermal',widget.userModel));
                     } else {
                       MSG.warningSnackBar(
                           context, "Printer port cannot be empty.");

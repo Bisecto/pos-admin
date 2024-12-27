@@ -6,13 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/tables_page_screen/order/paginated_item_widget.dart';
 
 import '../../../../../model/activity_model.dart';
+import '../../../../../model/log_model.dart';
 import '../../../../../model/order_model.dart';
 import '../../../../../model/printer_model.dart';
 import '../../../../../model/product_model.dart';
 import '../../../../../model/table_model.dart';
 import '../../../../../model/tenant_model.dart';
 import '../../../../../model/user_model.dart';
+import '../../../../../repository/log_actions.dart';
 import '../../../../../res/app_colors.dart';
+import '../../../../../res/app_enums.dart';
 import '../../../../../res/app_images.dart';
 import '../../../../../utills/app_utils.dart';
 import '../../../../../utills/enums/order_status_enums.dart';
@@ -319,42 +322,48 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                           Row(
                                             children: [
                                               // Decrement Button
-                                              IconButton(
-                                                icon: const Icon(Icons.remove_circle_outline),
-                                                onPressed: () {
-                                                  if (product.quantity > 1) {
-                                                    updateProductQuantity(product, product.quantity - 1);
-                                                  } else {
-                                                    removeProductFromOrder(product);
-                                                  }
-                                                },
-                                              ),
-                                              // Quantity Display
-                                              CustomText(
-                                                text: "X${product.quantity}",
-                                                size: 12,
-                                              ),
-                                              // Increment Button
-                                              IconButton(
-                                                icon: const Icon(Icons.add_circle_outline),
-                                                onPressed: () {
-                                                  updateProductQuantity(product, product.quantity + 1);
-                                                },
-                                              ),
+                                              // IconButton(
+                                              //   icon: const Icon(Icons.remove_circle_outline),
+                                              //   onPressed: () {
+                                              //     if (product.quantity > 1) {
+                                              //       updateProductQuantity(product, product.quantity - 1);
+                                              //     } else {
+                                              //       removeProductFromOrder(product);
+                                              //     }
+                                              //   },
+                                              // ),
+                                              // // Quantity Display
+                                              // CustomText(
+                                              //   text: "X${product.quantity}",
+                                              //   size: 12,
+                                              // ),
+                                              // // Increment Button
+                                              // IconButton(
+                                              //   icon: const Icon(Icons.add_circle_outline),
+                                              //   onPressed: () {
+                                              //     updateProductQuantity(product, product.quantity + 1);
+                                              //   },
+                                              // ),
                                               // Delete Button
                                               GestureDetector(
-                                                onTap: () {
-                                                  removeProductFromOrder(product);
-                                                },
-                                                child: const Icon(
-                                                  Icons.delete,
-                                                  color: AppColors.red,
+                                                child: FormButton(
+                                                  onPressed: () {
+                                                    if (product.isProductVoid) {
+                                                    } else {
+                                                      voidProductInOrder(
+                                                          product, orderId);
+                                                    }
+                                                    ;
+                                                  },
+                                                  text: product.isProductVoid
+                                                      ? 'Voided'
+                                                      : 'Void Product',
+                                                  width: 150,
+                                                  bgColor:product.isProductVoid?AppColors.yellow: AppColors.red,
                                                 ),
                                               ),
                                             ],
                                           )
-
-
                                         ],
                                       ),
                                     );
@@ -438,7 +447,9 @@ class _TableOrderPageState extends State<TableOrderPage> {
               ));
         });
   }
-  Future<void> updateProductQuantity(OrderProduct product, int newQuantity) async {
+
+  Future<void> updateProductQuantity(
+      OrderProduct product, int newQuantity) async {
     final ordersRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.userModel.tenantId.trim())
@@ -470,13 +481,23 @@ class _TableOrderPageState extends State<TableOrderPage> {
       await ordersRef.doc(orderDoc.id).update({'products': products});
       Navigator.pop(context);
       Navigator.pop(context);
+      LogActivity logActivity = LogActivity();
+      LogModel logModel = LogModel(
+          actionType: LogActionType.orderEdit.toString(),
+          actionDescription:
+              "${widget.userModel.fullname} changed product quantity for order ${orderDoc.id} from ${product.quantity} to $newQuantity ",
+          performedBy: widget.userModel.fullname,
+          userId: widget.userModel.userId);
+      logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
       MSG.snackBar(context, 'Order Updated');
     } else {
       print('No matching order found to update.');
     }
   }
 
-  Future<void> removeProductFromOrder(OrderProduct productToRemove) async {
+  Future<void> voidProductInOrder(OrderProduct productToVoid, orderId) async {
+    print('Product to void: ${productToVoid.productId}');
+
     final ordersRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.userModel.tenantId.trim())
@@ -484,7 +505,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
 
     // Query the specific order
     final querySnapshot = await ordersRef
-        .where('tableNo', isEqualTo: widget.tableModel.tableId)
+        .where('orderId', isEqualTo: orderId)
         .where('status', isEqualTo: OrderStatus.booked.index)
         .get();
 
@@ -494,18 +515,44 @@ class _TableOrderPageState extends State<TableOrderPage> {
       final orderData = orderDoc.data();
 
       // Retrieve the current list of products
-      List<dynamic> products = orderData['products'];
+      List<dynamic> products = List.from(orderData['products']);
+      print(products);
+      // Find and update the specific product
+      bool productFound = false;
+      for (var product in products) {
+        if (product['productId'] == productToVoid.productId) {
+          product['isProductVoid'] = true; // Dynamically add isProductVoid
+          productFound = true;
+          break; // Exit loop once product is updated
+        }
+      }
 
-      // Remove the specific product from the list
-      products.removeWhere((product) => product['productId'] == productToRemove.productId);
+      if (productFound) {
+        // Update the order with the modified list
+        await ordersRef.doc(orderDoc.id).update({'products': products});
 
-      // Update the order with the modified list
-      await ordersRef.doc(orderDoc.id).update({'products': products});
-      Navigator.pop(context);
-      MSG.snackBar(context, 'Order Updated');
+        // Log the action
+        LogActivity logActivity = LogActivity();
+        LogModel logModel = LogModel(
+          actionType: LogActionType.orderVoid.toString(),
+          actionDescription:
+              "${widget.userModel.fullname} voided product '${productToVoid.productId}' in order '${orderDoc.id}'",
+          performedBy: widget.userModel.fullname,
+          userId: widget.userModel.userId,
+        );
+        logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
 
+        // Notify user
+        Navigator.pop(context);
+        Navigator.pop(context);
+        MSG.snackBar(context, 'Product voided successfully.');
+      } else {
+        print('Product not found in the order.');
+        MSG.snackBar(context, 'Product not found in the order.');
+      }
     } else {
       print('No matching order found to update.');
+      MSG.snackBar(context, 'No matching order found to update.');
     }
   }
 
@@ -789,49 +836,49 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                 );
                               },
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                if (selectedOrderIds.length == 1)
-                                  FormButton(
-                                    onPressed: () async {
-                                      await fetchOrderDetails(
-                                          selectedOrderIds.first);
-                                      // }
-                                      showPopup(
-                                        context,
-                                        selectedOrderIds.first,
-                                      );
-                                    },
-                                    text: "Settle",
-                                    width: 100,
-                                    //disableButton: selectedOrderIds.length,
-                                    borderRadius: 20,
-                                    bgColor: AppColors.green,
-                                  ),
-                                if (selectedOrderIds.length > 1)
-                                  FormButton(
-                                    onPressed: () {
-                                      mergeSelectedOrdersAndDeleteRest(
-                                          widget.userModel.tenantId.trim());
-                                    },
-                                    text: "Merge",
-                                    width: 100,
-                                    disableButton: selectedOrderIds.length < 2,
-                                    borderRadius: 20,
-                                    bgColor: AppColors.green,
-                                  ),
-                                // FormButton(
-                                //   onPressed: () {
-                                //     _printReceipt();
-                                //   },
-                                //   text: "Close",
-                                //   width: 125,
-                                //   borderRadius: 20,
-                                //   bgColor: AppColors.red,
-                                // ),
-                              ],
-                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            //   children: [
+                            //     if (selectedOrderIds.length == 1)
+                            //       FormButton(
+                            //         onPressed: () async {
+                            //           await fetchOrderDetails(
+                            //               selectedOrderIds.first);
+                            //           // }
+                            //           showPopup(
+                            //             context,
+                            //             selectedOrderIds.first,
+                            //           );
+                            //         },
+                            //         text: "Settle",
+                            //         width: 100,
+                            //         //disableButton: selectedOrderIds.length,
+                            //         borderRadius: 20,
+                            //         bgColor: AppColors.green,
+                            //       ),
+                            //     if (selectedOrderIds.length > 1)
+                            //       FormButton(
+                            //         onPressed: () {
+                            //           mergeSelectedOrdersAndDeleteRest(
+                            //               widget.userModel.tenantId.trim());
+                            //         },
+                            //         text: "Merge",
+                            //         width: 100,
+                            //         disableButton: selectedOrderIds.length < 2,
+                            //         borderRadius: 20,
+                            //         bgColor: AppColors.green,
+                            //       ),
+                            //     // FormButton(
+                            //     //   onPressed: () {
+                            //     //     _printReceipt();
+                            //     //   },
+                            //     //   text: "Close",
+                            //     //   width: 125,
+                            //     //   borderRadius: 20,
+                            //     //   bgColor: AppColors.red,
+                            //     // ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ),
@@ -906,6 +953,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
               cashValue: product.cashValue,
               change: product.change,
               paymentMethod: product.paymentMethod,
+              isProductVoid: product.isProductVoid,
               // Add any other necessary fields
             );
           } else {

@@ -7,7 +7,10 @@ import 'package:pos_admin/view/widgets/app_custom_text.dart';
 
 import '../../../../bloc/brand_bloc/brand_bloc.dart';
 import '../../../../model/brand_model.dart';
+import '../../../../model/log_model.dart';
+import '../../../../repository/log_actions.dart';
 import '../../../../res/app_colors.dart';
+import '../../../../res/app_enums.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/form_button.dart';
 import '../../../widgets/form_input.dart';
@@ -109,10 +112,18 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                       .collection('Brand')
                       .doc(widget.brandList[index].brandId)
                       .update(newBrand.toFirestore());
+                  LogActivity logActivity = LogActivity();
+                  LogModel logModel = LogModel(
+                      actionType: LogActionType.brandEdit.toString(),
+                      actionDescription: "${widget.userModel.fullname} edited brand name from${ widget.brandList[index].brandName} to ${ brandNameController.text}",
+                      performedBy: widget.userModel.fullname,
+                      userId: widget.userModel.userId);
+                   logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                   setState(() {
                     widget.brandList[index].brandName =
                         brandNameController.text;
                   });
+
                   print(
                       'Brand ${widget.brandList[index].brandName} edited');
                 } else {
@@ -164,7 +175,7 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
   //   );
   // }
 
-  void _deleteBrand(int index, String brandId) {
+  void _deleteBrand(int index, String brandId,String brandName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -194,10 +205,17 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                   print(brandId);
                   FirebaseFirestore.instance
                       .collection('Enrolled Entities')
-                      .doc(widget.userModel.tenantId) // Replace with the tenant ID
+                      .doc(widget.userModel.tenantId)
                       .collection('Brand')
                       .doc(brandId)
                       .delete();
+                  LogActivity logActivity = LogActivity();
+                  LogModel logModel = LogModel(
+                      actionType: LogActionType.brandDelete.toString(),
+                      actionDescription: "${widget.userModel.fullname} deleted brand with id  $brandId and name $brandName",
+                      performedBy: widget.userModel.fullname,
+                      userId: widget.userModel.userId);
+                  logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
                 } catch (e) {
                   print(e);
                 }
@@ -269,7 +287,7 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () {
                                 _deleteBrand(brandIndex,
-                                    paginatedbrands[index].brandId!);
+                                    paginatedbrands[index].brandId!,paginatedbrands[index].brandName!);
                               },
                             ),
                           ],

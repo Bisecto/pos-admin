@@ -20,6 +20,7 @@ class AddProductEvent extends ProductEvent {
   final double discount;
   final File imageFile;
   final String productType;
+  final UserModel userModel;
 
   AddProductEvent(
       this.productName,
@@ -30,14 +31,15 @@ class AddProductEvent extends ProductEvent {
       this.discount,
       this.imageFile,
       this.tenantId,
-      this.productType);
+      this.productType, this.userModel);
 }
 
 class DeleteProductEvent extends ProductEvent {
   final String productId;
   final String tenantId;
+  final UserModel userModel;
 
-  DeleteProductEvent(this.productId, this.tenantId);
+  DeleteProductEvent(this.productId, this.tenantId, this.userModel);
 }
 
 class EditProductEvent extends ProductEvent {

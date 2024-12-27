@@ -188,7 +188,7 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                                     fullNameController.text,
                                                     roleController.text,
                                                     'Qwerty123@',
-                                                    widget.tenantModel,
+                                                    widget.tenantModel, widget.userModel
                                                   ));
                                                 });
                                               }

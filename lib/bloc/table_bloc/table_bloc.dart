@@ -7,6 +7,10 @@ import 'package:meta/meta.dart';
 import 'package:pos_admin/model/activity_model.dart';
 import 'package:pos_admin/model/table_model.dart';
 
+import '../../model/log_model.dart';
+import '../../model/user_model.dart';
+import '../../repository/log_actions.dart';
+import '../../res/app_enums.dart';
 import '../../utills/app_utils.dart';
 
 part 'table_event.dart';
@@ -79,7 +83,13 @@ Future<void> addTableEvent(
         updatedAt: Timestamp.now());
 
     await collection.doc(generatedId).set(tableModel.toFirestore());
-
+    LogActivity logActivity = LogActivity();
+    LogModel logModel = LogModel(
+        actionType: LogActionType.tableAdd.toString(),
+        actionDescription: "${event.userModel.fullname} added a new table with id $generatedId",
+        performedBy: event.userModel.fullname,
+        userId: event.userModel.userId);
+    await logActivity.logAction(event.userModel.tenantId.trim(), logModel);
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(event.tenantId)
@@ -125,12 +135,6 @@ FutureOr<void> deleteTableEvent(
         .doc(event.tableId);
 
     await collection.delete();
-    QuerySnapshot brandQuerySnapshot = await FirebaseFirestore.instance
-        .collection('Enrolled Entities')
-        .doc(event.tenantId)
-        .collection('Brand')
-        .get();
-    print(brandQuerySnapshot.docs);
 
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('Enrolled Entities')

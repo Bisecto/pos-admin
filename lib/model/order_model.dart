@@ -72,6 +72,7 @@ class OrderProduct {
   final String amountPaid;
   final String cashValue;
   final String change;
+  final bool isProductVoid;
   final String paymentMethod;
 
   OrderProduct({
@@ -88,6 +89,7 @@ class OrderProduct {
     required this.amountPaid,
     required this.cashValue,
     required this.change,
+    required this.isProductVoid,
     required this.paymentMethod,
   });
 
@@ -107,6 +109,7 @@ class OrderProduct {
       amountPaid: json['amountPaid'] ?? '',
       cashValue: json['cashValue'] ?? '',
       change: json['change'] ?? '',
+      isProductVoid: json['isProductVoid'] ??false,
       paymentMethod: json['paymentMethod']??'',
     );
   }
