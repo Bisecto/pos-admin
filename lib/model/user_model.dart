@@ -29,16 +29,16 @@ class UserModel {
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return UserModel(
-      userId: data['userId'],
-      email: data['email'],
-      fullname: data['fullname'],
-      imageUrl: data['imageUrl'],
-      phone: data['phone'],
-      role: data['role'],
-      tenantId: data['tenantId'],
+      userId: data['userId']??'',
+      email: data['email']??'',
+      fullname: data['fullname']??'',
+      imageUrl: data['imageUrl']??'',
+      phone: data['phone']??'',
+      role: data['role']??'',
+      tenantId: data['tenantId']??'',
       createdAt: data['createdAt'],
       updatedAt: data['updatedAt'],
-      accountStatus: data['accountStatus'],
+      accountStatus: data['accountStatus']??false,
     );
   }
 

@@ -15,6 +15,7 @@ import 'all_metrics.dart';
 import 'dashboard_chart.dart';
 import 'date_filter.dart';
 import 'date_picker.dart';
+import 'daily_start_stop/day_start_stop.dart';
 import 'metrics_overview.dart';
 import 'recent_orders.dart';
 
@@ -29,6 +30,23 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  Future<List<LogModel>> fetchDayStartStop(String tenantId) async {
+    try {
+      final cashierStartStop = FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(tenantId.trim())
+          .collection('cashierStartStop');
+
+      final querySnapshot = await cashierStartStop.get();
+
+      return querySnapshot.docs.map((doc) {
+        return LogModel.fromFirestore(doc);
+      }).toList();
+    } catch (e) {
+      print("Failed to fetch StartStop: $e");
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,11 +86,12 @@ class _DashboardState extends State<Dashboard> {
                         ],
                       ),
                     ),
-                    MetricsOverview(tenantId: widget.tenantId),
-                    OrdersByUsersPage(tenantId: widget.tenantId),
-                    RecentOrders(
-                      tenantId: widget.tenantId,
-                    ),
+                    DayStartStopPage(tenantId: widget.tenantId.trim(),)
+                    // MetricsOverview(tenantId: widget.tenantId),
+                    // OrdersByUsersPage(tenantId: widget.tenantId),
+                    // RecentOrders(
+                    //   tenantId: widget.tenantId,
+                    // ),
                   ],
                 ),
               ),
