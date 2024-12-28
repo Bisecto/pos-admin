@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pos_admin/model/start_stop_model.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/daily_start_stop/voided_orders.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/dashboard_chart.dart';
 import 'package:provider/provider.dart';
 
@@ -9,15 +10,16 @@ import '../recent_orders.dart';
 
 class CompleteAnalytics extends StatelessWidget {
   final UserModel startedUser;
-   UserModel? endeduser;
+  UserModel? endeduser;
   final DailyStartModel dailyStartModel;
 
   //final
 
-   CompleteAnalytics({
+  CompleteAnalytics({
     super.key,
     required this.startedUser,
-     this.endeduser, required this.dailyStartModel,
+    this.endeduser,
+    required this.dailyStartModel,
   });
 
   @override
@@ -25,11 +27,23 @@ class CompleteAnalytics extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          MetricsOverview(tenantId: startedUser.tenantId.trim(), dailyStartModel: dailyStartModel,),
-          OrdersByUsersPage(tenantId: startedUser.tenantId.trim(),dailyStartModel: dailyStartModel,),
-          RecentOrders(
-            tenantId: startedUser.tenantId.trim(), dailyStartModel: dailyStartModel,
+          MetricsOverview(
+            tenantId: startedUser.tenantId.trim(),
+            dailyStartModel: dailyStartModel,
           ),
+          VoidedOrdersPage(
+            tenantId: startedUser.tenantId.trim(),
+            dailyStartModel: dailyStartModel,
+          ),
+          OrdersByUsersPage(
+            tenantId: startedUser.tenantId.trim(),
+            dailyStartModel: dailyStartModel,
+          ),
+          RecentOrders(
+            tenantId: startedUser.tenantId.trim(),
+            dailyStartModel: dailyStartModel,
+          ),
+
         ],
       ),
     );

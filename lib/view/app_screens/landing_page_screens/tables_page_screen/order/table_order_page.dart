@@ -359,7 +359,9 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                       ? 'Voided'
                                                       : 'Void Product',
                                                   width: 150,
-                                                  bgColor:product.isProductVoid?AppColors.yellow: AppColors.red,
+                                                  bgColor: product.isProductVoid
+                                                      ? AppColors.yellow
+                                                      : AppColors.red,
                                                 ),
                                               ),
                                             ],
@@ -497,6 +499,11 @@ class _TableOrderPageState extends State<TableOrderPage> {
 
   Future<void> voidProductInOrder(OrderProduct productToVoid, orderId) async {
     print('Product to void: ${productToVoid.productId}');
+    print(orderId);
+    print(orderId);
+    print(orderId);
+    print(orderId);
+    print(orderId);
 
     final ordersRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
@@ -521,7 +528,9 @@ class _TableOrderPageState extends State<TableOrderPage> {
       bool productFound = false;
       for (var product in products) {
         if (product['productId'] == productToVoid.productId) {
-          product['isProductVoid'] = true; // Dynamically add isProductVoid
+          product['isProductVoid'] = true;
+          product['voidedBy'] = widget.userModel.userId;
+          product['updatedAt'] = Timestamp.now();
           productFound = true;
           break; // Exit loop once product is updated
         }
@@ -536,7 +545,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
         LogModel logModel = LogModel(
           actionType: LogActionType.orderVoid.toString(),
           actionDescription:
-              "${widget.userModel.fullname} voided product '${productToVoid.productId}' in order '${orderDoc.id}'",
+              "${widget.userModel.fullname} voided product '${productToVoid.productName}' in order '${orderDoc.id}'",
           performedBy: widget.userModel.fullname,
           userId: widget.userModel.userId,
         );
