@@ -6,8 +6,10 @@ import 'package:pos_admin/view/widgets/app_custom_text.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../model/user_model.dart';
+import '../../../../../res/app_colors.dart';
 import '../metrics_overview.dart';
 import '../recent_orders.dart';
+import 'complete_order_payment_type.dart';
 
 class CompleteAnalytics extends StatelessWidget {
   final UserModel startedUser;
@@ -26,27 +28,63 @@ class CompleteAnalytics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          MetricsOverview(
-            tenantId: startedUser.tenantId.trim(),
-            dailyStartModel: dailyStartModel,
-          ),
-          TextStyles.textHeadings(textValue: 'textValue'),
-          VoidedOrdersPage(
-            tenantId: startedUser.tenantId.trim(),
-            dailyStartModel: dailyStartModel,
-          ),
-          OrdersByUsersPage(
-            tenantId: startedUser.tenantId.trim(),
-            dailyStartModel: dailyStartModel,
-          ),
-          RecentOrders(
-            tenantId: startedUser.tenantId.trim(),
-            dailyStartModel: dailyStartModel,
-          ),
-
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextStyles.textHeadings(
+                  textValue: 'Overview'.toUpperCase(),
+                  textColor: AppColors.white),
+            ),
+            MetricsOverview(
+              tenantId: startedUser.tenantId.trim(),
+              dailyStartModel: dailyStartModel,
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextStyles.textHeadings(
+                  textValue: 'Voided Items'.toUpperCase(),
+                  textColor: AppColors.white),
+            ),
+            VoidedOrdersPage(
+              tenantId: startedUser.tenantId.trim(),
+              dailyStartModel: dailyStartModel,
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextStyles.textHeadings(
+                  textValue: 'Payment Method'.toUpperCase(),
+                  textColor: AppColors.white),
+            ),
+            CompletedOrdersByPayment(
+              tenantId: startedUser.tenantId.trim(),
+              dailyStartModel: dailyStartModel,
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextStyles.textHeadings(
+                  textValue: 'User Orders'.toUpperCase(),
+                  textColor: AppColors.white),
+            ),
+            OrdersByUsersPage(
+              tenantId: startedUser.tenantId.trim(),
+              dailyStartModel: dailyStartModel,
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextStyles.textHeadings(
+                  textValue: 'Order Item Quantity'.toUpperCase(),
+                  textColor: AppColors.white),
+            ),
+            RecentOrders(
+              tenantId: startedUser.tenantId.trim(),
+              dailyStartModel: dailyStartModel,
+            ),
+          ],
+        ),
       ),
     );
   }

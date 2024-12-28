@@ -24,42 +24,39 @@ class _OrdersByUsersPageState extends State<OrdersByUsersPage> {
   Future<Map<String, double>> getOrdersSummaryByUsers(
       String tenantId, DateTime startTime, DateTime endTime) async {
     try {
-      // Step 1: Fetch all users for the given tenantId
+      // Fetch users for the tenant
       QuerySnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('Users')
           .where('tenantId', isEqualTo: tenantId.trim())
           .get();
 
+      // Map userId to fullname for quick lookup
+      Map<String, String> userIdToName = {
+        for (var userDoc in userSnapshot.docs)
+          userDoc.id: (userDoc.data() as Map<String, dynamic>)['fullname'] ?? 'Unknown User'
+      };
+
+      // Fetch all orders within the date range for the tenant
+      QuerySnapshot orderSnapshot = await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(tenantId)
+          .collection('Orders')
+          .where('status', isEqualTo: 3)
+          .where('createdAt', isGreaterThanOrEqualTo: startTime)
+          .where('createdAt', isLessThanOrEqualTo: endTime)
+          .get();
+
+      // Group orders by `updatedBy` and calculate total amount
       Map<String, double> ordersSummary = {};
 
-      // Step 2: Iterate through each user to fetch their orders in the date range
-      for (var userDoc in userSnapshot.docs) {
-        var userData = userDoc.data() as Map<String, dynamic>;
-        String userId = userDoc.id;
+      for (var orderDoc in orderSnapshot.docs) {
+        var orderData = orderDoc.data() as Map<String, dynamic>;
+        String updatedBy = orderData['updatedBy'];
+        double amountPaid = double.tryParse(orderData['amountPaid'].toString()) ?? 0.0;
 
-        // Fetch orders for this user within the date range
-        QuerySnapshot orderSnapshot = await FirebaseFirestore.instance
-            .collection('Enrolled Entities')
-            .doc(tenantId)
-            .collection('Orders')
-            .where('updatedBy', isEqualTo: userId)
-            .where('createdAt', isGreaterThanOrEqualTo: startTime)
-            .where('createdAt', isLessThanOrEqualTo: endTime)
-            .get();
-
-        // Calculate total amount for this user
-        double totalAmount = 0;
-        for (var orderDoc in orderSnapshot.docs) {
-          var orderData = orderDoc.data() as Map<String, dynamic>;
-          if (orderData['amountPaid'] != null) {
-            final parsedAmount =
-                double.tryParse(orderData['amountPaid'].toString()) ?? 0.0;
-            totalAmount += parsedAmount;
-          }
-        }
-
-        if (totalAmount > 0) {
-          ordersSummary[userData['fullname'] ?? 'Unknown User'] = totalAmount;
+        if (userIdToName.containsKey(updatedBy)) {
+          ordersSummary[userIdToName[updatedBy]!] =
+              (ordersSummary[userIdToName[updatedBy]!] ?? 0) + amountPaid;
         }
       }
 
@@ -110,6 +107,7 @@ class _OrdersByUsersPageState extends State<OrdersByUsersPage> {
             return Container(
               height: ordersSummary.length * 100,
               child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: ordersSummary.length,
                 itemBuilder: (context, index) {
                   String user = ordersSummary.keys.elementAt(index);
