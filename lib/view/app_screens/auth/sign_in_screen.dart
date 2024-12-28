@@ -1,4 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:package_info_plus/package_info_plus.dart';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cross_connectivity/cross_connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_admin/view/app_screens/auth/create_new_user.dart';
@@ -15,6 +21,8 @@ import '../../../utills/app_utils.dart';
 import '../../../utills/app_validator.dart';
 import '../../important_pages/app_loading_page.dart';
 import '../../important_pages/dialog_box.dart';
+import '../../important_pages/no_internet.dart';
+import '../../important_pages/update_screen.dart';
 import '../../widgets/form_button.dart';
 import '../../widgets/form_input.dart';
 import '../landing_page.dart';
@@ -30,21 +38,141 @@ class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  StreamSubscription<ConnectivityStatus>? _connectivitySubscription;
 
   final AuthBloc authBloc = AuthBloc();
+
+  String appName = '';
+  String packageName = '';
+  String version = '';
+  String buildNumber = '';
+  String LatestVersion = '';
+  String LatestBuildNumber = '';
+  bool isAppUpdated = true;
+  String appUrl = '';
+  bool _connected = true;
 
   @override
   void initState() {
     // TODO: implement initState
-    //authBloc.add(InitialEvent());
-    //AppUtils().logout(context);
-
+    _checkConnectivity();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_handleConnectivity);
     super.initState();
+  }
+
+  Future<void> _checkConnectivity() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    _handleConnectivity(connectivityResult);
+  }
+
+  void _handleConnectivity(ConnectivityStatus result) {
+    if (result == ConnectivityStatus.none) {
+      debugPrint("No network");
+      setState(() {
+        _connected = false;
+      });
+    } else {
+      debugPrint("Network connected");
+      Fetch_App_Details();
+      CheckUpdate();
+      setState(() {
+        _connected = true;
+      });
+    }
+  }
+
+  Fetch_App_Details() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      appName = packageInfo.appName;
+      packageName = packageInfo.packageName;
+      version = packageInfo.version;
+      buildNumber = packageInfo.buildNumber;
+      debugPrint(version);
+      debugPrint(buildNumber);
+    });
+  }
+
+  CheckUpdate() async {
+    ///'Hello1');
+    if (Platform.isAndroid) {
+      ///'Hello2');
+      FirebaseFirestore.instance
+          .collection('AppInfo')
+          .where('dataKey', isEqualTo: 'android') //.doc(userId)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var data in querySnapshot.docs) {
+          debugPrint(data.toString());
+          setState(() {
+            LatestVersion = data['version'];
+            LatestBuildNumber = data['buildNumber'];
+            appUrl = data['androidUrl'];
+
+            ///LatestVersion);
+          });
+          if (LatestVersion == version) {
+            isAppUpdated = true;
+          } else if (LatestVersion != version) {
+            if (data['isUpdate']) {
+              isAppUpdated = false;
+            } else {
+              isAppUpdated = true;
+            }
+          } else if (LatestVersion.isEmpty) {
+            isAppUpdated = true;
+          } else if (LatestVersion.toString() == 'null') {
+            isAppUpdated = true;
+          } else {
+            isAppUpdated = true;
+          }
+        }
+      });
+    } else if (Platform.isIOS) {
+      await FirebaseFirestore.instance
+          .collection('AppInfo')
+          .doc('iOS-version-IOS')
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          Map<String, dynamic> data =
+          documentSnapshot.data()! as Map<String, dynamic>;
+
+          setState(() {
+            LatestVersion = data['version'];
+            LatestBuildNumber = data['buildNumber'];
+            appUrl = data['iosUrl'];
+            debugPrint(LatestVersion);
+            debugPrint(LatestBuildNumber);
+          });
+          if (LatestVersion == version) {
+            isAppUpdated = true;
+          } else if (LatestVersion != version) {
+            if (data['isUpdate']) {
+              isAppUpdated = false;
+            } else {
+              isAppUpdated = true;
+            }
+          } else if (LatestVersion.isEmpty) {
+            isAppUpdated = true;
+          } else if (LatestVersion.toString() == 'null') {
+            isAppUpdated = true;
+          } else {
+            isAppUpdated = true;
+          }
+        } else {
+          isAppUpdated = true;
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  _connected
+        ? (isAppUpdated
+        ? Scaffold(
       backgroundColor: AppColors.scaffoldBackgroundColor,
       body: BlocConsumer<AuthBloc, AuthState>(
           bloc: authBloc,
@@ -233,6 +361,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 );
             }
           }),
-    );
+    ) : UpdateApp(
+    appUrl: appUrl,
+    ))
+        : No_internet_Page(onRetry: _checkConnectivity);
   }
 }
