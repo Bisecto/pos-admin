@@ -25,7 +25,10 @@ class OrderManagementPage extends StatefulWidget {
   final TenantModel tenantModel;
   final UserModel userModel;
 
-  OrderManagementPage({required this.tenantId, required this.tenantModel, required this.userModel});
+  OrderManagementPage(
+      {required this.tenantId,
+      required this.tenantModel,
+      required this.userModel});
 
   @override
   _OrderManagementPageState createState() => _OrderManagementPageState();
@@ -615,7 +618,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     'Canceled',
   ];
 
-  Future<void> fetchOrderDetails(orderId) async   {
+  Future<void> fetchOrderDetails(orderId) async {
     final orderRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.tenantId)
@@ -651,7 +654,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     LogActivity logActivity = LogActivity();
     LogModel logModel = LogModel(
         actionType: LogActionType.orderStatusChange.toString(),
-        actionDescription: "${widget.userModel.fullname} change the order status of order Id $orderId to $status",
+        actionDescription:
+            "${widget.userModel.fullname} change the order status of order Id $orderId to $status",
         performedBy: widget.userModel.fullname,
         userId: widget.userModel.userId);
     logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
@@ -784,12 +788,20 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Image.network(
-                                  product.productImage,
+                                Image.asset(
+                                  product.productType.toLowerCase() == 'food'
+                                      ? AppImages.food
+                                      : AppImages.drink,
+                                  fit: BoxFit.cover,
                                   width: 50,
                                   height: 50,
-                                  fit: BoxFit.cover,
                                 ),
+                                // Image.network(
+                                //   product.productImage,
+                                //   width: 50,
+                                //   height: 50,
+                                //   fit: BoxFit.cover,
+                                // ),
                                 const SizedBox(width: 2),
                                 Flexible(
                                   child: Column(

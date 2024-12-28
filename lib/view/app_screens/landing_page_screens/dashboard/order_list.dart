@@ -12,7 +12,7 @@ class OrderList extends StatelessWidget {
   final String tenantId;
   final DailyStartModel dailyStartModel;
 
-  OrderList({required this.tenantId,  required this.dailyStartModel});
+  OrderList({required this.tenantId, required this.dailyStartModel});
 
   @override
   Widget build(BuildContext context) {
@@ -21,41 +21,81 @@ class OrderList extends StatelessWidget {
           .collection('Enrolled Entities')
           .doc(tenantId)
           .collection('Orders')
-          .where('createdAt', isGreaterThanOrEqualTo: dailyStartModel.startTime)
-          .where('createdAt', isLessThanOrEqualTo: dailyStartModel.endTime ?? DateTime.now())
+          .where('createdAt',
+              isGreaterThanOrEqualTo:
+                  dailyStartModel.startTime ?? DateTime(2000))
+          .where('createdAt',
+              isLessThanOrEqualTo: dailyStartModel.endTime ?? DateTime.now())
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final orders = snapshot.data!.docs.map((doc) {
-          return OrderModel.fromFirestore(doc.data() as Map<String, dynamic>);
-        }).toList();
-
-        final itemQuantities = _calculateItemQuantities(orders);
-
-        if (itemQuantities.isEmpty) {
-          return _buildNoOrdersView(dailyStartModel.startTime, dailyStartModel.endTime);
+        if (snapshot.hasError) {
+          return const Center(
+            child: Text(
+              'An error occurred while loading orders.',
+              style: TextStyle(color: Colors.red),
+            ),
+          );
         }
 
-        return _buildOrderList(itemQuantities);
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return _buildNoOrdersView(
+              dailyStartModel.startTime, dailyStartModel.endTime);
+        }
+
+        try {
+          final orders = snapshot.data!.docs.map((doc) {
+            return OrderModel.fromFirestore(doc.data() as Map<String, dynamic>);
+          }).toList();
+
+          final itemQuantities = _calculateItemQuantities(orders);
+
+          if (itemQuantities.isEmpty) {
+            return _buildNoOrdersView(
+                dailyStartModel.startTime, dailyStartModel.endTime);
+          }
+
+          return _buildOrderList(itemQuantities);
+        } catch (e) {
+          return Center(
+            child: Text(
+              'Error processing data: $e',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
       },
     );
   }
 
-  Map<String, int> _calculateItemQuantities(List<OrderModel> orders) {
-    final itemQuantities = <String, int>{};
+  Map<String, Map<String, dynamic>> _calculateItemQuantities(
+      List<OrderModel> orders) {
+    final itemSummary = <String, Map<String, dynamic>>{};
 
     for (var order in orders) {
       for (var product in order.products) {
-        itemQuantities[product.productName] =
-            (itemQuantities[product.productName] ?? 0) + product.quantity;
+        final productName = product.productName;
+        final productQuantity = product.quantity;
+        final productPrice = product.price;
+
+        if (itemSummary.containsKey(productName)) {
+          itemSummary[productName]!['quantity'] += productQuantity;
+          itemSummary[productName]!['totalPrice'] +=
+              productQuantity * productPrice;
+        } else {
+          itemSummary[productName] = {
+            'quantity': productQuantity,
+            'totalPrice': productQuantity * productPrice,
+          };
+        }
       }
     }
 
-    return itemQuantities;
+    return itemSummary;
   }
 
   Widget _buildNoOrdersView(DateTime? startDate, DateTime? endDate) {
@@ -89,35 +129,52 @@ class OrderList extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderList(Map<String, int> itemQuantities) {
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      itemCount: itemQuantities.length,
-      itemBuilder: (context, index) {
-        final entry = itemQuantities.entries.elementAt(index);
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-          color: Colors.grey.shade900,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            leading: Icon(Icons.shopping_cart, color: Colors.blue.shade300),
-            title: CustomText(
-              text: entry.key,
-              color: AppColors.white,
-              size: 16,
-              weight: FontWeight.bold,
-            ),
-            subtitle: CustomText(
-              text: 'Total Ordered: ${entry.value}',
-              color: AppColors.white,
-              size: 14,
+  Widget _buildOrderList(Map<String, Map<String, dynamic>> itemSummary) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        headingRowColor: MaterialStateProperty.all(Colors.grey.shade900),
+        dataRowColor: MaterialStateProperty.all(Colors.grey.shade800),
+        columns: const [
+          DataColumn(
+            label: Text(
+              'Item',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
-        );
-      },
+          DataColumn(
+            label: Text(
+              'Quantity',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+          DataColumn(
+            label: Text(
+              'Total Price',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+        rows: itemSummary.entries.map((entry) {
+          final itemName = entry.key;
+          final quantity = entry.value['quantity'];
+          final totalPrice = entry.value['totalPrice'];
+
+          return DataRow(
+            cells: [
+              DataCell(
+                  Text(itemName, style: const TextStyle(color: Colors.white))),
+              DataCell(Text('$quantity',
+                  style: const TextStyle(color: Colors.white))),
+              DataCell(Text('NGN ${totalPrice.toStringAsFixed(2)}',
+                  style: const TextStyle(color: Colors.white))),
+            ],
+          );
+        }).toList(),
+      ),
     );
   }
 }

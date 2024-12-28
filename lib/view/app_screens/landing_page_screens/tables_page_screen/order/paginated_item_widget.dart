@@ -584,11 +584,16 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
                               decoration: BoxDecoration(
                                   borderRadius:
                                   BorderRadius.circular(15)),
-                              child: Image.network(
-                                product.productImageUrl,
+                              child: Image.asset(
+                                product.productType.toLowerCase()=='food'?AppImages.food:AppImages.drink,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
-                              ),
+                              )
+                              // Image.network(
+                              //   product.productImageUrl,
+                              //   fit: BoxFit.cover,
+                              //   width: double.infinity,
+                              // ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
