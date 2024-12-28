@@ -139,7 +139,14 @@ class AppUtils {
 
     return outputDate;
   }
+  static String formateTime({required DateTime dateTime}) {
+    //var inputDate = DateTime.parse(dateTime!);
 
+    var outputFormat = DateFormat('hh:mm a');
+    var outputDate = outputFormat.format(dateTime);
+
+    return outputDate;
+  }
   // static bool isPhoneNumber(String s) {
   //   if (s.length > 16 || s.length < 11) return false;
   //   return hasMatch(s, r'^(?:[+0][1-9])?[0-9]{10,12}$');

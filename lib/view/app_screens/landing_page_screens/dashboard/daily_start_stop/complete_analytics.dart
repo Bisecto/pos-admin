@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pos_admin/model/start_stop_model.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/daily_start_stop/voided_orders.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/dashboard_chart.dart';
+import 'package:pos_admin/view/widgets/app_custom_text.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../model/user_model.dart';
@@ -31,6 +32,7 @@ class CompleteAnalytics extends StatelessWidget {
             tenantId: startedUser.tenantId.trim(),
             dailyStartModel: dailyStartModel,
           ),
+          TextStyles.textHeadings(textValue: 'textValue'),
           VoidedOrdersPage(
             tenantId: startedUser.tenantId.trim(),
             dailyStartModel: dailyStartModel,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pos_admin/model/start_stop_model.dart';
+import 'package:pos_admin/utills/app_utils.dart';
 
 class VoidedOrdersPage extends StatelessWidget {
   final String tenantId;
@@ -88,19 +89,26 @@ class VoidedOrdersPage extends StatelessWidget {
                   ),
                   DataColumn(
                     label: Text(
-                      'Quantity',
+                      'Time',
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      'Price',
+                      'Qty',
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
+
                   DataColumn(
                     label: Text(
                       'Voided By',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Total',
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
@@ -135,14 +143,18 @@ class VoidedOrdersPage extends StatelessWidget {
                       //     style: const TextStyle(color: Colors.white))),
                       DataCell(Text(voidedProduct['productName'],
                           style: const TextStyle(color: Colors.white))),
+                      DataCell(Text(
+                    AppUtils.formateTime(
+                    dateTime: (voidedProduct['updatedAt'] as Timestamp?)?.toDate() ??
+                    DateTime.now(),
+                    ),
+                          style: const TextStyle(color: Colors.white))),
                       DataCell(Text((voidedProduct['quantity']).toString(),
                           style: const TextStyle(color: Colors.white))),
-                      DataCell(Text(
-                          (voidedProduct['price'] * voidedProduct['quantity'])
-                              .toString(),
-                          style: const TextStyle(color: Colors.white))),
+
                       DataCell(FutureBuilder<String>(
-                        future: getUserFullName(voidedProduct['voidedBy'] ?? ''),
+                        future:
+                            getUserFullName(voidedProduct['voidedBy'] ?? ''),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -158,7 +170,11 @@ class VoidedOrdersPage extends StatelessWidget {
                             style: const TextStyle(color: Colors.white),
                           );
                         },
-                      ))
+                      )),
+                      DataCell(Text(
+                          (voidedProduct['price'] * voidedProduct['quantity'])
+                              .toString(),
+                          style: const TextStyle(color: Colors.white))),
                     ]);
                   });
                 }).toList(),
