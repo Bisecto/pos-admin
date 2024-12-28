@@ -17,6 +17,7 @@ import '../../../../res/app_colors.dart';
 import '../../../../res/app_enums.dart';
 import '../../../../res/app_images.dart';
 import '../../../../utills/enums/order_status_enums.dart';
+import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/app_custom_text.dart';
 import '../../../widgets/form_button.dart';
 
@@ -617,29 +618,56 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     'Order Completed',
     'Canceled',
   ];
-
-  Future<void> fetchOrderDetails(orderId) async {
+  Future<void> fetchOrderDetails(String orderId) async {
     final orderRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.tenantId)
         .collection('Orders')
         .doc(orderId);
 
-    DocumentSnapshot<Map<String, dynamic>> snapshot = await orderRef.get();
-    Map<String, dynamic> orderData = snapshot.data() ?? {};
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await orderRef.get();
+      Map<String, dynamic> orderData = snapshot.data() ?? {};
 
-    List<dynamic> productList = orderData['products'] ?? [];
-    int orderStatusIndex =
-        orderData['status'] ?? 0; // Default to 'Pending' status
+      List<dynamic> productList = orderData['products'] ?? [];
+      int orderStatusIndex = orderData['status'] ?? 0; // Default to 'Pending' status
 
-    setState(() {
-      selectedStatus = statusOptions[orderStatusIndex];
-      products = productList.map((productJson) {
-        return OrderProduct.fromJson(productJson); // Parse products
-      }).toList();
-      isLoading = false;
-    });
+      setState(() {
+        selectedStatus = statusOptions[orderStatusIndex];
+        products = productList
+            .where((productJson) => productJson['isProductVoid'] != true) // Exclude voided products
+            .map((productJson) => OrderProduct.fromJson(productJson))
+            .toList();
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching order details: $e');
+      MSG.warningSnackBar(context, 'Failed to fetch order details.');
+    }
   }
+
+  // Future<void> fetchOrderDetails(orderId) async {
+  //   final orderRef = FirebaseFirestore.instance
+  //       .collection('Enrolled Entities')
+  //       .doc(widget.tenantId)
+  //       .collection('Orders')
+  //       .doc(orderId);
+  //
+  //   DocumentSnapshot<Map<String, dynamic>> snapshot = await orderRef.get();
+  //   Map<String, dynamic> orderData = snapshot.data() ?? {};
+  //
+  //   List<dynamic> productList = orderData['products'] ?? [];
+  //   int orderStatusIndex =
+  //       orderData['status'] ?? 0; // Default to 'Pending' status
+  //
+  //   setState(() {
+  //     selectedStatus = statusOptions[orderStatusIndex];
+  //     products = productList.map((productJson) {
+  //       return OrderProduct.fromJson(productJson); // Parse products
+  //     }).toList();
+  //     isLoading = false;
+  //   });
+  // }
 
   // Update the status in Firestore
   Future<void> updateOrderStatus(String status, orderId) async {

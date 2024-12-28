@@ -78,6 +78,8 @@ class _MainTableScreenState extends State<MainTableScreen> {
           performedBy: widget.userModel.fullname,
           userId: widget.userModel.userId);
       logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+      tableBloc.add(GetTableEvent(widget.userModel.tenantId));
+
       MSG.snackBar(context, "Day started successfully.");
     } catch (e) {
       await checkDayStatus(widget.userModel.tenantId.trim());
@@ -125,6 +127,8 @@ class _MainTableScreenState extends State<MainTableScreen> {
           performedBy: widget.userModel.fullname,
           userId: widget.userModel.userId);
       logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+      tableBloc.add(GetTableEvent(widget.userModel.tenantId));
+
       MSG.warningSnackBar(context, "Day ended successfully.");
     } catch (e) {
       await checkDayStatus(widget.userModel.tenantId.trim());
@@ -450,6 +454,73 @@ class _MainTableScreenState extends State<MainTableScreen> {
                     ],
                   ),
                 ),
+                if (widget.userModel.role.toLowerCase() == 'admin' &&
+                    dayStatus.toLowerCase() != 'ended') ...[
+                  //const SizedBox(height: 20),
+                  if (!isLoading)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        width: 120,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (dayStatus.isEmpty) ...[
+                              FormButton(
+                                onPressed: () {
+                                  print(dayStatus);
+
+                                  showConfirmationDialog(
+                                    context,
+                                    "Start Day",
+                                    "Are you sure you want to start the day?",
+                                        () => startDay(
+                                        context,
+                                        widget.userModel.tenantId.trim(),
+                                        widget.userModel.userId.trim(),
+                                        widget.userModel.role,
+                                        toggleLoading),
+                                  );
+                                },
+                                width: 120,
+                                text: "Start Day",
+                                bgColor: Colors.green,
+                              ),
+                            ] else if (dayStatus == "active") ...[
+                              FormButton(
+                                onPressed: () {
+                                  showConfirmationDialog(
+                                    context,
+                                    "End Day",
+                                    "Are you sure you want to end the day? This will reset all tables.",
+                                        () => endDay(
+                                        context,
+                                        widget.userModel.tenantId.trim(),
+                                        widget.userModel.userId.trim(),
+                                        widget.userModel.role.trim(),
+                                        toggleLoading),
+                                  );
+                                },
+                                width: 120,
+                                text: "End Day",
+                                bgColor: Colors.red,
+                              ),
+                            ] else if (dayStatus == "ended") ...[
+                              const Text(
+                                "Day has already ended.",
+                                style: TextStyle(color: Colors.red, fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  if (isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                ],
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, left: 10),
                   child: GestureDetector(
@@ -475,79 +546,13 @@ class _MainTableScreenState extends State<MainTableScreen> {
                     ),
                   ),
                 ),
-                if (widget.userModel.role.toLowerCase() == 'admin' &&
-                    dayStatus.toLowerCase() != 'ended') ...[
-                  //const SizedBox(height: 20),
-                  if (!isLoading)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        width: 100,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (dayStatus.isEmpty) ...[
-                              FormButton(
-                                onPressed: () {
-                                  print(dayStatus);
 
-                                  showConfirmationDialog(
-                                    context,
-                                    "Start Day",
-                                    "Are you sure you want to start the day?",
-                                    () => startDay(
-                                        context,
-                                        widget.userModel.tenantId.trim(),
-                                        widget.userModel.userId.trim(),
-                                        widget.userModel.role,
-                                        toggleLoading),
-                                  );
-                                },
-                                width: 100,
-                                text: "Start Day",
-                                bgColor: Colors.green,
-                              ),
-                            ] else if (dayStatus == "active") ...[
-                              FormButton(
-                                onPressed: () {
-                                  showConfirmationDialog(
-                                    context,
-                                    "End Day",
-                                    "Are you sure you want to end the day? This will reset all tables.",
-                                    () => endDay(
-                                        context,
-                                        widget.userModel.tenantId.trim(),
-                                        widget.userModel.userId.trim(),
-                                        widget.userModel.role.trim(),
-                                        toggleLoading),
-                                  );
-                                },
-                                width: 100,
-                                text: "End Day",
-                                bgColor: Colors.red,
-                              ),
-                            ] else if (dayStatus == "ended") ...[
-                              const Text(
-                                "Day has already ended.",
-                                style: TextStyle(color: Colors.red, fontSize: 16),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (isLoading)
-                    const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                ],
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, left: 10),
                   child: GestureDetector(
                     onTap: _addTable,
                     child: Container(
-                      width: 150,
+                      width: 100,
                       height: 45,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
@@ -557,13 +562,10 @@ class _MainTableScreenState extends State<MainTableScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.add,
-                              color: AppColors.white,
-                            ),
+
                             CustomText(
-                              text: "  Table",
-                              size: 18,
+                              text: "Add Table",
+                              size: 16,
                               color: AppColors.white,
                             )
                           ],

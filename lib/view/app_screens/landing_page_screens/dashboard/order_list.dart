@@ -99,9 +99,7 @@ class OrderList extends StatelessWidget {
   }
 
   Widget _buildNoOrdersView(DateTime? startDate, DateTime? endDate) {
-    final dateRange = startDate != null
-        ? "from ${AppUtils.formateSimpleDate(dateTime: dailyStartModel.startTime.toString())} to ${AppUtils.formateSimpleDate(dateTime: dailyStartModel.endTime.toString())}"
-        : "recent dates";
+
 
     return Align(
       alignment: Alignment.center,
@@ -120,7 +118,7 @@ class OrderList extends StatelessWidget {
           ],
         ),
         child: CustomText(
-          text: "No orders found $dateRange.",
+          text: "No orders found.",
           color: AppColors.white,
           size: 16,
           textAlign: TextAlign.center,

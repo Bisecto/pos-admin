@@ -100,7 +100,7 @@ class _SignInScreenState extends State<SignInScreen> {
       ///'Hello2');
       FirebaseFirestore.instance
           .collection('AppInfo')
-          .where('dataKey', isEqualTo: 'android') //.doc(userId)
+          .where('dataKey', isEqualTo: 'admin') //.doc(userId)
           .get()
           .then((QuerySnapshot querySnapshot) {
         for (var data in querySnapshot.docs) {
@@ -361,8 +361,10 @@ class _SignInScreenState extends State<SignInScreen> {
                 );
             }
           }),
-    ) : UpdateApp(
-    appUrl: appUrl,
+    ) : Center(
+      child: UpdateApp(
+      appUrl: appUrl,
+      ),
     ))
         : No_internet_Page(onRetry: _checkConnectivity);
   }

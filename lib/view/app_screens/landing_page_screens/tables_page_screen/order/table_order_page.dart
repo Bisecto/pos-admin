@@ -500,7 +500,6 @@ class _TableOrderPageState extends State<TableOrderPage> {
   Future<void> voidProductInOrder(OrderProduct productToVoid, orderId) async {
     print('Product to void: ${productToVoid.productId}');
 
-
     final ordersRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.userModel.tenantId.trim())
