@@ -14,6 +14,7 @@ import '../../../model/tenant_model.dart';
 import '../../widgets/app_custom_text.dart';
 import 'brands_page_screens/main_brand_screen.dart';
 import 'category_page_screens/main_category_screen.dart';
+import 'logs/log_page.dart';
 import 'orders/orders_placed.dart';
 
 class PageSelector extends StatefulWidget {
@@ -59,9 +60,7 @@ class _PageSelectorState extends State<PageSelector> {
                     userModel: widget.userModel,
                   );
                 case 2:
-                  return MainBrandScreen(
-                    userModel: widget.userModel,
-                  );
+                  return LogUI(tenantId: widget.userModel.tenantId.trim(),);
                 case 3:
                   return MainCategoryScreen(
                     userModel: widget.userModel,
