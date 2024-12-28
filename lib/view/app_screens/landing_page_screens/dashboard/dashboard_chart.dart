@@ -1,33 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
 
+import '../../../../model/start_stop_model.dart';
 import '../../../../res/app_colors.dart';
 import '../../../widgets/app_custom_text.dart';
-import 'date_filter.dart';
 
 class OrdersByUsersPage extends StatefulWidget {
   final String tenantId;
+  final DailyStartModel dailyStartModel; // Start date
 
-  OrdersByUsersPage({required this.tenantId});
+  OrdersByUsersPage({
+    required this.tenantId, required this.dailyStartModel,
+
+  });
 
   @override
   _OrdersByUsersPageState createState() => _OrdersByUsersPageState();
 }
 
 class _OrdersByUsersPageState extends State<OrdersByUsersPage> {
-  //DateTime? selectedDate;
   late Future<Map<String, double>> ordersSummaryFuture;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // Initialize with today's date by default
-  //   //selectedDate = DateTime.now();
-  // }
-
   Future<Map<String, double>> getOrdersSummaryByUsers(
-      String tenantId, DateTime date) async {
+      String tenantId, DateTime startTime, DateTime endTime) async {
     try {
       // Step 1: Fetch all users for the given tenantId
       QuerySnapshot userSnapshot = await FirebaseFirestore.instance
@@ -37,25 +32,19 @@ class _OrdersByUsersPageState extends State<OrdersByUsersPage> {
 
       Map<String, double> ordersSummary = {};
 
-      // Step 2: Iterate through each user to fetch their orders for the selected date
+      // Step 2: Iterate through each user to fetch their orders in the date range
       for (var userDoc in userSnapshot.docs) {
         var userData = userDoc.data() as Map<String, dynamic>;
         String userId = userDoc.id;
 
-        // Define start and end of the selected date
-        DateTime startOfDay = DateTime(date.year, date.month, date.day);
-        DateTime endOfDay = startOfDay
-            .add(const Duration(days: 1))
-            .subtract(const Duration(seconds: 1));
-
-        // Fetch orders for this user on the selected date
+        // Fetch orders for this user within the date range
         QuerySnapshot orderSnapshot = await FirebaseFirestore.instance
             .collection('Enrolled Entities')
             .doc(tenantId)
             .collection('Orders')
             .where('updatedBy', isEqualTo: userId)
-            .where('createdAt', isGreaterThanOrEqualTo: startOfDay)
-            .where('createdAt', isLessThanOrEqualTo: endOfDay)
+            .where('createdAt', isGreaterThanOrEqualTo: startTime)
+            .where('createdAt', isLessThanOrEqualTo: endTime)
             .get();
 
         // Calculate total amount for this user
@@ -67,7 +56,6 @@ class _OrdersByUsersPageState extends State<OrdersByUsersPage> {
                 double.tryParse(orderData['amountPaid'].toString()) ?? 0.0;
             totalAmount += parsedAmount;
           }
-          // totalAmount += (orderData['amountPaid'] ?? 0).toDouble();
         }
 
         if (totalAmount > 0) {
@@ -84,13 +72,15 @@ class _OrdersByUsersPageState extends State<OrdersByUsersPage> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedDate = Provider.of<DateFilterProvider>(context).selectedDate;
+    // Use the provided startTime and endTime
+    final startTime = widget.dailyStartModel.startTime ?? DateTime.now();
+    final endTime = widget.dailyStartModel.endTime ?? DateTime.now();
+
     ordersSummaryFuture =
-        getOrdersSummaryByUsers(widget.tenantId, selectedDate);
+        getOrdersSummaryByUsers(widget.tenantId, startTime, endTime);
 
     return Column(
       children: [
-
         FutureBuilder<Map<String, double>>(
           future: ordersSummaryFuture,
           builder: (context, snapshot) {
@@ -109,7 +99,7 @@ class _OrdersByUsersPageState extends State<OrdersByUsersPage> {
                   padding: EdgeInsets.fromLTRB(15.0, 50, 15, 15),
                   child: CustomText(
                       text:
-                          'No User booked and completed an order on the selected date.',
+                      'No user booked and completed an order in the selected date range.',
                       color: AppColors.white),
                 ),
               );
@@ -137,7 +127,7 @@ class _OrdersByUsersPageState extends State<OrdersByUsersPage> {
                       ),
                       subtitle: CustomText(
                         text:
-                            'Total Order Amount: \$${totalAmount.toStringAsFixed(2)}',
+                        'Total Order Amount: NGN ${totalAmount.toStringAsFixed(2)}',
                         color: AppColors.white,
                       ),
                     ),

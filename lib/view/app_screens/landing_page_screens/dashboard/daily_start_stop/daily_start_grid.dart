@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../model/user_model.dart';
+import 'complete_analytics.dart';
 
 class DailyStartHorizontalList extends StatelessWidget {
   final List<DailyStartModel> dailyStartModel;
@@ -17,7 +18,9 @@ class DailyStartHorizontalList extends StatelessWidget {
     Key? key,
     required this.dailyStartModel,
   }) : super(key: key);
-  Future<Map<String, UserModel?>> fetchUserDetailsSeparately(DailyStartModel dailyStart) async {
+
+  Future<Map<String, UserModel?>> fetchUserDetailsSeparately(
+      DailyStartModel dailyStart) async {
     try {
       final startedByUserFuture = FirebaseFirestore.instance
           .collection('Users')
@@ -27,12 +30,13 @@ class DailyStartHorizontalList extends StatelessWidget {
       // Only fetch endedByUser if the endTime is not null (i.e., day is ended)
       final endedByUserFuture = dailyStart.endTime != null
           ? FirebaseFirestore.instance
-          .collection('Users')
-          .doc(dailyStart.endedBy?['userId']) // Fetch endedByUser
-          .get()
+              .collection('Users')
+              .doc(dailyStart.endedBy?['userId']) // Fetch endedByUser
+              .get()
           : Future.value(null); // Return null if the day has not ended
 
-      final results = await Future.wait([startedByUserFuture, endedByUserFuture]);
+      final results =
+          await Future.wait([startedByUserFuture, endedByUserFuture]);
 
       final startedByUserDoc = results[0];
       final endedByUserDoc = results[1];
@@ -55,10 +59,9 @@ class DailyStartHorizontalList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child:ListView.builder(
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: dailyStartModel.length,
         itemBuilder: (context, index) {
@@ -71,7 +74,8 @@ class DailyStartHorizontalList extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Container(
                   width: 250,
-                  margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 12.0),
                   alignment: Alignment.center,
                   child: const CircularProgressIndicator(),
                 );
@@ -79,7 +83,8 @@ class DailyStartHorizontalList extends StatelessWidget {
                 print('Error fetching user details: ${snapshot.error}');
                 return Container(
                   width: 250,
-                  margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 12.0),
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                     color: Colors.black,
@@ -101,7 +106,18 @@ class DailyStartHorizontalList extends StatelessWidget {
 
               final users = snapshot.data ?? {};
               final startedByUser = users['startedBy'];
-              final endedByUser = users['endedBy'];
+              final endedByUser = users['endedBy'] ??
+                  UserModel(
+                      userId: '',
+                      email: '',
+                      fullname: '',
+                      imageUrl: '',
+                      phone: '',
+                      role: '',
+                      tenantId: '',
+                      createdAt: Timestamp.now(),
+                      updatedAt: Timestamp.now(),
+                      accountStatus: false);
 
               Widget infoText(String label, String? value) {
                 return Text(
@@ -113,49 +129,81 @@ class DailyStartHorizontalList extends StatelessWidget {
                 );
               }
 
-              return Container(
-                width: 250,
-                margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(12.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade800,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
+              return GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: AppColors.darkModeBackgroundContainerColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20)),
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Started By: ${startedByUser?.fullname ?? 'N/A'}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    builder: (context) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 50.0),
+                        child: CompleteAnalytics(
+                          startedUser: startedByUser!,
+                          endeduser: endedByUser!,
+                          dailyStartModel: dailyStart,
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Container(
+                  width: 250,
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 12.0),
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(12.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade800,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (dailyStart.startTime != null)
-                      infoText("Start Time", DateFormat('yyyy-MM-dd HH:mm').format(dailyStart.startTime!)),
-                    const SizedBox(height: 8),
-                    if (dailyStart.endTime != null)
-                      infoText("End Time", DateFormat('yyyy-MM-dd HH:mm').format(dailyStart.endTime!)),
-                    const SizedBox(height: 8),
-                    infoText("Ended By", endedByUser?.fullname),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Status: ${dailyStart.status.toUpperCase()}",
-                      style:  TextStyle(
-                        color:dailyStart.status.toLowerCase()=='active'? AppColors.green:AppColors.red,
-                        fontSize: 14,
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Started By: ${startedByUser?.fullname ?? 'N/A'}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      if (dailyStart.startTime != null)
+                        infoText(
+                            "Start Time",
+                            DateFormat('yyyy-MM-dd HH:mm')
+                                .format(dailyStart.startTime!)),
+                      const SizedBox(height: 8),
+                      if (dailyStart.endTime != null)
+                        infoText(
+                            "End Time",
+                            DateFormat('yyyy-MM-dd HH:mm')
+                                .format(dailyStart.endTime!)),
+                      const SizedBox(height: 8),
+                      infoText("Ended By", endedByUser?.fullname),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Status: ${dailyStart.status.toUpperCase()}",
+                        style: TextStyle(
+                          color: dailyStart.status.toLowerCase() == 'active'
+                              ? AppColors.green
+                              : AppColors.red,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

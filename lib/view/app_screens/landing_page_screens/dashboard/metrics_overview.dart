@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'date_filter.dart';
+import '../../../../model/start_stop_model.dart';
+import '../../../../utills/enums/order_status_enums.dart';
 import 'metric_card.dart';
 
 class MetricsOverview extends StatelessWidget {
   final String tenantId;
+  final DailyStartModel dailyStartModel;
 
-  MetricsOverview({required this.tenantId});
+  MetricsOverview({
+    required this.tenantId,
+    required this.dailyStartModel,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final selectedDate = Provider.of<DateFilterProvider>(context).selectedDate;
-
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('Enrolled Entities')
           .doc(tenantId)
           .collection('Orders')
+          .where('createdAt', isGreaterThanOrEqualTo: dailyStartModel.startTime)
+          .where('createdAt',
+              isLessThanOrEqualTo: dailyStartModel.endTime ?? DateTime.now())
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -26,58 +31,46 @@ class MetricsOverview extends StatelessWidget {
 
         final allOrders = snapshot.data!.docs;
 
-        // Calculate today's orders
-        final todayOrders = allOrders.where((order) {
-          DateTime orderDate = (order['createdAt'] as Timestamp).toDate();
-          return orderDate.year == selectedDate.year &&
-              orderDate.month == selectedDate.month &&
-              orderDate.day == selectedDate.day;
-        }).toList();
+        // Total orders count
+        final totalOrders = allOrders.length;
 
-        // Calculate completed orders
+        // Completed orders count
         final completedOrders = allOrders.where((order) {
-          return order['status'] == 'completed';
+          print(order['orderId']);
+          print(order['status'] == OrderStatus.completed.index.toString());
+          print(OrderStatus.completed.index.runtimeType);
+          print(order['status']);
+          return order['status'] ==
+              int.parse(OrderStatus.completed.index
+                  .toString()); // Enum index for completed
         }).toList();
 
-        // Calculate today's completed orders
-        final todayCompletedOrders = todayOrders.where((order) {
-          return order['status'] == 'completed';
-        }).toList();
+        final completedOrdersCount = completedOrders.length;
 
-        // Calculate total amount paid for completed orders
+        // Total amount paid for completed orders
         final totalAmountPaid = completedOrders.fold<double>(
           0.0,
-              (sum, order) => sum + (order['amountPaid'] ?? 0.0),
+          (sum, order) => sum + (double.parse(order['amountPaid']) ?? 0.0),
         );
 
-        // Calculate today's amount paid for completed orders
-        final todayAmountPaid = todayCompletedOrders.fold<double>(
-          0.0,
-              (sum, order) => sum + (order['amountPaid'] ?? 0.0),
-        );
-
-        // Format amount paid for display
-
-        final todayAmountPaidFormatted =
-            '\$${todayAmountPaid.toStringAsFixed(2)}';
+        final totalAmountPaidFormatted =
+            '\$${totalAmountPaid.toStringAsFixed(2)}';
 
         return Wrap(
           spacing: 16,
           runSpacing: 16,
           children: [
-
             MetricCard(
-              title: 'Orders',
-              value: todayOrders.length.toString(),
+              title: 'Total Orders',
+              value: totalOrders.toString(),
             ),
             MetricCard(
               title: 'Completed Orders',
-              value: todayCompletedOrders.length.toString(),
+              value: completedOrdersCount.toString(),
             ),
-
             MetricCard(
-              title: 'Amount Paid',
-              value: todayAmountPaidFormatted,
+              title: 'Total Amount Paid',
+              value: totalAmountPaidFormatted,
             ),
           ],
         );

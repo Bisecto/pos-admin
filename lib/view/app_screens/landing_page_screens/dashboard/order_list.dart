@@ -1,29 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../model/order_model.dart';
+import '../../../../model/start_stop_model.dart';
 import '../../../../res/app_colors.dart';
 import '../../../../utills/app_utils.dart';
 import '../../../widgets/app_custom_text.dart';
-import 'date_filter.dart';
 
 class OrderList extends StatelessWidget {
   final String tenantId;
+  final DailyStartModel dailyStartModel;
 
-  OrderList({required this.tenantId});
+  OrderList({required this.tenantId,  required this.dailyStartModel});
 
   @override
   Widget build(BuildContext context) {
-    final selectedDate = Provider.of<DateFilterProvider>(context).selectedDate;
-    final formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('Enrolled Entities')
           .doc(tenantId)
           .collection('Orders')
+          .where('createdAt', isGreaterThanOrEqualTo: dailyStartModel.startTime)
+          .where('createdAt', isLessThanOrEqualTo: dailyStartModel.endTime ?? DateTime.now())
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
@@ -31,17 +30,14 @@ class OrderList extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final orders = snapshot.data!.docs.where((doc) {
-          final order =
-              OrderModel.fromFirestore(doc.data() as Map<String, dynamic>);
-          final orderDate = DateFormat('yyyy-MM-dd').format(order.createdAt);
-          return orderDate == formattedDate;
-        });
+        final orders = snapshot.data!.docs.map((doc) {
+          return OrderModel.fromFirestore(doc.data() as Map<String, dynamic>);
+        }).toList();
 
         final itemQuantities = _calculateItemQuantities(orders);
 
         if (itemQuantities.isEmpty) {
-          return _buildNoOrdersView(formattedDate);
+          return _buildNoOrdersView(dailyStartModel.startTime, dailyStartModel.endTime);
         }
 
         return _buildOrderList(itemQuantities);
@@ -49,13 +45,10 @@ class OrderList extends StatelessWidget {
     );
   }
 
-  Map<String, int> _calculateItemQuantities(
-      Iterable<QueryDocumentSnapshot> orders) {
+  Map<String, int> _calculateItemQuantities(List<OrderModel> orders) {
     final itemQuantities = <String, int>{};
 
-    for (var doc in orders) {
-      final order =
-          OrderModel.fromFirestore(doc.data() as Map<String, dynamic>);
+    for (var order in orders) {
       for (var product in order.products) {
         itemQuantities[product.productName] =
             (itemQuantities[product.productName] ?? 0) + product.quantity;
@@ -65,37 +58,66 @@ class OrderList extends StatelessWidget {
     return itemQuantities;
   }
 
-  Widget _buildNoOrdersView(String formattedDate) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Container(
-        width: 300,
-        padding: const EdgeInsets.all(16),
+  Widget _buildNoOrdersView(DateTime? startDate, DateTime? endDate) {
+    final dateRange = startDate != null
+        ? "from ${AppUtils.formateSimpleDate(dateTime: dailyStartModel.startTime.toString())} to ${AppUtils.formateSimpleDate(dateTime: dailyStartModel.endTime.toString())}"
+        : "recent dates";
 
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.black,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade800,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: CustomText(
-          text:
-              "No orders found for ${AppUtils.formateSimpleDate(dateTime: formattedDate)}",color: AppColors.white,
+          text: "No orders found $dateRange.",
+          color: AppColors.white,
+          size: 16,
+          textAlign: TextAlign.center,
         ),
       ),
     );
   }
 
   Widget _buildOrderList(Map<String, int> itemQuantities) {
-    return ListView(
-      physics: const NeverScrollableScrollPhysics(),
-      children: itemQuantities.entries.map((entry) {
-        return ListTile(
-          leading: Icon(Icons.shopping_cart, color: Colors.grey[600]),
-          title: CustomText(
-            text: entry.key,
-            color: AppColors.white,
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: itemQuantities.length,
+      itemBuilder: (context, index) {
+        final entry = itemQuantities.entries.elementAt(index);
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          color: Colors.grey.shade900,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          subtitle: CustomText(
-            text: 'Total Ordered: ${entry.value}',
-            color: AppColors.white,
+          child: ListTile(
+            leading: Icon(Icons.shopping_cart, color: Colors.blue.shade300),
+            title: CustomText(
+              text: entry.key,
+              color: AppColors.white,
+              size: 16,
+              weight: FontWeight.bold,
+            ),
+            subtitle: CustomText(
+              text: 'Total Ordered: ${entry.value}',
+              color: AppColors.white,
+              size: 14,
+            ),
           ),
         );
-      }).toList(),
+      },
     );
   }
 }

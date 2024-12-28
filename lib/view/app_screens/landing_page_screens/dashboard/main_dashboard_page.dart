@@ -87,11 +87,7 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
                     DayStartStopPage(tenantId: widget.tenantId.trim(),)
-                    // MetricsOverview(tenantId: widget.tenantId),
-                    // OrdersByUsersPage(tenantId: widget.tenantId),
-                    // RecentOrders(
-                    //   tenantId: widget.tenantId,
-                    // ),
+
                   ],
                 ),
               ),
