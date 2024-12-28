@@ -4,7 +4,6 @@ import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/dashbo
 import 'package:provider/provider.dart';
 
 import '../../../../../model/user_model.dart';
-import '../date_filter.dart';
 import '../metrics_overview.dart';
 import '../recent_orders.dart';
 
@@ -23,18 +22,15 @@ class CompleteAnalytics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => DateFilterProvider(),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            MetricsOverview(tenantId: startedUser.tenantId.trim(), dailyStartModel: dailyStartModel,),
-            OrdersByUsersPage(tenantId: startedUser.tenantId.trim(),dailyStartModel: dailyStartModel,),
-            RecentOrders(
-              tenantId: startedUser.tenantId.trim(), dailyStartModel: dailyStartModel,
-            ),
-          ],
-        ),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          MetricsOverview(tenantId: startedUser.tenantId.trim(), dailyStartModel: dailyStartModel,),
+          OrdersByUsersPage(tenantId: startedUser.tenantId.trim(),dailyStartModel: dailyStartModel,),
+          RecentOrders(
+            tenantId: startedUser.tenantId.trim(), dailyStartModel: dailyStartModel,
+          ),
+        ],
       ),
     );
   }
