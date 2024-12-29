@@ -46,21 +46,23 @@ class _MainTableScreenState extends State<MainTableScreen> {
     try {
       toggleLoading(true); // Show loading
 
-      // Check if the day has already started or ended
-      final isAlreadyStartedOrEnded =
-          await isDayAlreadyStartedOrEnded(tenantId);
-      if (isAlreadyStartedOrEnded) {
-        MSG.warningSnackBar(context,
-            "A day has already been started or ended for the current session.");
-
-        toggleLoading(false); // Hide loading
-        return;
-      }
-
       final dailyStart = FirebaseFirestore.instance
           .collection('Enrolled Entities')
           .doc(tenantId.trim())
           .collection('dailyStart');
+
+      // Check if there is any unresolved session
+      final unresolvedSession =
+          await dailyStart.where('status', isEqualTo: 'active').get();
+
+      if (unresolvedSession.docs.isNotEmpty) {
+        MSG.warningSnackBar(
+          context,
+          "A day is already active and must be ended before starting a new one.",
+        );
+        toggleLoading(false); // Hide loading
+        return;
+      }
 
       // Create a new session
       await dailyStart.add({
@@ -70,19 +72,19 @@ class _MainTableScreenState extends State<MainTableScreen> {
         'startTime': FieldValue.serverTimestamp(),
         'status': 'active',
       });
-      await checkDayStatus(widget.userModel.tenantId.trim());
+
+      await checkDayStatus(tenantId); // Update day status
       LogActivity logActivity = LogActivity();
       LogModel logModel = LogModel(
           actionType: LogActionType.systemStartStopDay.toString(),
           actionDescription: "${widget.userModel.fullname} started the day",
           performedBy: widget.userModel.fullname,
-          userId: widget.userModel.userId);
-      logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
-      tableBloc.add(GetTableEvent(widget.userModel.tenantId));
+          userId: userId);
+      logActivity.logAction(tenantId.trim(), logModel);
 
       MSG.snackBar(context, "Day started successfully.");
     } catch (e) {
-      await checkDayStatus(widget.userModel.tenantId.trim());
+      await checkDayStatus(tenantId);
       MSG.warningSnackBar(context, "Failed to start the day: $e");
     } finally {
       toggleLoading(false); // Hide loading
@@ -93,46 +95,46 @@ class _MainTableScreenState extends State<MainTableScreen> {
       String userRole, Function toggleLoading) async {
     try {
       toggleLoading(true); // Show loading
+
       final dailyStart = FirebaseFirestore.instance
           .collection('Enrolled Entities')
           .doc(tenantId.trim())
           .collection('dailyStart');
 
-      // Find the active session
-      final activeSession =
+      // Find the active or unresolved session
+      final unresolvedSession =
           await dailyStart.where('status', isEqualTo: 'active').get();
 
-      if (activeSession.docs.isEmpty) {
+      if (unresolvedSession.docs.isEmpty) {
         MSG.warningSnackBar(context, "No active day to end.");
-
         toggleLoading(false); // Hide loading
         return;
       }
 
       // Update the session
-      final docRef = activeSession.docs.first.reference;
+      final docRef = unresolvedSession.docs.first.reference;
       await docRef.update({
         'endTime': FieldValue.serverTimestamp(),
         'status': 'ended',
         'endedBy': {'userId': userId, 'userRole': userRole},
       });
 
-      // Reset tables after ending the day
+      // Perform necessary resets
       await resetAllTables(context, tenantId);
       await resetAllOrdersTableNo(context, tenantId);
-      await checkDayStatus(widget.userModel.tenantId.trim());
+
+      await checkDayStatus(tenantId); // Update day status
       LogActivity logActivity = LogActivity();
       LogModel logModel = LogModel(
           actionType: LogActionType.systemStartStopDay.toString(),
           actionDescription: "${widget.userModel.fullname} ended the day",
           performedBy: widget.userModel.fullname,
-          userId: widget.userModel.userId);
-      logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
-      tableBloc.add(GetTableEvent(widget.userModel.tenantId));
+          userId: userId);
+      logActivity.logAction(tenantId.trim(), logModel);
 
-      MSG.warningSnackBar(context, "Day ended successfully.");
+      MSG.snackBar(context, "Day ended successfully.");
     } catch (e) {
-      await checkDayStatus(widget.userModel.tenantId.trim());
+      await checkDayStatus(tenantId);
       MSG.warningSnackBar(context, "Failed to end the day: $e");
     } finally {
       toggleLoading(false); // Hide loading
@@ -203,7 +205,9 @@ class _MainTableScreenState extends State<MainTableScreen> {
       print("Failed to reset tables: $e");
     }
   }
-  Future<void> resetAllOrdersTableNo(BuildContext context, String tenantId) async {
+
+  Future<void> resetAllOrdersTableNo(
+      BuildContext context, String tenantId) async {
     try {
       final ordersCollection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
@@ -242,7 +246,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
   Future<void> checkDayStatus(String tenantId) async {
     try {
       setState(() {
-        isLoading = true;
+        isLoading = true; // Start loading
       });
 
       final dailyStart = FirebaseFirestore.instance
@@ -251,76 +255,45 @@ class _MainTableScreenState extends State<MainTableScreen> {
           .collection('dailyStart');
 
       final now = DateTime.now();
-      final todayStart =
-          DateTime(now.year, now.month, now.day, 7); // Start day at 7 AM
-      final tomorrowStart =
-          DateTime(now.year, now.month, now.day + 1, 7); // Next day start
 
-      // Query logs for the current "day"
+      // Define start and end of the current day based on a 7 AM start time
+      final todayStart = DateTime(now.year, now.month, now.day, 7, 0, 0);
+      final tomorrowStart = DateTime(now.year, now.month, now.day + 1, 7, 0, 0);
+
+      // Check for sessions in the current day range or unresolved sessions
       final querySnapshot = await dailyStart
           .where('startTime',
               isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
-          .where('startTime',
-              isLessThanOrEqualTo: Timestamp.fromDate(tomorrowStart))
+          .where('startTime', isLessThan: Timestamp.fromDate(tomorrowStart))
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        final session = querySnapshot.docs.first;
-        final status = session['status'];
+      // Check for unresolved sessions (active status without endTime)
+      final unresolvedSessions =
+          await dailyStart.where('status', isEqualTo: 'active').get();
 
+      if (unresolvedSessions.docs.isNotEmpty) {
+        // If there are unresolved sessions, assume the day is still active
         setState(() {
-          dayStatus = status; // Update day status: "active" or "ended"
+          dayStatus = 'active';
+        });
+      } else if (querySnapshot.docs.isNotEmpty) {
+        // If there are sessions for today but no active sessions, assume the day has ended
+        setState(() {
+          dayStatus = 'ended';
         });
       } else {
+        // No sessions for today or unresolved sessions
         setState(() {
-          dayStatus = ""; // No session found
+          dayStatus = ''; // No day started or ended
         });
       }
     } catch (e) {
       print("Error checking day status: $e");
     } finally {
       setState(() {
-        isLoading = false;
+        isLoading = false; // Stop loading
       });
     }
-  }
-
-  Future<bool> isDayAlreadyStartedOrEnded(String tenantId) async {
-    final dailyStart = FirebaseFirestore.instance
-        .collection('Enrolled Entities')
-        .doc(tenantId.trim())
-        .collection('dailyStart');
-
-    final now = DateTime.now();
-    final todayStart = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ); // Start day at 7 AM
-    final tomorrowStart = DateTime(
-      now.year,
-      now.month,
-      now.day + 1,
-    ); // Start of next day
-
-    // Query logs to see if there’s an active or ended session for the current "day"
-    final querySnapshot = await dailyStart
-        .where('startTime',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
-        .where('startTime',
-            isLessThanOrEqualTo: Timestamp.fromDate(tomorrowStart))
-        .get();
-
-    // Check if there's already an active session
-    if (querySnapshot.docs.isNotEmpty) {
-      final session = querySnapshot.docs.first;
-      final status = session['status'];
-      if (status == 'active' || status == 'ended') {
-        return true; // Day already started or ended
-      }
-    }
-
-    return false; // Day not started or ended
   }
 
   void toggleLoading(bool value) {
@@ -485,8 +458,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
                     ],
                   ),
                 ),
-                if (widget.userModel.role.toLowerCase() == 'admin' &&
-                    dayStatus.toLowerCase() != 'ended') ...[
+                if (widget.userModel.role.toLowerCase() == 'manager'||widget.userModel.role.toLowerCase() == 'admin') ...[
                   //const SizedBox(height: 20),
                   if (!isLoading)
                     Padding(
@@ -496,7 +468,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (dayStatus.isEmpty) ...[
+                            if (dayStatus.isEmpty||dayStatus.toLowerCase() == 'ended') ...[
                               FormButton(
                                 onPressed: () {
                                   print(dayStatus);
@@ -505,7 +477,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
                                     context,
                                     "Start Day",
                                     "Are you sure you want to start the day?",
-                                        () => startDay(
+                                    () => startDay(
                                         context,
                                         widget.userModel.tenantId.trim(),
                                         widget.userModel.userId.trim(),
@@ -524,7 +496,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
                                     context,
                                     "End Day",
                                     "Are you sure you want to end the day? This will reset all tables.",
-                                        () => endDay(
+                                    () => endDay(
                                         context,
                                         widget.userModel.tenantId.trim(),
                                         widget.userModel.userId.trim(),
@@ -536,13 +508,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
                                 text: "End Day",
                                 bgColor: Colors.red,
                               ),
-                            ] else if (dayStatus == "ended") ...[
-                              const Text(
-                                "Day has already ended.",
-                                style: TextStyle(color: Colors.red, fontSize: 16),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
+                            ]
                           ],
                         ),
                       ),
@@ -577,7 +543,6 @@ class _MainTableScreenState extends State<MainTableScreen> {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, left: 10),
                   child: GestureDetector(
@@ -593,7 +558,6 @@ class _MainTableScreenState extends State<MainTableScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-
                             CustomText(
                               text: "Add Table",
                               size: 16,
