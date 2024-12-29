@@ -119,6 +119,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
 
       // Reset tables after ending the day
       await resetAllTables(context, tenantId);
+      await resetAllOrdersTableNo(context, tenantId);
       await checkDayStatus(widget.userModel.tenantId.trim());
       LogActivity logActivity = LogActivity();
       LogModel logModel = LogModel(
@@ -200,6 +201,36 @@ class _MainTableScreenState extends State<MainTableScreen> {
       print("All tables reset successfully.");
     } catch (e) {
       print("Failed to reset tables: $e");
+    }
+  }
+  Future<void> resetAllOrdersTableNo(BuildContext context, String tenantId) async {
+    try {
+      final ordersCollection = FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(tenantId.trim())
+          .collection('Orders');
+
+      final querySnapshot = await ordersCollection.get();
+
+      final batch = FirebaseFirestore.instance.batch();
+
+      for (var doc in querySnapshot.docs) {
+        final orderData = doc.data();
+
+        // Change tableNo to a default value or empty
+        final updatedOrderData = {
+          ...orderData,
+          'tableNo': '', // Set tableNo to an empty string or a default value
+          'updatedAt': Timestamp.now(), // Optional: Add updated timestamp
+        };
+
+        batch.update(doc.reference, updatedOrderData);
+      }
+
+      await batch.commit();
+      print("All orders' tableNo reset successfully.");
+    } catch (e) {
+      print("Failed to reset orders: $e");
     }
   }
 

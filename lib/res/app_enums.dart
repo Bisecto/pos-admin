@@ -11,6 +11,8 @@ enum LogActionType {
   brandEdit,
   brandDelete,
 
+  bankEdit,
+  bankDelete,
   // Category Actions
   categoryAdd,
   categoryEdit,

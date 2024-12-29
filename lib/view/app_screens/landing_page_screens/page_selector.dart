@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_colors.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/bank_details_page_screens/main_bank_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/main_dashboard_page.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/printer_setup_screens/main_printer_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/main_product_screen.dart';
@@ -53,14 +54,17 @@ class _PageSelectorState extends State<PageSelector> {
               switch (widget.controller.selectedIndex) {
                 case 0:
                   return Dashboard(
-                    tenantId: widget.userModel.tenantId, userModel: widget.userModel,
+                    tenantId: widget.userModel.tenantId,
+                    userModel: widget.userModel,
                   );
                 case 1:
                   return MainProductScreen(
                     userModel: widget.userModel,
                   );
                 case 2:
-                  return LogUI(tenantId: widget.userModel.tenantId.trim(),);
+                  return MainBrandScreen(
+                    userModel: widget.userModel,
+                  );
                 case 3:
                   return MainCategoryScreen(
                     userModel: widget.userModel,
@@ -73,7 +77,8 @@ class _PageSelectorState extends State<PageSelector> {
                 case 5:
                   return OrderManagementPage(
                     tenantId: widget.userModel.tenantId,
-                    tenantModel: widget.tenantModel, userModel: widget.userModel,
+                    tenantModel: widget.tenantModel,
+                    userModel: widget.userModel,
                   );
                 case 6:
                   return MainUserScreen(
@@ -89,6 +94,14 @@ class _PageSelectorState extends State<PageSelector> {
                   return const SettingsPage();
                 case 9:
                   return MainPrinterScreen(
+                    userModel: widget.userModel,
+                  );
+                case 10:
+                  return LogUI(
+                    tenantId: widget.userModel.tenantId.trim(),
+                  );
+                case 11:
+                  return MainBankScreen(
                     userModel: widget.userModel,
                   );
                 default:
