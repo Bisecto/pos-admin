@@ -91,7 +91,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
     }
   }
 
-  Future<void> endDay(BuildContext context, String tenantId, String userId,
+  Future<void> adminEndDay(BuildContext context, String tenantId, String userId,
       String userRole, Function toggleLoading) async {
     try {
       toggleLoading(true); // Show loading
@@ -140,7 +140,79 @@ class _MainTableScreenState extends State<MainTableScreen> {
       toggleLoading(false); // Hide loading
     }
   }
+  Future<void> endDay(BuildContext context, String tenantId, String userId,
+      String userRole, Function toggleLoading) async {
+    try {
+      toggleLoading(true); // Show loading
 
+      final dailyStart = FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(tenantId.trim())
+          .collection('dailyStart');
+
+      // Find the active or unresolved session
+      final unresolvedSession =
+      await dailyStart.where('status', isEqualTo: 'active').get();
+
+      if (unresolvedSession.docs.isEmpty) {
+        MSG.warningSnackBar(context, "No active day to end.");
+        toggleLoading(false); // Hide loading
+        return;
+      }
+
+      // Fetch all tables and check for active ones
+      final tablesCollection = FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(tenantId.trim())
+          .collection('Tables');
+
+      final tablesSnapshot = await tablesCollection.get();
+
+      final activeTables = tablesSnapshot.docs.where((doc) {
+        final data = doc.data();
+
+        final activityMap = data['activities'] as Map<String, dynamic>?;
+        print(activityMap);
+        final isActive = activityMap?['isActive'] as bool? ?? false;
+        return isActive;
+      }).toList();
+
+      if (activeTables.isNotEmpty) {
+        MSG.warningSnackBar(
+            context, "Cannot end the day. Active tables exist.");
+        toggleLoading(false); // Hide loading
+        return;
+      }
+
+      // Update the session
+      final docRef = unresolvedSession.docs.first.reference;
+      await docRef.update({
+        'endTime': FieldValue.serverTimestamp(),
+        'status': 'ended',
+        'endedBy': {'userId': userId, 'userRole': userRole},
+      });
+
+      // Perform necessary resets
+      await resetAllTables(context, tenantId);
+      await resetAllOrdersTableNo(context, tenantId);
+
+      await checkDayStatus(tenantId); // Update day status
+      LogActivity logActivity = LogActivity();
+      LogModel logModel = LogModel(
+          actionType: LogActionType.systemStartStopDay.toString(),
+          actionDescription: "${widget.userModel.fullname} ended the day",
+          performedBy: widget.userModel.fullname,
+          userId: userId);
+      logActivity.logAction(tenantId.trim(), logModel);
+
+      MSG.snackBar(context, "Day ended successfully.");
+    } catch (e) {
+      await checkDayStatus(tenantId);
+      MSG.warningSnackBar(context, "Failed to end the day: $e");
+    } finally {
+      toggleLoading(false); // Hide loading
+    }
+  }
   Future<void> showConfirmationDialog(BuildContext context, String title,
       String message, Function onConfirm) async {
     showDialog(
@@ -492,17 +564,33 @@ class _MainTableScreenState extends State<MainTableScreen> {
                             ] else if (dayStatus == "active") ...[
                               FormButton(
                                 onPressed: () {
-                                  showConfirmationDialog(
-                                    context,
-                                    "End Day",
-                                    "Are you sure you want to end the day? This will reset all tables.",
-                                    () => endDay(
-                                        context,
-                                        widget.userModel.tenantId.trim(),
-                                        widget.userModel.userId.trim(),
-                                        widget.userModel.role.trim(),
-                                        toggleLoading),
-                                  );
+                                  if(widget.userModel.role.toLowerCase() == 'admin'){
+                                    showConfirmationDialog(
+                                      context,
+                                      "End Day",
+                                      "Are you sure you want to end the day? This will reset all tables.",
+                                          () =>
+                                          adminEndDay(
+                                              context,
+                                              widget.userModel.tenantId.trim(),
+                                              widget.userModel.userId.trim(),
+                                              widget.userModel.role.trim(),
+                                              toggleLoading),
+                                    );
+                                  }else {
+                                    showConfirmationDialog(
+                                      context,
+                                      "End Day",
+                                      "Are you sure you want to end the day? This will reset all tables.",
+                                          () =>
+                                          endDay(
+                                              context,
+                                              widget.userModel.tenantId.trim(),
+                                              widget.userModel.userId.trim(),
+                                              widget.userModel.role.trim(),
+                                              toggleLoading),
+                                    );
+                                  }
                                 },
                                 width: 120,
                                 text: "End Day",

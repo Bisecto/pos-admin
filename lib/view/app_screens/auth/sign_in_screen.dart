@@ -137,7 +137,7 @@ class _SignInScreenState extends State<SignInScreen> {
           .then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
           Map<String, dynamic> data =
-          documentSnapshot.data()! as Map<String, dynamic>;
+              documentSnapshot.data()! as Map<String, dynamic>;
 
           setState(() {
             LatestVersion = data['version'];
@@ -170,202 +170,219 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return  _connected
+    return _connected
         ? (isAppUpdated
-        ? Scaffold(
-      backgroundColor: AppColors.scaffoldBackgroundColor,
-      body: BlocConsumer<AuthBloc, AuthState>(
-          bloc: authBloc,
-          listenWhen: (previous, current) => current is! AuthInitial,
-          buildWhen: (previous, current) => current is! AuthInitial,
-          listener: (context, state) {
-            if (state is SuccessState) {
-              MSG.snackBar(context, state.msg);
+            ? Scaffold(
+                backgroundColor: AppColors.scaffoldBackgroundColor,
+                body: BlocConsumer<AuthBloc, AuthState>(
+                    bloc: authBloc,
+                    listenWhen: (previous, current) => current is! AuthInitial,
+                    buildWhen: (previous, current) => current is! AuthInitial,
+                    listener: (context, state) {
+                      if (state is SuccessState) {
+                        MSG.snackBar(context, state.msg);
 
-              AppNavigator.pushAndRemovePreviousPages(context,
-                  page:  LandingPage(tenantModel: state.tenantModel!, userModel: state.userModel!,));
-            } else if (state is ErrorState) {
-              MSG.warningSnackBar(context, state.error);
-            }
-          },
-          builder: (context, state) {
-            switch (state.runtimeType) {
-              // case PostsFetchingState:
-              //   return const Center(
-              //     child: CircularProgressIndicator(),
-              //   );
-              case AuthInitial || ErrorState:
-                return SafeArea(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              //TextStyles.textSubHeadings(textValue: "Login to your account",textColor:AppColors.white,textSize: 20 ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Image.asset(
-                                AppImages.companyLogo,
-                                height: 100,
-                                width: 100,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Form(
-                                  key: _formKey,
-                                  child: Column(
-                                    children: [
-                                      CustomTextFormField(
-                                        hint:
-                                            'Please enter Email',
-                                        label: 'Email',
-                                        borderColor: AppColors.darkYellow,
-                                        controller: _emailController,
-                                        backgroundColor: AppColors
-                                            .darkModeBackgroundContainerColor,
-                                        validator:
-                                            AppValidator.validateTextfield,
-                                        widget: const Icon(Icons.person_2_outlined),
-                                        width: 250,
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      CustomTextFormField(
-                                        label: 'Password',
-                                        isPasswordField: true,
-                                        borderColor: AppColors.darkYellow,
-                                        backgroundColor: AppColors
-                                            .darkModeBackgroundContainerColor,
-                                        validator:
-                                            AppValidator.validateTextfield,
-                                        controller: _passwordController,
-                                        hint: 'Enter your password',
-                                        widget: const Icon(Icons.lock_outline),
-                                        width: 250,
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      SizedBox(
-                                        width: 250,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            GestureDetector(
-                                              onTap: () {
-                                                AppNavigator.pushAndStackPage(
-                                                    context,
-                                                    page:
-                                                        const ResetPassword());
-                                              },
-                                              child: const Align(
-                                                alignment: Alignment.topRight,
-                                                child: CustomText(
-                                                  text: "Forgot password ?",
-                                                  color: AppColors.white,
-                                                  size: 16,
-                                                  weight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ),
-                                            // GestureDetector(
-                                            //   onTap: () {
-                                            //     AppNavigator.pushAndStackPage(
-                                            //         context,
-                                            //         page:
-                                            //              SignUpUser());
-                                            //   },
-                                            //   child: const Align(
-                                            //     alignment: Alignment.topRight,
-                                            //     child: CustomText(
-                                            //       text: "Account setup",
-                                            //       color: AppColors.white,
-                                            //       size: 16,
-                                            //       weight: FontWeight.w400,
-                                            //     ),
-                                            //   ),
-                                            // ),
-                                          ],
+                        AppNavigator.pushAndRemovePreviousPages(context,
+                            page: LandingPage(
+                              tenantModel: state.tenantModel!,
+                              userModel: state.userModel!,
+                            ));
+                      } else if (state is ErrorState) {
+                        MSG.warningSnackBar(context, state.error);
+                      }
+                    },
+                    builder: (context, state) {
+                      switch (state.runtimeType) {
+                        // case PostsFetchingState:
+                        //   return const Center(
+                        //     child: CircularProgressIndicator(),
+                        //   );
+                        case AuthInitial || ErrorState:
+                          return SafeArea(
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const SizedBox(
+                                          height: 20,
                                         ),
-                                      ),
-
-                                      FormButton(
-                                        onPressed: () async {
-                                          if (_formKey.currentState!
-                                              .validate()) {
-
-                                            authBloc.add(SignInEventClick(
-
-                                                _emailController.text
-                                                    .toLowerCase()
-                                                    .trim(),
-                                                _passwordController.text));
-                                          }
-                                        },
-                                        text: 'Login',
-                                        borderColor: AppColors.darkYellow,
-                                        bgColor: AppColors.darkYellow,
-                                        textColor: AppColors.white,
-                                        borderRadius: 10,
-                                        width: 250,
-                                        height: 50,
-                                      )
-                                    ],
-                                  )),
-                              const SizedBox(
-                                height: 20,
+                                        //TextStyles.textSubHeadings(textValue: "Login to your account",textColor:AppColors.white,textSize: 20 ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Image.asset(
+                                          AppImages.companyLogo,
+                                          height: 100,
+                                          width: 100,
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Form(
+                                            key: _formKey,
+                                            child: Column(
+                                              children: [
+                                                CustomTextFormField(
+                                                  hint: 'Please enter Email',
+                                                  label: 'Email',
+                                                  borderColor:
+                                                      AppColors.darkYellow,
+                                                  controller: _emailController,
+                                                  backgroundColor: AppColors
+                                                      .darkModeBackgroundContainerColor,
+                                                  validator: AppValidator
+                                                      .validateTextfield,
+                                                  widget: const Icon(
+                                                      Icons.person_2_outlined),
+                                                  width: 250,
+                                                ),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                CustomTextFormField(
+                                                  label: 'Password',
+                                                  isPasswordField: true,
+                                                  borderColor:
+                                                      AppColors.darkYellow,
+                                                  backgroundColor: AppColors
+                                                      .darkModeBackgroundContainerColor,
+                                                  validator: AppValidator
+                                                      .validateTextfield,
+                                                  controller:
+                                                      _passwordController,
+                                                  hint: 'Enter your password',
+                                                  widget: const Icon(
+                                                      Icons.lock_outline),
+                                                  width: 250,
+                                                ),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                SizedBox(
+                                                  width: 250,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          AppNavigator
+                                                              .pushAndStackPage(
+                                                                  context,
+                                                                  page:
+                                                                      const ResetPassword());
+                                                        },
+                                                        child: const Align(
+                                                          alignment: Alignment
+                                                              .topRight,
+                                                          child: CustomText(
+                                                            text:
+                                                                "Forgot password ?",
+                                                            color:
+                                                                AppColors.white,
+                                                            size: 16,
+                                                            weight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      // GestureDetector(
+                                                      //   onTap: () {
+                                                      //     AppNavigator.pushAndStackPage(
+                                                      //         context,
+                                                      //         page:
+                                                      //              SignUpUser());
+                                                      //   },
+                                                      //   child: const Align(
+                                                      //     alignment: Alignment.topRight,
+                                                      //     child: CustomText(
+                                                      //       text: "Account setup",
+                                                      //       color: AppColors.white,
+                                                      //       size: 16,
+                                                      //       weight: FontWeight.w400,
+                                                      //     ),
+                                                      //   ),
+                                                      // ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                FormButton(
+                                                  onPressed: () async {
+                                                    if (_formKey.currentState!
+                                                        .validate()) {
+                                                      authBloc.add(
+                                                          SignInEventClick(
+                                                              _emailController
+                                                                  .text
+                                                                  .toLowerCase()
+                                                                  .trim(),
+                                                              _passwordController
+                                                                  .text));
+                                                    }
+                                                  },
+                                                  text: 'Login',
+                                                  borderColor:
+                                                      AppColors.darkYellow,
+                                                  bgColor: AppColors.darkYellow,
+                                                  textColor: AppColors.white,
+                                                  borderRadius: 10,
+                                                  width: 250,
+                                                  height: 50,
+                                                )
+                                              ],
+                                            )),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Column(
+                                      children: [
+                                        const CustomText(
+                                            text: 'Powered by',
+                                            size: 14,
+                                            color: AppColors.white),
+                                        TextStyles.textHeadings(
+                                            textValue: "Checkpoint Abuja",
+                                            textSize: 20,
+                                            textColor: AppColors.orange)
+                                      ],
+                                    ),
+                                  )
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Column(
-                            children: [
-                              const CustomText(
-                                  text: 'Powered by',
-                                  size: 14,
-                                  color: AppColors.white),
-                              TextStyles.textHeadings(
-                                  textValue: "Checkpoint Abuja",
-                                  textSize: 20,
-                                  textColor: AppColors.orange)
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                );
+                            ),
+                          );
 
-              case LoadingState:
-                return const Center(
-                  child: AppLoadingPage("Signing user in..."),
-                );
-              default:
-                return const Center(
-                  child: AppLoadingPage("Signing user in..."),
-                );
-            }
-          }),
-    ) : Center(
-      child: UpdateApp(
-      appUrl: appUrl,
-      ),
-    ))
+                        case LoadingState:
+                          return const Center(
+                            child: AppLoadingPage("Signing user in..."),
+                          );
+                        default:
+                          return const Center(
+                            child: AppLoadingPage("Signing user in..."),
+                          );
+                      }
+                    }),
+              )
+            : Center(
+                child: UpdateApp(
+                  appUrl: appUrl,
+                ),
+              ))
         : No_internet_Page(onRetry: _checkConnectivity);
   }
 }
