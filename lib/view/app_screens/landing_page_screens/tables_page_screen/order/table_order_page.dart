@@ -316,35 +316,50 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                         'Discounted: ₦${discountedPrice.toStringAsFixed(2)}',
                                                     size: 12,
                                                     color: AppColors.black),
+                                                CustomText(
+                                                    text:
+                                                        'Quantity: ${product.quantity }',
+                                                    size: 12,
+                                                    color: AppColors.black),
                                               ],
                                             ),
                                           ),
                                           Row(
                                             children: [
-                                              // Decrement Button
-                                              // IconButton(
-                                              //   icon: const Icon(Icons.remove_circle_outline),
-                                              //   onPressed: () {
-                                              //     if (product.quantity > 1) {
-                                              //       updateProductQuantity(product, product.quantity - 1);
-                                              //     } else {
-                                              //       removeProductFromOrder(product);
-                                              //     }
-                                              //   },
-                                              // ),
-                                              // // Quantity Display
-                                              // CustomText(
-                                              //   text: "X${product.quantity}",
-                                              //   size: 12,
-                                              // ),
-                                              // // Increment Button
-                                              // IconButton(
-                                              //   icon: const Icon(Icons.add_circle_outline),
-                                              //   onPressed: () {
-                                              //     updateProductQuantity(product, product.quantity + 1);
-                                              //   },
-                                              // ),
-                                              // Delete Button
+                                              //if (product.quantity > 1)
+                                                IconButton(
+                                                  icon: const Icon(Icons
+                                                      .remove_circle_outline),
+                                                  onPressed: () {
+                                                    if (product.quantity > 1) {
+                                                      updateProductQuantity(
+                                                          product,
+                                                          product.quantity - 1);
+                                                    } else {
+                                                      voidProductInOrder(
+                                                          product, orderId);
+                                                      // removeProductFromOrder(product);
+                                                    }
+                                                  },
+                                                ),
+                                              // Quantity Display
+                                              //if (product.quantity > 1)
+                                                CustomText(
+                                                  text: "X${product.quantity}",
+                                                  size: 12,
+                                                ),
+                                              // Increment Button
+                                              //if (product.quantity > 1)
+                                                IconButton(
+                                                  icon: const Icon(
+                                                      Icons.add_circle_outline),
+                                                  onPressed: () {
+                                                    // MSG.warningSnackBar(context, ('You cannot increase the qty of this product'));
+                                                    updateProductQuantity(
+                                                        product,
+                                                        product.quantity + 1);
+                                                  },
+                                                ),
                                               GestureDetector(
                                                 child: FormButton(
                                                   onPressed: () {

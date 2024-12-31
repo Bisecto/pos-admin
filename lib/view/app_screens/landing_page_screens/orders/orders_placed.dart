@@ -9,8 +9,10 @@ import 'package:pos_admin/view/widgets/form_input.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../model/activity_model.dart';
 import '../../../../model/log_model.dart';
 import '../../../../model/order_model.dart';
+import '../../../../model/table_model.dart';
 import '../../../../model/tenant_model.dart';
 import '../../../../repository/log_actions.dart';
 import '../../../../res/app_colors.dart';
@@ -286,7 +288,11 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                                   Icon(Icons.edit, color: AppColors.darkYellow),
                               onPressed: () async {
                                 await fetchOrderDetails(orderId);
-                                showEditPopup(context, orderId);
+                                showEditPopup(
+                                    context,
+                                    orderId,
+                                    orderData['tableNo'],
+                                    orderData['createdBy']);
                               },
                               tooltip: 'Edit Order',
                             ),
@@ -294,7 +300,11 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                             FormButton(
                               onPressed: () async {
                                 await fetchOrderDetails(orderId);
-                                showEditPopup(context, orderId);
+                                showEditPopup(
+                                    context,
+                                    orderId,
+                                    orderData['tableNo'],
+                                    orderData['createdBy']);
                                 // await fetchOrderDetails(orderId);
                                 // _printReceipt();
                               },
@@ -607,6 +617,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   }
 
   List<OrderProduct> products = [];
+  late OrderModel orderModel;
   String selectedStatus = 'Pending'; // Default status
   bool isLoading = true;
 
@@ -618,6 +629,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     'Order Completed',
     'Canceled',
   ];
+
   Future<void> fetchOrderDetails(String orderId) async {
     final orderRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
@@ -628,14 +640,21 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     try {
       DocumentSnapshot<Map<String, dynamic>> snapshot = await orderRef.get();
       Map<String, dynamic> orderData = snapshot.data() ?? {};
-
+      orderModel = OrderModel.fromFirestore(orderData);
+      print(orderModel);
+      print(orderModel);
+      print(orderModel);
+      print(orderModel);
+      print(orderModel);
       List<dynamic> productList = orderData['products'] ?? [];
-      int orderStatusIndex = orderData['status'] ?? 0; // Default to 'Pending' status
+      int orderStatusIndex =
+          orderData['status'] ?? 0; // Default to 'Pending' status
 
       setState(() {
         selectedStatus = statusOptions[orderStatusIndex];
         products = productList
-            .where((productJson) => productJson['isProductVoid'] != true) // Exclude voided products
+            .where((productJson) =>
+                productJson['isProductVoid'] != true) // Exclude voided products
             .map((productJson) => OrderProduct.fromJson(productJson))
             .toList();
         isLoading = false;
@@ -670,7 +689,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   // }
 
   // Update the status in Firestore
-  Future<void> updateOrderStatus(String status, orderId) async {
+  Future<void> updateOrderStatus(
+      String status, orderId, tableId, createdBy) async {
     final orderRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.tenantId)
@@ -679,6 +699,93 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
     int statusIndex = statusOptions.indexOf(status);
     await orderRef.update({'status': statusIndex});
+    if (statusIndex == 1) {
+      DocumentSnapshot<Map<String, dynamic>> docSnapshot =
+          await FirebaseFirestore.instance
+              .collection('Enrolled Entities')
+              .doc(widget.tenantId.trim())
+              .collection('Tables')
+              .doc(tableId)
+              .get();
+
+      //if (docSnapshot.exists) {
+      // Parse the document data into a TableModel
+      // Map<String, dynamic> data = docSnapshot.data()!;
+      TableModel retrievedTableModel = TableModel.fromFirestore(docSnapshot);
+      DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
+          await FirebaseFirestore.instance
+              .collection('Users')
+              .doc(createdBy.trim())
+              .get();
+
+      //if (docSnapshot.exists) {
+      // Parse the document data into a TableModel
+      // Map<String, dynamic> data = docSnapshot.data()!;
+      UserModel userModel = UserModel.fromFirestore(userDocSnapshot);
+      print(userModel.tenantId);
+      print(userModel.tenantId);
+      print(userModel.tenantId);
+      print(userModel.tenantId);
+      print(userModel.tenantId);
+
+      // return tableModel;
+      //}
+      final tableModel = TableModel(
+        activity: ActivityModel(
+          attendantId: userModel.userId,
+          attendantName: userModel.fullname,
+          isActive: true,
+          currentOrderId: orderId,
+          isMerged: true,
+        ),
+        tableId: retrievedTableModel.tableId,
+        tableName: retrievedTableModel.tableName,
+        createdAt: retrievedTableModel.createdAt,
+        updatedAt: Timestamp.now(),
+      );
+
+      await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.tenantId)
+          .collection('Tables')
+          .doc(retrievedTableModel.tableId)
+          .update(tableModel.toFirestore());
+    }else if(statusIndex == 4) {
+      DocumentSnapshot<Map<String, dynamic>> docSnapshot =
+      await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.tenantId.trim())
+          .collection('Tables')
+          .doc(tableId)
+          .get();
+
+      //if (docSnapshot.exists) {
+      // Parse the document data into a TableModel
+      // Map<String, dynamic> data = docSnapshot.data()!;
+      TableModel retrievedTableModel = TableModel.fromFirestore(docSnapshot);
+
+      //}
+      final tableModel = TableModel(
+        activity: ActivityModel(
+          attendantId: '',
+          attendantName:'',
+          isActive: false,
+          currentOrderId: '',
+          isMerged: false,
+        ),
+        tableId: retrievedTableModel.tableId,
+        tableName: retrievedTableModel.tableName,
+        createdAt: retrievedTableModel.createdAt,
+        updatedAt: Timestamp.now(),
+      );
+
+      await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.tenantId)
+          .collection('Tables')
+          .doc(retrievedTableModel.tableId)
+          .update(tableModel.toFirestore());
+    }
     LogActivity logActivity = LogActivity();
     LogModel logModel = LogModel(
         actionType: LogActionType.orderStatusChange.toString(),
@@ -687,6 +794,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         performedBy: widget.userModel.fullname,
         userId: widget.userModel.userId);
     logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+    Navigator.pop(context);
   }
 
   // Calculate total order price
@@ -703,7 +811,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     });
   }
 
-  void showEditPopup(BuildContext context, orderId) {
+  void showEditPopup(BuildContext context, orderId, tableId, createdBy) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -794,6 +902,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     height: MediaQuery.of(context).size.height - 300,
                     child: ListView(
                       shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
                       children: [
                         ...products.map((product) {
                           double discountedPrice =
@@ -883,7 +992,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  //const SizedBox(height: 10),
                   if (products.isNotEmpty) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -935,7 +1044,9 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   ],
                   FormButton(
                     onPressed: () {
-                      updateOrderStatus(selectedStatus, orderId);
+                      //print(selectedStatus);
+                      updateOrderStatus(
+                          selectedStatus, orderId, tableId, createdBy);
                     },
                     text: "Update Product",
                   ),
