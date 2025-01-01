@@ -775,6 +775,16 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       CustomText(
+                                          text:
+                                          'Qty: ${product.quantity}',
+                                          size: 12,
+                                          color: AppColors.black),
+                                      CustomText(
+                                          text:
+                                          'Status: ${product.isProductVoid?"Voided":"Booked"}',
+                                          size: 12,
+                                          color: AppColors.black),
+                                      CustomText(
                                         text:
                                             'Price: ₦${product.price.toStringAsFixed(2)}',
                                         size: 12,
