@@ -28,7 +28,14 @@ class AppUtils {
       // debugPrint(object.toString());
     }
   }
+  String extractNumbers(String input) {
+    // Use a regular expression to find all digits in the string
+    final regExp = RegExp(r'\d+');
+    final matches = regExp.allMatches(input);
 
+    // Concatenate all found numbers
+    return matches.map((match) => match.group(0) ?? '').join();
+  }
   openApp(context) async {
     // bool isFirstOpen =
     //     (await SharedPref.getBool(SharedPrefKey.isFirstOpenKey)) ?? true;

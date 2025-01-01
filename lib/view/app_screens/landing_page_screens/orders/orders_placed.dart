@@ -18,6 +18,7 @@ import '../../../../repository/log_actions.dart';
 import '../../../../res/app_colors.dart';
 import '../../../../res/app_enums.dart';
 import '../../../../res/app_images.dart';
+import '../../../../utills/app_utils.dart';
 import '../../../../utills/enums/order_status_enums.dart';
 import '../../../important_pages/dialog_box.dart';
 import '../../../widgets/app_custom_text.dart';
@@ -184,7 +185,21 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     label: Container(
                       padding: EdgeInsets.all(8.0),
                       child:
-                          CustomText(text: 'Table No', color: AppColors.white),
+                          CustomText(text: 'Table Number', color: AppColors.white),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: const CustomText(
+                          text: 'Ordered By', color: AppColors.white),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: const CustomText(
+                          text: 'Amount Paid', color: AppColors.white),
                     ),
                   ),
                   DataColumn(
@@ -250,9 +265,42 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       // ),
                       DataCell(
                         Container(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: CustomText(
-                              text: orderData['tableNo'],
+                            text:
+                            "Table ${AppUtils().extractNumbers(orderDoc['tableNo'].toString().isEmpty ? 'TTHHJH' : orderDoc['tableNo'].toString().substring(0, 3))}",
+                            color: AppColors.white,
+                            weight: FontWeight.bold,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+
+                      DataCell(
+                        Container(
+                          padding: EdgeInsets.all(8.0),
+                          child: FutureBuilder<String>(
+                            future: getUserFullName(orderData['createdBy']),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return CircularProgressIndicator(); // Show a loading indicator
+                              } else if (snapshot.hasError) {
+                                return Text('Error'); // Handle error case
+                              } else {
+                                return CustomText(
+                                  text: snapshot.data ?? 'Unknown',
+                                  color: AppColors.white,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CustomText(
+                              text: orderData['amountPaid']??'NAN',
                               color: AppColors.white),
                         ),
                       ),
@@ -283,19 +331,19 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       DataCell(
                         Row(
                           children: [
-                            IconButton(
-                              icon:
-                                  Icon(Icons.edit, color: AppColors.darkYellow),
-                              onPressed: () async {
-                                await fetchOrderDetails(orderId);
-                                showEditPopup(
-                                    context,
-                                    orderId,
-                                    orderData['tableNo'],
-                                    orderData['createdBy']);
-                              },
-                              tooltip: 'Edit Order',
-                            ),
+                            // IconButton(
+                            //   icon:
+                            //       Icon(Icons.edit, color: AppColors.darkYellow),
+                            //   onPressed: () async {
+                            //     await fetchOrderDetails(orderId);
+                            //     showEditPopup(
+                            //         context,
+                            //         orderId,
+                            //         orderData['tableNo'],
+                            //         orderData['createdBy']);
+                            //   },
+                            //   tooltip: 'Edit Order',
+                            // ),
                             // if (getStatusText(statusIndex).toLowerCase() != 'pending')
                             FormButton(
                               onPressed: () async {
@@ -306,9 +354,15 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                                     orderData['tableNo'],
                                     orderData['createdBy']);
                                 // await fetchOrderDetails(orderId);
+                                // showEditPopup(
+                                //     context,
+                                //     orderId,
+                                //     orderData['tableNo'],
+                                //     orderData['createdBy']);
+                                // await fetchOrderDetails(orderId);
                                 // _printReceipt();
                               },
-                              text: "View Receipt",
+                              text: "View Order",
                               bgColor: AppColors.darkYellow,
                               width: 150,
                               textColor: AppColors.white,
@@ -358,263 +412,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         ]));
   }
 
-  Future<pw.Document> _generateReceipt() async {
-    final pdf = pw.Document();
-    final ByteData qrCodeBytes = await rootBundle.load(AppImages.companyLogo);
-    final Uint8List companyImage = qrCodeBytes.buffer.asUint8List();
-    pdf.addPage(
-      pw.Page(
-        pageFormat: const PdfPageFormat(58 * PdfPageFormat.mm, double.infinity),
-        build: (context) {
-          return pw.Padding(
-            padding: const pw.EdgeInsets.all(5),
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Center(
-                  child: pw.Image(pw.MemoryImage(companyImage),
-                      //width: double.infinity,
-                      //fit: pw.BoxFit.fill,
-                      height: 20),
-                ),
-                // pw.Center(
-                //   child: pw.Text(
-                //     'Checkpoint Abuja',
-                //     style: pw.TextStyle(
-                //       fontSize: 6,
-                //       fontWeight: pw.FontWeight.bold,
-                //       font: pw.Font.courier(),
-                //     ),
-                //   ),
-                // ),
 
-                pw.SizedBox(height: 3),
-                pw.Center(
-                  child: pw.Text(
-                      '${widget.tenantModel.address.streetAddress} ${widget.tenantModel.address.city}, \n${widget.tenantModel.address.state}, ${widget.tenantModel.address.country}',
-                      style: pw.TextStyle(
-                        fontSize: 4,
-                        font: pw.Font.courier(),
-                      ),
-                      textAlign: pw.TextAlign.center,
-                      maxLines: 5),
-                ),
-                pw.SizedBox(height: 1),
-                pw.Center(
-                  child: pw.Text(
-                    'Tel: ${widget.tenantModel.businessPhoneNumber}',
-                    style: pw.TextStyle(
-                      fontSize: 4,
-                      font: pw.Font.courier(),
-                    ),
-                  ),
-                ),
-                pw.SizedBox(height: 2),
-                pw.Divider(),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Row(children: [
-                      pw.Container(
-                        width: 10,
-                        child: pw.Text(
-                          "QTY",
-                          style: pw.TextStyle(
-                            fontSize: 3,
-                            fontWeight: pw.FontWeight.bold,
-                            font: pw.Font.courier(),
-                          ),
-                        ),
-                      ),
-                      pw.Container(
-                        width: 27,
-                        child: pw.Text(
-                          "Description",
-                          style: pw.TextStyle(
-                            fontSize: 3,
-                            fontWeight: pw.FontWeight.bold,
-                            font: pw.Font.courier(),
-                          ),
-                        ),
-                      ),
-                    ]),
-                    pw.Row(children: [
-                      pw.Container(
-                        width: 20,
-                        child: pw.Text(
-                          "Price",
-                          style: pw.TextStyle(
-                            fontSize: 3,
-                            fontWeight: pw.FontWeight.bold,
-                            font: pw.Font.courier(),
-                          ),
-                        ),
-                      ),
-                      pw.SizedBox(width: 5),
-                      pw.Container(
-                        width: 20,
-                        child: pw.Text(
-                          "Total",
-                          style: pw.TextStyle(
-                            fontSize: 3,
-                            fontWeight: pw.FontWeight.bold,
-                            font: pw.Font.courier(),
-                          ),
-                        ),
-                      ),
-                    ])
-                  ],
-                ),
-                pw.SizedBox(height: 1),
-                pw.ListView.builder(
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return pw.Container(
-                      margin: const pw.EdgeInsets.symmetric(vertical: 2),
-                      child: pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                        children: [
-                          pw.Row(children: [
-                            pw.Container(
-                              width: 10,
-                              child: pw.Text(
-                                product.quantity.toString(),
-                                style: pw.TextStyle(
-                                  fontSize: 3,
-                                  font: pw.Font.courier(),
-                                ),
-                              ),
-                            ),
-                            pw.Container(
-                              width: 27,
-                              child: pw.Text(
-                                product.productName,
-                                style: pw.TextStyle(
-                                  fontSize: 3,
-                                  font: pw.Font.courier(),
-                                ),
-                              ),
-                            ),
-                          ]),
-                          pw.Row(children: [
-                            pw.Container(
-                              width: 20,
-                              child: pw.Text(
-                                '${product.price.toStringAsFixed(2)}',
-                                style: pw.TextStyle(
-                                  fontSize: 3,
-                                  font: pw.Font.courier(),
-                                ),
-                              ),
-                            ),
-                            pw.SizedBox(width: 5),
-                            pw.Container(
-                              width: 20,
-                              child: pw.Text(
-                                '${(product.price * product.quantity).toStringAsFixed(2)}',
-                                style: pw.TextStyle(
-                                  fontSize: 3,
-                                  font: pw.Font.courier(),
-                                ),
-                              ),
-                            ),
-                          ])
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                pw.Divider(),
-                pw.SizedBox(height: 3),
-
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Subtotal:', style: pw.TextStyle(fontSize: 4)),
-                    pw.Text(
-                        'NGN ${calculateTotalOrderPrice().toStringAsFixed(2)}',
-                        style: pw.TextStyle(fontSize: 4)),
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Discounted price:',
-                        style: pw.TextStyle(fontSize: 4)),
-                    pw.Text('NGN ${calculateAmtToPay().toStringAsFixed(2)}',
-                        style: pw.TextStyle(fontSize: 4)),
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('VAT(${widget.tenantModel.vat}%):',
-                        style: pw.TextStyle(fontSize: 4)),
-                    pw.Text(
-                        'NGN ${calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100).toStringAsFixed(2)}',
-                        style: pw.TextStyle(fontSize: 4)),
-                  ],
-                ),
-                // pw.Row(
-                //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     pw.Text('Payment Method:',
-                //         style: pw.TextStyle(fontSize: 4)),
-                //     pw.Text('Cash/Card', style: pw.TextStyle(fontSize: 4)),
-                //   ],
-                // ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Total:', style: pw.TextStyle(fontSize: 5)),
-                    pw.Text(
-                        'NGN ${(calculateAmtToPay() + calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100)).toStringAsFixed(2)}',
-                        style: pw.TextStyle(fontSize: 5)),
-                  ],
-                ),
-
-                pw.SizedBox(height: 5),
-                pw.Center(
-                  child: pw.Text(
-                    '* Thank you *',
-                    style: pw.TextStyle(
-                      fontSize: 4,
-                      fontStyle: pw.FontStyle.italic,
-                      font: pw.Font.courier(),
-                    ),
-                  ),
-                ),
-                //pw.SizedBox(height: 5),
-                pw.Center(
-                  child: pw.Text(
-                    'Visit us again!',
-                    style: pw.TextStyle(
-                      fontSize: 4,
-                      fontStyle: pw.FontStyle.italic,
-                      font: pw.Font.courier(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-
-    return pdf;
-  }
-
-  Future<void> _printReceipt() async {
-    final pdf = await _generateReceipt();
-    await Printing.directPrintPdf(
-        printer: const Printer(url: ''),
-        onLayout: (PdfPageFormat format) async => pdf.save());
-    // await Printing.layoutPdf(
-    //   onLayout: (PdfPageFormat format) async => pdf.save(),
-    // );
-  }
 
   List<OrderProduct> products = [];
   late OrderModel orderModel;
@@ -629,7 +427,31 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     'Order Completed',
     'Canceled',
   ];
+  Map<String, String> userFullNameCache = {};
 
+  Future<String>  getUserFullName(String userId) async {
+    if (userFullNameCache.containsKey(userId)) {
+      return userFullNameCache[userId]!;
+    }
+    try {
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId)
+          .get();
+
+      if (userSnapshot.exists) {
+        final userData = userSnapshot.data() as Map<String, dynamic>;
+        final fullName = userData['fullname'] ?? 'Unknown';
+        userFullNameCache[userId] = fullName; // Cache the result
+        return fullName;
+      } else {
+        return 'Unknown';
+      }
+    } catch (e) {
+      print("Error fetching user full name: $e");
+      return 'Unknown';
+    }
+  }
   Future<void> fetchOrderDetails(String orderId) async {
     final orderRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
