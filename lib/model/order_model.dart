@@ -69,11 +69,8 @@ class OrderProduct {
   final String brandId;
   final String categoryId;
   final String sku;
-  final String amountPaid;
-  final String cashValue;
-  final String change;
+
   final bool isProductVoid;
-  final String paymentMethod;
 
   OrderProduct({
     required this.productName,
@@ -86,11 +83,7 @@ class OrderProduct {
     required this.brandId,
     required this.categoryId,
     required this.sku,
-    required this.amountPaid,
-    required this.cashValue,
-    required this.change,
     required this.isProductVoid,
-    required this.paymentMethod,
   });
 
   // Factory method to create OrderProduct from JSON
@@ -106,11 +99,7 @@ class OrderProduct {
       brandId: json['brandId'],
       categoryId: json['categoryId'],
       sku: json['sku'],
-      amountPaid: json['amountPaid'] ?? '',
-      cashValue: json['cashValue'] ?? '',
-      change: json['change'] ?? '',
-      isProductVoid: json['isProductVoid'] ??false,
-      paymentMethod: json['paymentMethod']??'',
+      isProductVoid: json['isProductVoid'] ?? false,
     );
   }
 

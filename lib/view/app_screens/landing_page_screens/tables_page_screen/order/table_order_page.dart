@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 //import 'package:printing/printing.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pos_admin/model/void_model.dart';
+import 'package:pos_admin/repository/voided_products_action.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/tables_page_screen/order/paginated_item_widget.dart';
 
 import '../../../../../model/activity_model.dart';
@@ -318,7 +320,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                     color: AppColors.black),
                                                 CustomText(
                                                     text:
-                                                        'Quantity: ${product.quantity }',
+                                                        'Quantity: ${product.quantity}',
                                                     size: 12,
                                                     color: AppColors.black),
                                               ],
@@ -327,46 +329,74 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                           Row(
                                             children: [
                                               //if (product.quantity > 1)
+                                              if (!product.isProductVoid) ...[
                                                 IconButton(
                                                   icon: const Icon(Icons
                                                       .remove_circle_outline),
-                                                  onPressed: () {
+                                                  onPressed: () async {
                                                     if (product.quantity > 1) {
-                                                      updateProductQuantity(
+                                                      await updateProductQuantity(
                                                           product,
                                                           product.quantity - 1);
+
+                                                      OrderProduct
+                                                          orderProduct =
+                                                          OrderProduct(
+                                                        productName:
+                                                            product.productName,
+                                                        productType:
+                                                            product.productType,
+                                                        productId:
+                                                            product.productId,
+                                                        quantity: 1,
+                                                        price: product.price,
+                                                        discount:
+                                                            product.discount,
+                                                        productImage: product
+                                                            .productImage,
+                                                        brandId:
+                                                            product.brandId,
+                                                        categoryId:
+                                                            product.categoryId,
+                                                        sku: product.sku,
+                                                        isProductVoid: true,
+                                                      );
+                                                      voidProductInOrder(
+                                                          orderProduct,
+                                                          orderId, false);
                                                     } else {
                                                       voidProductInOrder(
-                                                          product, orderId);
+                                                          product, orderId,true);
                                                       // removeProductFromOrder(product);
                                                     }
                                                   },
                                                 ),
-                                              // Quantity Display
-                                              //if (product.quantity > 1)
+                                                // Quantity Display
+                                                //if (product.quantity > 1)
                                                 CustomText(
                                                   text: "X${product.quantity}",
                                                   size: 12,
                                                 ),
-                                              // Increment Button
-                                              //if (product.quantity > 1)
+                                                // Increment Button
+                                                //if (product.quantity > 1)
                                                 IconButton(
                                                   icon: const Icon(
                                                       Icons.add_circle_outline),
                                                   onPressed: () {
-                                                    // MSG.warningSnackBar(context, ('You cannot increase the qty of this product'));
-                                                    updateProductQuantity(
-                                                        product,
-                                                        product.quantity + 1);
+                                                    MSG.warningSnackBar(context,
+                                                        ('You cannot increase the qty of this product'));
+                                                    // updateProductQuantity(product,
+                                                    //     product.quantity + 1);
                                                   },
                                                 ),
+                                              ],
                                               GestureDetector(
                                                 child: FormButton(
                                                   onPressed: () {
                                                     if (product.isProductVoid) {
                                                     } else {
                                                       voidProductInOrder(
-                                                          product, orderId);
+                                                          product, orderId,true);
                                                     }
                                                     ;
                                                   },
@@ -375,7 +405,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                       : 'Void Product',
                                                   width: 150,
                                                   bgColor: product.isProductVoid
-                                                      ? AppColors.yellow
+                                                      ? AppColors.grey
                                                       : AppColors.red,
                                                 ),
                                               ),
@@ -496,8 +526,8 @@ class _TableOrderPageState extends State<TableOrderPage> {
 
       // Update the order with the modified list
       await ordersRef.doc(orderDoc.id).update({'products': products});
-      Navigator.pop(context);
-      Navigator.pop(context);
+      //Navigator.pop(context);
+      //Navigator.pop(context);
       LogActivity logActivity = LogActivity();
       LogModel logModel = LogModel(
           actionType: LogActionType.orderEdit.toString(),
@@ -512,7 +542,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
     }
   }
 
-  Future<void> voidProductInOrder(OrderProduct productToVoid, orderId) async {
+  Future<void> voidProductInOrder(OrderProduct productToVoid, orderId,bool isAll) async {
     print('Product to void: ${productToVoid.productId}');
 
     final ordersRef = FirebaseFirestore.instance
@@ -538,7 +568,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
       bool productFound = false;
       for (var product in products) {
         if (product['productId'] == productToVoid.productId) {
-          product['isProductVoid'] = true;
+          product['isProductVoid'] =isAll;
           product['voidedBy'] = widget.userModel.userId;
           product['updatedAt'] = Timestamp.now();
           productFound = true;
@@ -549,7 +579,15 @@ class _TableOrderPageState extends State<TableOrderPage> {
       if (productFound) {
         // Update the order with the modified list
         await ordersRef.doc(orderDoc.id).update({'products': products});
-
+        VoidedProductsActivity voidedProductsActivity =
+            VoidedProductsActivity();
+        VoidModel voidModel = VoidModel(
+            voidedBy: widget.userModel.userId,
+            orderedBy: orderData['createdBy'],
+            fromOrder: orderData['orderId'],
+            products: [productToVoid]);
+        voidedProductsActivity.voidAction(
+            widget.userModel.tenantId.trim(), voidModel);
         // Log the action
         LogActivity logActivity = LogActivity();
         LogModel logModel = LogModel(
@@ -968,10 +1006,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
               brandId: product.brandId,
               categoryId: product.categoryId,
               sku: product.sku,
-              amountPaid: product.amountPaid,
-              cashValue: product.cashValue,
-              change: product.change,
-              paymentMethod: product.paymentMethod,
+
               isProductVoid: product.isProductVoid,
               // Add any other necessary fields
             );
