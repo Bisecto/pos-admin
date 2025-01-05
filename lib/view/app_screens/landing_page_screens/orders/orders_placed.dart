@@ -266,16 +266,36 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       //   ),
                       // ),
                       DataCell(
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CustomText(
-                            text:
-                                "Table ${AppUtils().extractNumbers(orderDoc['tableNo'].toString().isEmpty ? 'TTHHJH' : orderDoc['tableNo'].toString().substring(0, 3))}",
-                            color: AppColors.white,
-                            weight: FontWeight.bold,
-                            size: 16,
+                        Container (
+                          padding: EdgeInsets.all(8.0),
+                          child: FutureBuilder<String>(
+                            future: getTableName(orderDoc['tableNo']),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator(); // Show a loading indicator
+                              } else if (snapshot.hasError) {
+                                return Text('Error'); // Handle error case
+                              } else {
+                                return CustomText(
+                                  text:"Table ${snapshot.data}" ?? 'Settled',
+                                  color: AppColors.white,
+                                );
+                              }
+                            },
                           ),
                         ),
+
+                        // Container(
+                        //   padding: const EdgeInsets.all(8.0),
+                        //   child: CustomText(
+                        //     text:
+                        //         "Table ${AppUtils().extractNumbers(orderDoc['tableNo'].toString().isEmpty ? 'TTHHJH' : orderDoc['tableNo'].toString().substring(0, 3))}",
+                        //     color: AppColors.white,
+                        //     weight: FontWeight.bold,
+                        //     size: 16,
+                        //   ),
+                        // ),
                       ),
 
                       DataCell(
@@ -430,6 +450,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     'Canceled',
   ];
   Map<String, String> userFullNameCache = {};
+  Map<String, String> tableNameCache = {};
 
   Future<String> getUserFullName(String userId) async {
     if (userFullNameCache.containsKey(userId)) {
@@ -446,6 +467,32 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         final fullName = userData['fullname'] ?? 'Unknown';
         userFullNameCache[userId] = fullName; // Cache the result
         return fullName;
+      } else {
+        return 'Unknown';
+      }
+    } catch (e) {
+      print("Error fetching user full name: $e");
+      return 'Unknown';
+    }
+  }
+  Future<String> getTableName(String tableId) async {
+    if (tableNameCache.containsKey(tableId)) {
+      return tableNameCache[tableId]!;
+    }
+    try {
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.tenantId.trim())
+          .collection('Tables')
+          //.collection('Users')
+          .doc(tableId)
+          .get();
+
+      if (userSnapshot.exists) {
+        final tableData = userSnapshot.data() as Map<String, dynamic>;
+        final tableNam = tableData['tableName'] ?? 'Settled';
+        tableNameCache[tableId] = tableNam; // Cache the result
+        return tableNam;
       } else {
         return 'Unknown';
       }
