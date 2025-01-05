@@ -82,86 +82,84 @@ class _TableOrderPageState extends State<TableOrderPage> {
     print(orderId);
     if (orderId.isEmpty) {
       MSG.warningSnackBar(context, 'Order is not booked yet');
+    } else {
+      try {
+        if (orderDetailsCache.containsKey(orderId)) {
+          // Use cached data if already fetched
+          final cachedOrderData = orderDetailsCache[orderId];
+          List<dynamic> productList = cachedOrderData?['products'] ?? [];
+          int orderStatusIndex = cachedOrderData?['status'] ?? 0;
+
+          setState(() {
+            //selectedStatus = statusOptions[orderStatusIndex];
+            foodProducts = productList
+                .where((productJson) =>
+                    productJson['productType'].toString().toLowerCase() ==
+                    'food') // Filter by productType
+                .map((productJson) =>
+                    OrderProduct.fromJson(productJson)) // Parse products
+                .toList();
+            drinksProducts = productList
+                .where((productJson) =>
+                    productJson['productType'].toString().toLowerCase() ==
+                    'drinks') // Filter by productType
+                .map((productJson) =>
+                    OrderProduct.fromJson(productJson)) // Parse products
+                .toList();
+            products = productList.map((productJson) {
+              return OrderProduct.fromJson(productJson); // Parse products
+            }).toList();
+            print(products);
+            print(products);
+            print(products);
+            print(products);
+            isLoading = false;
+          });
+          return;
+        }
+
+        final orderRef = FirebaseFirestore.instance
+            .collection('Enrolled Entities')
+            .doc(widget.userModel.tenantId)
+            .collection('Orders')
+            .doc(orderId);
+
+        DocumentSnapshot<Map<String, dynamic>> snapshot = await orderRef.get();
+        Map<String, dynamic> orderData = snapshot.data() ?? {};
+
+        // Store fetched data in cache
+        orderDetailsCache[orderId] = orderData;
+
+        List<dynamic> productList = orderData['products'] ?? [];
+        // int orderStatusIndex = orderData['status'] ?? 0;
+
+        setState(() {
+          //selectedStatus = statusOptions[orderStatusIndex];
+          foodProducts = productList
+              .where((productJson) =>
+                  productJson['productType'].toString().toLowerCase() ==
+                  'food') // Filter by productType
+              .map((productJson) =>
+                  OrderProduct.fromJson(productJson)) // Parse products
+              .toList();
+          drinksProducts = productList
+              .where((productJson) =>
+                  productJson['productType'].toString().toLowerCase() ==
+                  'drinks') // Filter by productType
+              .map((productJson) =>
+                  OrderProduct.fromJson(productJson)) // Parse products
+              .toList();
+          products = productList.map((productJson) {
+            return OrderProduct.fromJson(productJson); // Parse products
+          }).toList();
+          isLoading = false;
+        });
+      } catch (e) {
+        print(e);
+        //Navigator.pop(context);
+        return;
+      }
     }
-    //else{
-    // try{
-    if (orderDetailsCache.containsKey(orderId)) {
-      // Use cached data if already fetched
-      final cachedOrderData = orderDetailsCache[orderId];
-      List<dynamic> productList = cachedOrderData?['products'] ?? [];
-      int orderStatusIndex = cachedOrderData?['status'] ?? 0;
-
-      setState(() {
-        //selectedStatus = statusOptions[orderStatusIndex];
-        foodProducts = productList
-            .where((productJson) =>
-                productJson['productType'].toString().toLowerCase() ==
-                'food') // Filter by productType
-            .map((productJson) =>
-                OrderProduct.fromJson(productJson)) // Parse products
-            .toList();
-        drinksProducts = productList
-            .where((productJson) =>
-                productJson['productType'].toString().toLowerCase() ==
-                'drinks') // Filter by productType
-            .map((productJson) =>
-                OrderProduct.fromJson(productJson)) // Parse products
-            .toList();
-        products = productList.map((productJson) {
-          return OrderProduct.fromJson(productJson); // Parse products
-        }).toList();
-        print(products);
-        print(products);
-        print(products);
-        print(products);
-        isLoading = false;
-      });
-      return;
-    }
-
-    final orderRef = FirebaseFirestore.instance
-        .collection('Enrolled Entities')
-        .doc(widget.userModel.tenantId)
-        .collection('Orders')
-        .doc(orderId);
-
-    DocumentSnapshot<Map<String, dynamic>> snapshot = await orderRef.get();
-    Map<String, dynamic> orderData = snapshot.data() ?? {};
-
-    // Store fetched data in cache
-    orderDetailsCache[orderId] = orderData;
-
-    List<dynamic> productList = orderData['products'] ?? [];
-    // int orderStatusIndex = orderData['status'] ?? 0;
-
-    setState(() {
-      //selectedStatus = statusOptions[orderStatusIndex];
-      foodProducts = productList
-          .where((productJson) =>
-              productJson['productType'].toString().toLowerCase() ==
-              'food') // Filter by productType
-          .map((productJson) =>
-              OrderProduct.fromJson(productJson)) // Parse products
-          .toList();
-      drinksProducts = productList
-          .where((productJson) =>
-              productJson['productType'].toString().toLowerCase() ==
-              'drinks') // Filter by productType
-          .map((productJson) =>
-              OrderProduct.fromJson(productJson)) // Parse products
-          .toList();
-      products = productList.map((productJson) {
-        return OrderProduct.fromJson(productJson); // Parse products
-      }).toList();
-      isLoading = false;
-    });
-    // }catch(e){
-    //
-    //   print(e);
-    //   //Navigator.pop(context);
-    //   return;
-    //
-    // }
   }
 
   // Future<void> _printReceipt(
@@ -363,10 +361,13 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                       );
                                                       voidProductInOrder(
                                                           orderProduct,
-                                                          orderId, false);
+                                                          orderId,
+                                                          false);
                                                     } else {
                                                       voidProductInOrder(
-                                                          product, orderId,true);
+                                                          product,
+                                                          orderId,
+                                                          true);
                                                       // removeProductFromOrder(product);
                                                     }
                                                   },
@@ -396,7 +397,9 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                     if (product.isProductVoid) {
                                                     } else {
                                                       voidProductInOrder(
-                                                          product, orderId,true);
+                                                          product,
+                                                          orderId,
+                                                          true);
                                                     }
                                                     ;
                                                   },
@@ -542,7 +545,8 @@ class _TableOrderPageState extends State<TableOrderPage> {
     }
   }
 
-  Future<void> voidProductInOrder(OrderProduct productToVoid, orderId,bool isAll) async {
+  Future<void> voidProductInOrder(
+      OrderProduct productToVoid, orderId, bool isAll) async {
     print('Product to void: ${productToVoid.productId}');
 
     final ordersRef = FirebaseFirestore.instance
@@ -568,7 +572,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
       bool productFound = false;
       for (var product in products) {
         if (product['productId'] == productToVoid.productId) {
-          product['isProductVoid'] =isAll;
+          product['isProductVoid'] = isAll;
           product['voidedBy'] = widget.userModel.userId;
           product['updatedAt'] = Timestamp.now();
           productFound = true;
