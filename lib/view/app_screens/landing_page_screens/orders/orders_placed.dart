@@ -186,8 +186,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   DataColumn(
                     label: Container(
                       padding: EdgeInsets.all(8.0),
-                      child:
-                          CustomText(text: 'Table Number', color: AppColors.white),
+                      child: CustomText(
+                          text: 'Table Number', color: AppColors.white),
                     ),
                   ),
                   DataColumn(
@@ -270,7 +270,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: CustomText(
                             text:
-                            "Table ${AppUtils().extractNumbers(orderDoc['tableNo'].toString().isEmpty ? 'TTHHJH' : orderDoc['tableNo'].toString().substring(0, 3))}",
+                                "Table ${AppUtils().extractNumbers(orderDoc['tableNo'].toString().isEmpty ? 'TTHHJH' : orderDoc['tableNo'].toString().substring(0, 3))}",
                             color: AppColors.white,
                             weight: FontWeight.bold,
                             size: 16,
@@ -284,7 +284,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                           child: FutureBuilder<String>(
                             future: getUserFullName(orderData['createdBy']),
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
                                 return CircularProgressIndicator(); // Show a loading indicator
                               } else if (snapshot.hasError) {
                                 return Text('Error'); // Handle error case
@@ -302,7 +303,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                         Container(
                           padding: const EdgeInsets.all(8.0),
                           child: CustomText(
-                              text: orderData['amountPaid']??'NAN',
+                              text: orderData['amountPaid'] ?? 'NAN',
                               color: AppColors.white),
                         ),
                       ),
@@ -354,7 +355,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                                     context,
                                     orderId,
                                     orderData['tableNo'],
-                                    orderData['createdBy']);
+                                    orderData['createdBy'],
+                                    statusIndex);
                                 // await fetchOrderDetails(orderId);
                                 // showEditPopup(
                                 //     context,
@@ -414,8 +416,6 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         ]));
   }
 
-
-
   List<OrderProduct> products = [];
   late OrderModel orderModel;
   String selectedStatus = 'Pending'; // Default status
@@ -431,7 +431,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   ];
   Map<String, String> userFullNameCache = {};
 
-  Future<String>  getUserFullName(String userId) async {
+  Future<String> getUserFullName(String userId) async {
     if (userFullNameCache.containsKey(userId)) {
       return userFullNameCache[userId]!;
     }
@@ -454,6 +454,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       return 'Unknown';
     }
   }
+
   Future<void> fetchOrderDetails(String orderId) async {
     final orderRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
@@ -514,7 +515,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
   // Update the status in Firestore
   Future<void> updateOrderStatus(
-      String status, orderId, tableId, createdBy) async {
+      String status, orderId, tableId, createdBy, previousStatusIndex) async {
     final orderRef = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.tenantId)
@@ -523,7 +524,10 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
     int statusIndex = statusOptions.indexOf(status);
     await orderRef.update({'status': statusIndex});
-    if (statusIndex == 1) {
+    if (previousStatusIndex == statusIndex) {
+      MSG.warningSnackBar(context,
+          'Status is already canceled and its status cannot be changed');
+    } else if (statusIndex == 1) {
       DocumentSnapshot<Map<String, dynamic>> docSnapshot =
           await FirebaseFirestore.instance
               .collection('Enrolled Entities')
@@ -574,14 +578,14 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           .collection('Tables')
           .doc(retrievedTableModel.tableId)
           .update(tableModel.toFirestore());
-    }else if(statusIndex == 4) {
+    } else if (statusIndex == 4) {
       DocumentSnapshot<Map<String, dynamic>> docSnapshot =
-      await FirebaseFirestore.instance
-          .collection('Enrolled Entities')
-          .doc(widget.tenantId.trim())
-          .collection('Tables')
-          .doc(tableId)
-          .get();
+          await FirebaseFirestore.instance
+              .collection('Enrolled Entities')
+              .doc(widget.tenantId.trim())
+              .collection('Tables')
+              .doc(tableId)
+              .get();
 
       //if (docSnapshot.exists) {
       // Parse the document data into a TableModel
@@ -592,7 +596,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       final tableModel = TableModel(
         activity: ActivityModel(
           attendantId: '',
-          attendantName:'',
+          attendantName: '',
           isActive: false,
           currentOrderId: '',
           isMerged: false,
@@ -610,22 +614,23 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           .doc(retrievedTableModel.tableId)
           .update(tableModel.toFirestore());
 
-      final DocumentSnapshot<Map<String, dynamic>> orderSnapshot = await orderRef.get();
+      final DocumentSnapshot<Map<String, dynamic>> orderSnapshot =
+          await orderRef.get();
 
       //OrderModel orderModel=OrderModel.fromFirestore(orderSnapshot.);
       print(orderSnapshot);
       Map<String, dynamic>? orderData = orderSnapshot.data();
-
-      orderData!['products'].removeWhere((product) => product.isProductVoid);
-
-
-      VoidedProductsActivity voidedProductsActivity =
-      VoidedProductsActivity();
+      print(orderData!['products']);
+      OrderModel orderModel = OrderModel.fromFirestore(orderData);
+      orderModel.products.removeWhere((product) => product.isProductVoid);
+      print(orderModel.products);
+      VoidedProductsActivity voidedProductsActivity = VoidedProductsActivity();
       VoidModel voidModel = VoidModel(
-          voidedBy: widget.userModel.userId,
-          orderedBy: orderData['createdBy'],
-          fromOrder: orderId,
-          products: orderData['products']);
+        voidedBy: widget.userModel.userId,
+        orderedBy: orderData['createdBy'],
+        fromOrder: orderId,
+        products: orderModel.products,
+      );
       voidedProductsActivity.voidAction(
           widget.userModel.tenantId.trim(), voidModel);
     }
@@ -655,7 +660,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     });
   }
 
-  void showEditPopup(BuildContext context, orderId, tableId, createdBy) {
+  void showEditPopup(
+      BuildContext context, orderId, tableId, createdBy, orderStatusIndex) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -797,13 +803,12 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       CustomText(
-                                          text:
-                                          'Qty: ${product.quantity}',
+                                          text: 'Qty: ${product.quantity}',
                                           size: 12,
                                           color: AppColors.black),
                                       CustomText(
                                           text:
-                                          'Status: ${product.isProductVoid?"Voided":"Booked"}',
+                                              'Status: ${product.isProductVoid ? "Voided" : "Booked"}',
                                           size: 12,
                                           color: AppColors.black),
                                       CustomText(
@@ -899,8 +904,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   FormButton(
                     onPressed: () {
                       //print(selectedStatus);
-                      updateOrderStatus(
-                          selectedStatus, orderId, tableId, createdBy);
+                      updateOrderStatus(selectedStatus, orderId, tableId,
+                          createdBy, orderStatusIndex);
                     },
                     text: "Update Product",
                   ),
