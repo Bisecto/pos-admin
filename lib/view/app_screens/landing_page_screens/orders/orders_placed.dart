@@ -14,7 +14,9 @@ import '../../../../model/log_model.dart';
 import '../../../../model/order_model.dart';
 import '../../../../model/table_model.dart';
 import '../../../../model/tenant_model.dart';
+import '../../../../model/void_model.dart';
 import '../../../../repository/log_actions.dart';
+import '../../../../repository/voided_products_action.dart';
 import '../../../../res/app_colors.dart';
 import '../../../../res/app_enums.dart';
 import '../../../../res/app_images.dart';
@@ -607,7 +609,27 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           .collection('Tables')
           .doc(retrievedTableModel.tableId)
           .update(tableModel.toFirestore());
+
+      final DocumentSnapshot<Map<String, dynamic>> orderSnapshot = await orderRef.get();
+
+      //OrderModel orderModel=OrderModel.fromFirestore(orderSnapshot.);
+      print(orderSnapshot);
+      Map<String, dynamic>? orderData = orderSnapshot.data();
+
+      orderData!['products'].removeWhere((product) => product.isProductVoid);
+
+
+      VoidedProductsActivity voidedProductsActivity =
+      VoidedProductsActivity();
+      VoidModel voidModel = VoidModel(
+          voidedBy: widget.userModel.userId,
+          orderedBy: orderData['createdBy'],
+          fromOrder: orderId,
+          products: orderData['products']);
+      voidedProductsActivity.voidAction(
+          widget.userModel.tenantId.trim(), voidModel);
     }
+
     LogActivity logActivity = LogActivity();
     LogModel logModel = LogModel(
         actionType: LogActionType.orderStatusChange.toString(),
