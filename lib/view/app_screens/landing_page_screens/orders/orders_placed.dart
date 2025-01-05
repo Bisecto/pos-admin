@@ -1,17 +1,15 @@
+import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
-
-import 'package:printing/printing.dart';
-import 'package:pdf/widgets.dart' as pw;
-
 import '../../../../model/activity_model.dart';
 import '../../../../model/log_model.dart';
 import '../../../../model/order_model.dart';
+import '../../../../model/printer_model.dart';
 import '../../../../model/table_model.dart';
 import '../../../../model/tenant_model.dart';
 import '../../../../model/void_model.dart';
@@ -53,6 +51,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   @override
   void initState() {
     super.initState();
+    fetchPrinters();
     ordersStream = FirebaseFirestore.instance
         .collection('Enrolled Entities')
         .doc(widget.tenantId)
@@ -149,7 +148,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   label: 'Search',
                 ),
                 IconButton(
-                  icon: Icon(Icons.filter_list),
+                  icon: const Icon(Icons.filter_list),
                   onPressed: () => pickDateRange(context),
                 ),
               ],
@@ -185,8 +184,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   //),
                   DataColumn(
                     label: Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: CustomText(
+                      padding: const EdgeInsets.all(8.0),
+                      child: const CustomText(
                           text: 'Table Number', color: AppColors.white),
                     ),
                   ),
@@ -206,29 +205,29 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   ),
                   DataColumn(
                     label: Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: CustomText(
+                      padding: const EdgeInsets.all(8.0),
+                      child: const CustomText(
                           text: 'Created At', color: AppColors.white),
                     ),
                   ),
                   DataColumn(
                     label: Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: CustomText(
+                      padding: const EdgeInsets.all(8.0),
+                      child: const CustomText(
                           text: 'Updated At', color: AppColors.white),
                     ),
                   ),
                   DataColumn(
                     label: Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: CustomText(text: 'Status', color: AppColors.white),
+                      padding: const EdgeInsets.all(8.0),
+                      child: const CustomText(text: 'Status', color: AppColors.white),
                     ),
                   ),
                   DataColumn(
                     label: Container(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child:
-                          CustomText(text: 'Actions', color: AppColors.white),
+                          const CustomText(text: 'Actions', color: AppColors.white),
                     ),
                   ),
                 ],
@@ -266,19 +265,19 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       //   ),
                       // ),
                       DataCell(
-                        Container (
-                          padding: EdgeInsets.all(8.0),
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
                           child: FutureBuilder<String>(
                             future: getTableName(orderDoc['tableNo']),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return CircularProgressIndicator(); // Show a loading indicator
+                                return const CircularProgressIndicator(); // Show a loading indicator
                               } else if (snapshot.hasError) {
-                                return Text('Error'); // Handle error case
+                                return const Text('Error'); // Handle error case
                               } else {
                                 return CustomText(
-                                  text:"Table ${snapshot.data}" ?? 'Settled',
+                                  text: "Table ${snapshot.data}" ?? 'Settled',
                                   color: AppColors.white,
                                 );
                               }
@@ -300,15 +299,15 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
                       DataCell(
                         Container(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: FutureBuilder<String>(
                             future: getUserFullName(orderData['createdBy']),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return CircularProgressIndicator(); // Show a loading indicator
+                                return const CircularProgressIndicator(); // Show a loading indicator
                               } else if (snapshot.hasError) {
-                                return Text('Error'); // Handle error case
+                                return const Text('Error'); // Handle error case
                               } else {
                                 return CustomText(
                                   text: snapshot.data ?? 'Unknown',
@@ -329,7 +328,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       ),
                       DataCell(
                         Container(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: CustomText(
                               text: formatDate(orderData['createdAt']),
                               color: AppColors.white),
@@ -337,7 +336,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       ),
                       DataCell(
                         Container(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: CustomText(
                               text: formatDate(orderData['updatedAt']),
                               color: AppColors.white),
@@ -345,7 +344,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       ),
                       DataCell(
                         Container(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: CustomText(
                               text: getStatusText(statusIndex).toUpperCase(),
                               color: AppColors.white),
@@ -406,12 +405,12 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text(
               'Page ${currentPage + 1} of $totalPages',
-              style: TextStyle(color: AppColors.white),
+              style: const TextStyle(color: AppColors.white),
             ),
             Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.chevron_left, color: AppColors.white),
+                  icon: const Icon(Icons.chevron_left, color: AppColors.white),
                   onPressed: currentPage > 0
                       ? () {
                           setState(() {
@@ -421,7 +420,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                       : null,
                 ),
                 IconButton(
-                  icon: Icon(Icons.chevron_right, color: AppColors.white),
+                  icon: const Icon(Icons.chevron_right, color: AppColors.white),
                   onPressed: currentPage < totalPages - 1
                       ? () {
                           setState(() {
@@ -475,6 +474,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       return 'Unknown';
     }
   }
+
   Future<String> getTableName(String tableId) async {
     if (tableNameCache.containsKey(tableId)) {
       return tableNameCache[tableId]!;
@@ -537,30 +537,6 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     }
   }
 
-  // Future<void> fetchOrderDetails(orderId) async {
-  //   final orderRef = FirebaseFirestore.instance
-  //       .collection('Enrolled Entities')
-  //       .doc(widget.tenantId)
-  //       .collection('Orders')
-  //       .doc(orderId);
-  //
-  //   DocumentSnapshot<Map<String, dynamic>> snapshot = await orderRef.get();
-  //   Map<String, dynamic> orderData = snapshot.data() ?? {};
-  //
-  //   List<dynamic> productList = orderData['products'] ?? [];
-  //   int orderStatusIndex =
-  //       orderData['status'] ?? 0; // Default to 'Pending' status
-  //
-  //   setState(() {
-  //     selectedStatus = statusOptions[orderStatusIndex];
-  //     products = productList.map((productJson) {
-  //       return OrderProduct.fromJson(productJson); // Parse products
-  //     }).toList();
-  //     isLoading = false;
-  //   });
-  // }
-
-  // Update the status in Firestore
   Future<void> updateOrderStatus(
       String status, orderId, tableId, createdBy, previousStatusIndex) async {
     final orderRef = FirebaseFirestore.instance
@@ -571,10 +547,13 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
     int statusIndex = statusOptions.indexOf(status);
     await orderRef.update({'status': statusIndex});
-    if (previousStatusIndex == statusIndex) {
+    if (previousStatusIndex == 4) {
       MSG.warningSnackBar(context,
           'Status is already canceled and its status cannot be changed');
-    } else if (statusIndex == 1) {
+      Navigator.pop(context);
+      return;
+    } else if (statusIndex == 1)
+    {
       DocumentSnapshot<Map<String, dynamic>> docSnapshot =
           await FirebaseFirestore.instance
               .collection('Enrolled Entities')
@@ -678,6 +657,18 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         fromOrder: orderId,
         products: orderModel.products,
       );
+      setState(() {
+        //orderProducts = allOrderProducts;
+        foodProducts = orderModel.products
+            .where((orderProduct) =>
+        orderProduct.productType.toLowerCase() == 'food')
+            .toList();
+        drinksProducts = orderModel.products
+            .where((orderProduct) =>
+        orderProduct.productType.toLowerCase() == 'drinks')
+            .toList();
+      });
+      _printDockets(orderModel.orderId);
       voidedProductsActivity.voidAction(
           widget.userModel.tenantId.trim(), voidModel);
     }
@@ -799,7 +790,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     height: MediaQuery.of(context).size.height - 300,
                     child: ListView(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       children: [
                         ...products.map((product) {
                           double discountedPrice =
@@ -903,29 +894,29 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Subtotal:', style: TextStyle(fontSize: 14)),
+                        const Text('Subtotal:', style: TextStyle(fontSize: 14)),
                         Text(
                             'NGN ${calculateTotalOrderPrice().toStringAsFixed(2)}',
-                            style: TextStyle(fontSize: 14)),
+                            style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Discounted price:',
+                        const Text('Discounted price:',
                             style: TextStyle(fontSize: 14)),
                         Text('NGN ${calculateAmtToPay().toStringAsFixed(2)}',
-                            style: TextStyle(fontSize: 14)),
+                            style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('VAT(${widget.tenantModel.vat}%):',
-                            style: TextStyle(fontSize: 14)),
+                            style: const TextStyle(fontSize: 14)),
                         Text(
                             'NGN ${calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100).toStringAsFixed(2)}',
-                            style: TextStyle(fontSize: 14)),
+                            style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                     // Row(
@@ -939,10 +930,10 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Total:', style: TextStyle(fontSize: 15)),
+                        const Text('Total:', style: TextStyle(fontSize: 15)),
                         Text(
                             'NGN ${(calculateAmtToPay() + calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100)).toStringAsFixed(2)}',
-                            style: TextStyle(fontSize: 15)),
+                            style: const TextStyle(fontSize: 15)),
                       ],
                     ),
 
@@ -963,5 +954,217 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         );
       },
     );
+  }
+
+  List<OrderProduct> foodProducts = [];
+  List<OrderProduct> drinksProducts = [];
+
+  Future<void> _printDockets(String orderId) async {
+    if (foodProducts.isNotEmpty) {
+      final foodPrinter = await getPrinter('printerName', 'food');
+      await printDockets(foodPrinter.ip, foodPrinter.port, foodProducts,
+          'Food Items', orderId);
+    }
+
+    if (drinksProducts.isNotEmpty) {
+      final drinksPrinter = await getPrinter('printerName', 'drinks');
+      await Future.delayed(const Duration(seconds: 3));
+      await printDockets(drinksPrinter.ip, drinksPrinter.port, drinksProducts,
+          'Drinks Items', orderId);
+    }
+  }
+
+  PrinterModel? matchingPrinter;
+  List<PrinterModel> printerList = [];
+
+  Future<void> fetchPrinters() async {
+    try {
+      print(
+          'Fetching printers for tenant: ${widget.userModel.tenantId.trim()}');
+
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.userModel.tenantId.trim())
+          .collection('Printer')
+          .get();
+
+      print('Raw Firestore Documents: ${querySnapshot.docs}');
+
+      List<PrinterModel> fetchedPrinters = querySnapshot.docs.map((doc) {
+        print('Document Data: ${doc.data()}');
+        return PrinterModel.fromFirestore(doc);
+      }).toList();
+
+      setState(() {
+        printerList = fetchedPrinters;
+        print('Fetched Printers: $printerList');
+      });
+    } catch (e) {
+      print('Error fetching printers: $e');
+    }
+  }
+
+  Future<PrinterModel> getPrinter(String fieldName, dynamic queryValue) async {
+    try {
+      print(printerList);
+      print(printerList);
+      print(printerList);
+      matchingPrinter = printerList.firstWhere((printer) {
+        switch (fieldName) {
+          case 'printerName':
+            return printer.printerName.toLowerCase() == queryValue.toString();
+          case 'ip':
+            return printer.ip == queryValue;
+          case 'port':
+            return printer.port == queryValue;
+          default:
+            return false; // No match if the fieldName is unrecognized
+        }
+      }, orElse: () {
+        return matchingPrinter!;
+      }); // Return null if no match is found
+
+      return matchingPrinter!;
+    } catch (e) {
+      print('Error filtering printers: $e');
+      return matchingPrinter!;
+    }
+  }
+
+  Future<void> printDockets(String printerIp, int printerPort,
+      List<OrderProduct> products, String title, String orderNo) async {
+    try {
+      final profile = await CapabilityProfile.load();
+      final printer = NetworkPrinter(PaperSize.mm80, profile);
+
+      final PosPrintResult connectResult =
+          await printer.connect(printerIp, port: printerPort);
+      if (connectResult != PosPrintResult.success) {
+        print("Failed to connect: $connectResult");
+        return;
+      }
+      printer.hr();
+
+      // Print Title (Food or Drinks)
+      printer.text("DOCKET",
+          styles: const PosStyles(align: PosAlign.center, bold: true));
+      printer.hr();
+      printer.hr();
+      // Print Company Logo
+      // printer.image(img.decodeImage(companyImage)!);
+      printer.row([
+        PosColumn(
+            text: "Date: ${DateTime.now()}",
+            width: 12,
+            styles: const PosStyles(bold: false)),
+      ]);
+      // printer.row([
+      //   PosColumn(
+      //       text: "Table: ${widget.tableModel.tableName}",
+      //       width: 12,
+      //       styles: const PosStyles(bold: false)),
+      // ]);
+      printer.row([
+        PosColumn(
+            text: "Ticket No: ${orderNo.substring(0, 6).toUpperCase()}",
+            width: 12,
+            styles: const PosStyles(bold: false)),
+      ]);
+      printer.row([
+        PosColumn(
+            text: "Product Voided by: ${widget.userModel.fullname}",
+            width: 12,
+            styles: const PosStyles(bold: false)),
+      ]);
+      printer.hr();
+
+      printer.hr();
+
+      // Print Title (Food or Drinks)
+      printer.text("Voided $title",
+          styles: const PosStyles(align: PosAlign.center, bold: true));
+      printer.hr();
+
+      // Print Header
+      printer.row([
+        PosColumn(text: "QTY", width: 2, styles: const PosStyles(bold: true)),
+        PosColumn(
+            text: "Description",
+            width: 10,
+            styles: const PosStyles(bold: true)),
+        // PosColumn(text: "Price", width: 2, styles: PosStyles(bold: true)),
+        // PosColumn(text: "Total", width: 2, styles: PosStyles(bold: true)),
+      ]);
+
+      // Print Products
+      for (final product in products) {
+        printer.row([
+          PosColumn(text: product.quantity.toString(), width: 2),
+          PosColumn(text: product.productName, width: 10),
+          // PosColumn(text: product.price.toStringAsFixed(2), width: 2),
+          // PosColumn(
+          //   text: (product.price * product.quantity).toStringAsFixed(2),
+          //   width: 2,
+          // ),
+        ]);
+      }
+
+      printer.hr();
+
+      // Print Subtotal
+      // final subtotal =
+      //     products.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
+      // printer.row([
+      //   PosColumn(text: 'Subtotal:', width: 8),
+      //   PosColumn(
+      //     text: 'NGN ${subtotal.toStringAsFixed(2)}',
+      //     width: 4,
+      //     styles: PosStyles(align: PosAlign.right),
+      //   ),
+      // ]);
+
+      // Print VAT
+      // final vatAmount = calculateTax(subtotal, widget.tenantModel.vat / 100);
+      // printer.row([
+      //   PosColumn(text: 'VAT(${widget.tenantModel.vat}%):', width: 8),
+      //   PosColumn(
+      //     text: 'NGN ${vatAmount.toStringAsFixed(2)}',
+      //     width: 4,
+      //     styles: PosStyles(align: PosAlign.right),
+      //   ),
+      // ]);
+
+      // Print Total
+      // final total = subtotal + vatAmount;
+      // printer.row([
+      //   PosColumn(
+      //       text: 'Total:',
+      //       width: 8,
+      //       styles: PosStyles(bold: true, fontType: PosFontType.fontA)),
+      //   PosColumn(
+      //     text: 'NGN ${total.toStringAsFixed(2)}',
+      //     width: 4,
+      //     styles: PosStyles(
+      //         align: PosAlign.right, bold: true, fontType: PosFontType.fontA),
+      //   ),
+      // ]);
+      printer.beep();
+      printer.feed(2);
+
+      // // Print Footer
+      // printer.text(
+      //   '* Thank you *',
+      //   styles: PosStyles(align: PosAlign.center, fontType: PosFontType.fontB),
+      // );
+      // printer.text(
+      //   'Visit us again!',
+      //   styles: PosStyles(align: PosAlign.center, fontType: PosFontType.fontB),
+      // );
+
+      printer.cut();
+      printer.disconnect();
+    } catch (e) {
+      print("Error in printBill: $e");
+    }
   }
 }

@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  charset_converter
   cloud_firestore
   connectivity_plus
   file_selector_windows
@@ -10,7 +11,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_core
   firebase_storage
   local_auth_windows
-  printing
   rive_common
   syncfusion_pdfviewer_windows
   url_launcher_windows

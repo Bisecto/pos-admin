@@ -52,8 +52,8 @@ dependencies:
   loading_animation_widget: ^1.2.0+2
   awesome_dialog:
   device_info_plus:
-  pdf:
-  printing: ^5.10.1
+#  pdf:
+#  printing: ^5.10.1
   local_auth:
   syncfusion_flutter_pdfviewer: ^26.2.8
   animated_snack_bar: ^0.3.1
@@ -66,11 +66,12 @@ dependencies:
   firebase_storage:
   pigeon: ^5.0.0
   image_picker:
-  image:
+  image: ^3.0.2
   idle_detector_wrapper: ^1.0.0
   flutter_paginate: ^1.0.0
   fl_chart: ^0.40.0
-
+  esc_pos_printer: ^4.1.0
+  esc_pos_utils: ^1.1.0
 
 
 

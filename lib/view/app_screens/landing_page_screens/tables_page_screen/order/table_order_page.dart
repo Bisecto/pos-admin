@@ -1,3 +1,5 @@
+import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/services.dart';
 
 //import 'package:printing/printing.dart';
@@ -92,20 +94,20 @@ class _TableOrderPageState extends State<TableOrderPage> {
 
           setState(() {
             //selectedStatus = statusOptions[orderStatusIndex];
-            foodProducts = productList
-                .where((productJson) =>
-                    productJson['productType'].toString().toLowerCase() ==
-                    'food') // Filter by productType
-                .map((productJson) =>
-                    OrderProduct.fromJson(productJson)) // Parse products
-                .toList();
-            drinksProducts = productList
-                .where((productJson) =>
-                    productJson['productType'].toString().toLowerCase() ==
-                    'drinks') // Filter by productType
-                .map((productJson) =>
-                    OrderProduct.fromJson(productJson)) // Parse products
-                .toList();
+            // foodProducts = productList
+            //     .where((productJson) =>
+            //         productJson['productType'].toString().toLowerCase() ==
+            //         'food') // Filter by productType
+            //     .map((productJson) =>
+            //         OrderProduct.fromJson(productJson)) // Parse products
+            //     .toList();
+            // drinksProducts = productList
+            //     .where((productJson) =>
+            //         productJson['productType'].toString().toLowerCase() ==
+            //         'drinks') // Filter by productType
+            //     .map((productJson) =>
+            //         OrderProduct.fromJson(productJson)) // Parse products
+            //     .toList();
             products = productList.map((productJson) {
               return OrderProduct.fromJson(productJson); // Parse products
             }).toList();
@@ -135,20 +137,20 @@ class _TableOrderPageState extends State<TableOrderPage> {
 
         setState(() {
           //selectedStatus = statusOptions[orderStatusIndex];
-          foodProducts = productList
-              .where((productJson) =>
-                  productJson['productType'].toString().toLowerCase() ==
-                  'food') // Filter by productType
-              .map((productJson) =>
-                  OrderProduct.fromJson(productJson)) // Parse products
-              .toList();
-          drinksProducts = productList
-              .where((productJson) =>
-                  productJson['productType'].toString().toLowerCase() ==
-                  'drinks') // Filter by productType
-              .map((productJson) =>
-                  OrderProduct.fromJson(productJson)) // Parse products
-              .toList();
+          // foodProducts = productList
+          //     .where((productJson) =>
+          //         productJson['productType'].toString().toLowerCase() ==
+          //         'food')
+          //     .map((productJson) =>
+          //         OrderProduct.fromJson(productJson)) // Parse products
+          //     .toList();
+          // drinksProducts = productList
+          //     .where((productJson) =>
+          //         productJson['productType'].toString().toLowerCase() ==
+          //         'drinks') // Filter by productType
+          //     .map((productJson) =>
+          //         OrderProduct.fromJson(productJson)) // Parse products
+          //     .toList();
           products = productList.map((productJson) {
             return OrderProduct.fromJson(productJson); // Parse products
           }).toList();
@@ -590,6 +592,19 @@ class _TableOrderPageState extends State<TableOrderPage> {
             orderedBy: orderData['createdBy'],
             fromOrder: orderData['orderId'],
             products: [productToVoid]);
+        setState(() {
+          //orderProducts = allOrderProducts;
+          foodProducts = [productToVoid]
+              .where((orderProduct) =>
+          orderProduct.productType.toLowerCase() == 'food')
+              .toList();
+          drinksProducts = [productToVoid]
+              .where((orderProduct) =>
+          orderProduct.productType.toLowerCase() == 'drinks')
+              .toList();
+        });
+        _printDockets(orderData['orderId']);
+
         voidedProductsActivity.voidAction(
             widget.userModel.tenantId.trim(), voidModel);
         // Log the action
@@ -691,6 +706,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
   void initState() {
     // TODO: implement initState
     fetchItemCount();
+    fetchPrinters();
 
     getImageBytes();
     super.initState();
@@ -1098,5 +1114,214 @@ class _TableOrderPageState extends State<TableOrderPage> {
                 AppUtils.formateSimpleDate(dateTime: DateTime.now().toString()))
       ],
     );
+  }
+
+  Future<void> _printDockets(String orderId) async {
+    if (foodProducts.isNotEmpty) {
+      final foodPrinter = await getPrinter('printerName', 'food');
+      await printDockets(foodPrinter.ip, foodPrinter.port, foodProducts,
+          'Food Items', orderId);
+    }
+
+    if (drinksProducts.isNotEmpty) {
+      final drinksPrinter = await getPrinter('printerName', 'drinks');
+      await Future.delayed(const Duration(seconds: 3));
+      await printDockets(drinksPrinter.ip, drinksPrinter.port, drinksProducts,
+          'Drinks Items', orderId);
+    }
+  }
+
+  PrinterModel? matchingPrinter;
+  List<PrinterModel> printerList = [];
+
+  Future<void> fetchPrinters() async {
+    try {
+      print(
+          'Fetching printers for tenant: ${widget.userModel.tenantId.trim()}');
+
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.userModel.tenantId.trim())
+          .collection('Printer')
+          .get();
+
+      print('Raw Firestore Documents: ${querySnapshot.docs}');
+
+      List<PrinterModel> fetchedPrinters = querySnapshot.docs.map((doc) {
+        print('Document Data: ${doc.data()}');
+        return PrinterModel.fromFirestore(doc);
+      }).toList();
+
+      setState(() {
+        printerList = fetchedPrinters;
+        print('Fetched Printers: $printerList');
+      });
+    } catch (e) {
+      print('Error fetching printers: $e');
+    }
+  }
+
+  Future<PrinterModel> getPrinter(String fieldName, dynamic queryValue) async {
+    try {
+      print(printerList);
+      print(printerList);
+      print(printerList);
+      matchingPrinter = printerList.firstWhere((printer) {
+        switch (fieldName) {
+          case 'printerName':
+            return printer.printerName.toLowerCase() == queryValue.toString();
+          case 'ip':
+            return printer.ip == queryValue;
+          case 'port':
+            return printer.port == queryValue;
+          default:
+            return false; // No match if the fieldName is unrecognized
+        }
+      }, orElse: () {
+        return matchingPrinter!;
+      }); // Return null if no match is found
+
+      return matchingPrinter!;
+    } catch (e) {
+      print('Error filtering printers: $e');
+      return matchingPrinter!;
+    }
+  }
+
+  Future<void> printDockets(String printerIp, int printerPort,
+      List<OrderProduct> products, String title, String orderNo) async {
+    try {
+      final profile = await CapabilityProfile.load();
+      final printer = NetworkPrinter(PaperSize.mm80, profile);
+
+      final PosPrintResult connectResult =
+          await printer.connect(printerIp, port: printerPort);
+      if (connectResult != PosPrintResult.success) {
+        print("Failed to connect: $connectResult");
+        return;
+      }
+      printer.hr();
+
+      // Print Title (Food or Drinks)
+      printer.text("DOCKET",
+          styles: const PosStyles(align: PosAlign.center, bold: true));
+      printer.hr();
+      printer.hr();
+      // Print Company Logo
+      // printer.image(img.decodeImage(companyImage)!);
+      printer.row([
+        PosColumn(
+            text: "Date: ${DateTime.now()}",
+            width: 12,
+            styles: const PosStyles(bold: false)),
+      ]);
+      // printer.row([
+      //   PosColumn(
+      //       text: "Table: ${widget.tableModel.tableName}",
+      //       width: 12,
+      //       styles: const PosStyles(bold: false)),
+      // ]);
+      printer.row([
+        PosColumn(
+            text: "Ticket No: ${orderNo.substring(0, 6).toUpperCase()}",
+            width: 12,
+            styles: const PosStyles(bold: false)),
+      ]);
+      printer.row([
+        PosColumn(
+            text: "Product Voided by: ${widget.userModel.fullname}",
+            width: 12,
+            styles: const PosStyles(bold: false)),
+      ]);
+      printer.hr();
+
+      printer.hr();
+
+      // Print Title (Food or Drinks)
+      printer.text("Voided $title",
+          styles: const PosStyles(align: PosAlign.center, bold: true));
+      printer.hr();
+
+      // Print Header
+      printer.row([
+        PosColumn(text: "QTY", width: 2, styles: const PosStyles(bold: true)),
+        PosColumn(
+            text: "Description",
+            width: 10,
+            styles: const PosStyles(bold: true)),
+        // PosColumn(text: "Price", width: 2, styles: PosStyles(bold: true)),
+        // PosColumn(text: "Total", width: 2, styles: PosStyles(bold: true)),
+      ]);
+
+      // Print Products
+      for (final product in products) {
+        printer.row([
+          PosColumn(text: product.quantity.toString(), width: 2),
+          PosColumn(text: product.productName, width: 10),
+          // PosColumn(text: product.price.toStringAsFixed(2), width: 2),
+          // PosColumn(
+          //   text: (product.price * product.quantity).toStringAsFixed(2),
+          //   width: 2,
+          // ),
+        ]);
+      }
+
+      printer.hr();
+
+      // Print Subtotal
+      // final subtotal =
+      //     products.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
+      // printer.row([
+      //   PosColumn(text: 'Subtotal:', width: 8),
+      //   PosColumn(
+      //     text: 'NGN ${subtotal.toStringAsFixed(2)}',
+      //     width: 4,
+      //     styles: PosStyles(align: PosAlign.right),
+      //   ),
+      // ]);
+
+      // Print VAT
+      // final vatAmount = calculateTax(subtotal, widget.tenantModel.vat / 100);
+      // printer.row([
+      //   PosColumn(text: 'VAT(${widget.tenantModel.vat}%):', width: 8),
+      //   PosColumn(
+      //     text: 'NGN ${vatAmount.toStringAsFixed(2)}',
+      //     width: 4,
+      //     styles: PosStyles(align: PosAlign.right),
+      //   ),
+      // ]);
+
+      // Print Total
+      // final total = subtotal + vatAmount;
+      // printer.row([
+      //   PosColumn(
+      //       text: 'Total:',
+      //       width: 8,
+      //       styles: PosStyles(bold: true, fontType: PosFontType.fontA)),
+      //   PosColumn(
+      //     text: 'NGN ${total.toStringAsFixed(2)}',
+      //     width: 4,
+      //     styles: PosStyles(
+      //         align: PosAlign.right, bold: true, fontType: PosFontType.fontA),
+      //   ),
+      // ]);
+      printer.beep();
+      printer.feed(2);
+
+      // // Print Footer
+      // printer.text(
+      //   '* Thank you *',
+      //   styles: PosStyles(align: PosAlign.center, fontType: PosFontType.fontB),
+      // );
+      // printer.text(
+      //   'Visit us again!',
+      //   styles: PosStyles(align: PosAlign.center, fontType: PosFontType.fontB),
+      // );
+
+      printer.cut();
+      printer.disconnect();
+    } catch (e) {
+      print("Error in printBill: $e");
+    }
   }
 }
