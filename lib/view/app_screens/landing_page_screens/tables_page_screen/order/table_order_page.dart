@@ -396,14 +396,19 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                               GestureDetector(
                                                 child: FormButton(
                                                   onPressed: () {
-                                                    if (product.isProductVoid) {
-                                                    } else {
-                                                      voidProductInOrder(
-                                                          product,
-                                                          orderId,
-                                                          true);
+                                                    if (widget.userModel
+                                                        .voidingProducts) {
+                                                      if (product
+                                                          .isProductVoid) {
+                                                      } else {
+                                                        voidProductInOrder(
+                                                            product,
+                                                            orderId,
+                                                            true);
+                                                      }
+                                                    }else{
+                                                      MSG.warningSnackBar(context, 'You dont have permission to void product');
                                                     }
-                                                    ;
                                                   },
                                                   text: product.isProductVoid
                                                       ? 'Voided'
@@ -596,11 +601,11 @@ class _TableOrderPageState extends State<TableOrderPage> {
           //orderProducts = allOrderProducts;
           foodProducts = [productToVoid]
               .where((orderProduct) =>
-          orderProduct.productType.toLowerCase() == 'food')
+                  orderProduct.productType.toLowerCase() == 'food')
               .toList();
           drinksProducts = [productToVoid]
               .where((orderProduct) =>
-          orderProduct.productType.toLowerCase() == 'drinks')
+                  orderProduct.productType.toLowerCase() == 'drinks')
               .toList();
         });
         _printDockets(orderData['orderId']);

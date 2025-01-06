@@ -13,10 +13,11 @@ import 'complete_analytics.dart';
 
 class DailyStartHorizontalList extends StatelessWidget {
   final List<DailyStartModel> dailyStartModel;
+  final UserModel userModel;
 
   const DailyStartHorizontalList({
     Key? key,
-    required this.dailyStartModel,
+    required this.dailyStartModel, required this.userModel,
   }) : super(key: key);
 
   Future<Map<String, UserModel?>> fetchUserDetailsSeparately(
@@ -145,7 +146,7 @@ class DailyStartHorizontalList extends StatelessWidget {
                         child: CompleteAnalytics(
                           startedUser: startedByUser!,
                           endeduser: endedByUser!,
-                          dailyStartModel: dailyStart,
+                          dailyStartModel: dailyStart, userModel: userModel,
                         ),
                       );
                     },

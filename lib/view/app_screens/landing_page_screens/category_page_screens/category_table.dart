@@ -94,7 +94,10 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
               iconWidget: Icons.clear,
               borderRadius: 20,
             ),
-            FormButton(
+
+            if(widget.userModel.addingEditingProductsDetails)
+
+              FormButton(
               onPressed: () {
                 String? userId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -291,7 +294,11 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                         )),
                         DataCell(Row(
                           children: [
-                            IconButton(
+                            if(!widget.userModel.addingEditingProductsDetails)
+                              Container(),
+                            if(widget.userModel.addingEditingProductsDetails)
+
+                              ...[ IconButton(
                               icon: const Icon(Icons.edit, color: Colors.blue),
                               onPressed: () {
                                 _editCategory(categoryIndex);
@@ -306,7 +313,7 @@ class _CategoryTableScreenState extends State<CategoryTableScreen> {
                                   paginatedcategorys[index].categoryName!,
                                 );
                               },
-                            ),
+                            ),]
                           ],
                         )),
                       ]);

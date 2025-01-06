@@ -240,7 +240,9 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                                   ],
                                 ),
                               ),
-                              Padding(
+                              if(widget.userModel.addingEditingPrinters)
+
+                                Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: GestureDetector(
                                   onTap: () {

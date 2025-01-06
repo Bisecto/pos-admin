@@ -183,7 +183,9 @@ class _MainUserScreenState extends State<MainUserScreen> {
                     ],
                   ),
                 ),
-                Padding(
+                if(widget.userModel.creatingEditingProfile)
+
+                  Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: GestureDetector(
                     onTap: () {

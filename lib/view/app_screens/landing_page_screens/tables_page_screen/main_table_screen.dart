@@ -53,7 +53,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
 
       // Check if there is any unresolved session
       final unresolvedSession =
-          await dailyStart.where('status', isEqualTo: 'active').get();
+      await dailyStart.where('status', isEqualTo: 'active').get();
 
       if (unresolvedSession.docs.isNotEmpty) {
         MSG.warningSnackBar(
@@ -103,7 +103,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
 
       // Find the active or unresolved session
       final unresolvedSession =
-          await dailyStart.where('status', isEqualTo: 'active').get();
+      await dailyStart.where('status', isEqualTo: 'active').get();
 
       if (unresolvedSession.docs.isEmpty) {
         MSG.warningSnackBar(context, "No active day to end.");
@@ -140,6 +140,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
       toggleLoading(false); // Hide loading
     }
   }
+
   Future<void> endDay(BuildContext context, String tenantId, String userId,
       String userRole, Function toggleLoading) async {
     try {
@@ -213,27 +214,29 @@ class _MainTableScreenState extends State<MainTableScreen> {
       toggleLoading(false); // Hide loading
     }
   }
+
   Future<void> showConfirmationDialog(BuildContext context, String title,
       String message, Function onConfirm) async {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+      builder: (context) =>
+          AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onConfirm();
+                },
+                child: const Text("Confirm"),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              onConfirm();
-            },
-            child: const Text("Confirm"),
-          ),
-        ],
-      ),
     );
   }
 
@@ -278,8 +281,8 @@ class _MainTableScreenState extends State<MainTableScreen> {
     }
   }
 
-  Future<void> resetAllOrdersTableNo(
-      BuildContext context, String tenantId) async {
+  Future<void> resetAllOrdersTableNo(BuildContext context,
+      String tenantId) async {
     try {
       final ordersCollection = FirebaseFirestore.instance
           .collection('Enrolled Entities')
@@ -335,13 +338,13 @@ class _MainTableScreenState extends State<MainTableScreen> {
       // Check for sessions in the current day range or unresolved sessions
       final querySnapshot = await dailyStart
           .where('startTime',
-              isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
+          isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
           .where('startTime', isLessThan: Timestamp.fromDate(tomorrowStart))
           .get();
 
       // Check for unresolved sessions (active status without endTime)
       final unresolvedSessions =
-          await dailyStart.where('status', isEqualTo: 'active').get();
+      await dailyStart.where('status', isEqualTo: 'active').get();
 
       if (unresolvedSessions.docs.isNotEmpty) {
         // If there are unresolved sessions, assume the day is still active
@@ -486,7 +489,10 @@ class _MainTableScreenState extends State<MainTableScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final isSmallScreen = MediaQuery
+        .of(context)
+        .size
+        .width < 600;
     return Scaffold(
       backgroundColor: AppColors.darkModeBackgroundContainerColor,
       body: Padding(
@@ -530,82 +536,95 @@ class _MainTableScreenState extends State<MainTableScreen> {
                     ],
                   ),
                 ),
-                if (widget.userModel.role.toLowerCase() == 'manager'||widget.userModel.role.toLowerCase() == 'admin') ...[
-                  //const SizedBox(height: 20),
-                  if (!isLoading)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        width: 120,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (dayStatus.isEmpty||dayStatus.toLowerCase() == 'ended') ...[
-                              FormButton(
-                                onPressed: () {
-                                  print(dayStatus);
 
-                                  showConfirmationDialog(
-                                    context,
-                                    "Start Day",
-                                    "Are you sure you want to start the day?",
-                                    () => startDay(
-                                        context,
-                                        widget.userModel.tenantId.trim(),
-                                        widget.userModel.userId.trim(),
-                                        widget.userModel.role,
-                                        toggleLoading),
-                                  );
-                                },
-                                width: 120,
-                                text: "Start Day",
-                                bgColor: Colors.green,
-                              ),
-                            ] else if (dayStatus == "active") ...[
-                              FormButton(
-                                onPressed: () {
-                                  if(widget.userModel.role.toLowerCase() == 'admin'){
+                if(widget.userModel.startEndDay)
+
+                  ...[ if (widget.userModel.role.toLowerCase() == 'manager' ||
+                      widget.userModel.role.toLowerCase() == 'admin') ...[
+                    //const SizedBox(height: 20),
+                    if (!isLoading)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Container(
+                          width: 120,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (dayStatus.isEmpty ||
+                                  dayStatus.toLowerCase() == 'ended') ...[
+                                FormButton(
+                                  onPressed: () {
+                                    print(dayStatus);
+
                                     showConfirmationDialog(
                                       context,
-                                      "End Day",
-                                      "Are you sure you want to end the day? This will reset all tables.",
+                                      "Start Day",
+                                      "Are you sure you want to start the day?",
                                           () =>
-                                          adminEndDay(
+                                          startDay(
                                               context,
                                               widget.userModel.tenantId.trim(),
                                               widget.userModel.userId.trim(),
-                                              widget.userModel.role.trim(),
+                                              widget.userModel.role,
                                               toggleLoading),
                                     );
-                                  }else {
-                                    showConfirmationDialog(
-                                      context,
-                                      "End Day",
-                                      "Are you sure you want to end the day? This will reset all tables.",
-                                          () =>
-                                          endDay(
-                                              context,
-                                              widget.userModel.tenantId.trim(),
-                                              widget.userModel.userId.trim(),
-                                              widget.userModel.role.trim(),
-                                              toggleLoading),
-                                    );
-                                  }
-                                },
-                                width: 120,
-                                text: "End Day",
-                                bgColor: Colors.red,
-                              ),
-                            ]
-                          ],
+                                  },
+                                  width: 120,
+                                  text: "Start Day",
+                                  bgColor: Colors.green,
+                                ),
+                              ] else
+                                if (dayStatus == "active") ...[
+                                  FormButton(
+                                    onPressed: () {
+                                      if (widget.userModel.role.toLowerCase() ==
+                                          'admin') {
+                                        showConfirmationDialog(
+                                          context,
+                                          "End Day",
+                                          "Are you sure you want to end the day? This will reset all tables.",
+                                              () =>
+                                              adminEndDay(
+                                                  context,
+                                                  widget.userModel.tenantId
+                                                      .trim(),
+                                                  widget.userModel.userId
+                                                      .trim(),
+                                                  widget.userModel.role.trim(),
+                                                  toggleLoading),
+                                        );
+                                      } else {
+                                        showConfirmationDialog(
+                                          context,
+                                          "End Day",
+                                          "Are you sure you want to end the day? This will reset all tables.",
+                                              () =>
+                                              endDay(
+                                                  context,
+                                                  widget.userModel.tenantId
+                                                      .trim(),
+                                                  widget.userModel.userId
+                                                      .trim(),
+                                                  widget.userModel.role.trim(),
+                                                  toggleLoading),
+                                        );
+                                      }
+                                    },
+                                    width: 120,
+                                    text: "End Day",
+                                    bgColor: Colors.red,
+                                  ),
+                                ]
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  if (isLoading)
-                    const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                ],
+                    if (isLoading)
+                      const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                  ],
+                  ],
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, left: 10),
                   child: GestureDetector(
@@ -631,32 +650,33 @@ class _MainTableScreenState extends State<MainTableScreen> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0, left: 10),
-                  child: GestureDetector(
-                    onTap: _addTable,
-                    child: Container(
-                      width: 100,
-                      height: 45,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: AppColors.darkYellow),
-                      child: const Padding(
-                        padding: EdgeInsets.all(0.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CustomText(
-                              text: "Add Table",
-                              size: 16,
-                              color: AppColors.white,
-                            )
-                          ],
+                if (widget.userModel.addingEditingTable)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0, left: 10),
+                    child: GestureDetector(
+                      onTap: _addTable,
+                      child: Container(
+                        width: 100,
+                        height: 45,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: AppColors.darkYellow),
+                        child: const Padding(
+                          padding: EdgeInsets.all(0.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomText(
+                                text: "Add Table",
+                                size: 16,
+                                color: AppColors.white,
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
+                  )
               ],
             ),
             SizedBox(
@@ -684,18 +704,18 @@ class _MainTableScreenState extends State<MainTableScreen> {
                         if (filteredTables.isEmpty)
                           const Center(
                               child: CustomText(
-                            text: 'No tables found.',
-                            color: AppColors.white,
-                          )),
+                                text: 'No tables found.',
+                                color: AppColors.white,
+                              )),
                         if (filteredTables.isNotEmpty)
                           Expanded(
                               child: ListTable(
-                            tableList: filteredTables,
-                            userModel: widget.userModel,
-                            tenantModel: widget.tenantModel,
+                                tableList: filteredTables,
+                                userModel: widget.userModel,
+                                tenantModel: widget.tenantModel,
 
-                            //userModel: widget.userModel,
-                          )),
+                                //userModel: widget.userModel,
+                              )),
                       ],
                     );
                   }

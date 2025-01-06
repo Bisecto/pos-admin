@@ -206,7 +206,10 @@ class _MainBrandScreenState extends State<MainBrandScreen> {
                                   ],
                                 ),
                               ),
-                              Padding(
+
+                              if(widget.userModel.addingEditingProductsDetails)
+
+                                Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: GestureDetector(
                                   onTap: () {

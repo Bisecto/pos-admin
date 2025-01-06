@@ -274,7 +274,7 @@ class _BankTableScreenState extends State<BankTableScreen> {
                       color: AppColors.darkYellow,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    columns:  [
+                    columns: [
                       // DataColumn(
                       //     label:
                       //     Text('INDEX', style: TextStyle(color: Colors.white))),
@@ -290,10 +290,10 @@ class _BankTableScreenState extends State<BankTableScreen> {
                       DataColumn(
                           label: Text('Account Name',
                               style: TextStyle(color: Colors.white))),
-                      if(widget.userModel.role.toLowerCase()=='admin')
-                      DataColumn(
-                          label: Text('ACTIONS',
-                              style: TextStyle(color: Colors.white))),
+                      if (widget.userModel.role.toLowerCase() == 'admin')
+                        DataColumn(
+                            label: Text('ACTIONS',
+                                style: TextStyle(color: Colors.white))),
                     ],
                     rows: List.generate(paginatedbanks.length, (index) {
                       final bankIndex = (currentPage - 1) * rowsPerPage + index;
@@ -303,31 +303,40 @@ class _BankTableScreenState extends State<BankTableScreen> {
                         // DataCell(Text(paginatedbanks[index].bankId!,
                         //     style: const TextStyle(color: Colors.white))),
                         DataCell(Text(paginatedbanks[index].bankName.toString(),
-                            style: const TextStyle(color: Colors.white))), DataCell(Text(paginatedbanks[index].accountNumber.toString(),
-                            style: const TextStyle(color: Colors.white))), DataCell(Text(paginatedbanks[index].accountName.toString(),
                             style: const TextStyle(color: Colors.white))),
-                        if(widget.userModel.role.toLowerCase()=='admin')
-
+                        DataCell(Text(
+                            paginatedbanks[index].accountNumber.toString(),
+                            style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(
+                            paginatedbanks[index].accountName.toString(),
+                            style: const TextStyle(color: Colors.white))),
+                        if (widget.userModel.role.toLowerCase() == 'admin')
                           DataCell(Row(
-                          children: [
-
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () {
-                                _editBank(bankIndex);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                _deleteBank(
-                                    bankIndex,
-                                    paginatedbanks[index].bankId,
-                                    paginatedbanks[index].bankName);
-                              },
-                            ),
-                          ],
-                        )),
+                            children: [
+                              if (!widget.userModel.addingEditingBankDetails)
+                                Container(),
+                              if (widget
+                                  .userModel.addingEditingBankDetails) ...[
+                                IconButton(
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.blue),
+                                  onPressed: () {
+                                    _editBank(bankIndex);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    _deleteBank(
+                                        bankIndex,
+                                        paginatedbanks[index].bankId,
+                                        paginatedbanks[index].bankName);
+                                  },
+                                ),
+                              ]
+                            ],
+                          )),
                       ]);
                     }),
                     headingRowColor: WidgetStateProperty.all(Colors.black),

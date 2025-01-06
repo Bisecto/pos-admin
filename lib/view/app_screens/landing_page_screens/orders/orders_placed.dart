@@ -118,7 +118,11 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         ),
         backgroundColor: AppColors.scaffoldBackgroundColor,
         body: Column(children: [
-          Padding(
+          // if(!widget.userModel.voidingTableOrder)
+          //   Container(),
+          // if(widget.userModel.voidingTableOrder)
+
+            ...[Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -196,7 +200,10 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                           text: 'Ordered By', color: AppColors.white),
                     ),
                   ),
-                  DataColumn(
+
+                  if(widget.userModel.viewFinance)
+
+                    DataColumn(
                     label: Container(
                       padding: const EdgeInsets.all(8.0),
                       child: const CustomText(
@@ -220,14 +227,15 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                   DataColumn(
                     label: Container(
                       padding: const EdgeInsets.all(8.0),
-                      child: const CustomText(text: 'Status', color: AppColors.white),
+                      child: const CustomText(
+                          text: 'Status', color: AppColors.white),
                     ),
                   ),
                   DataColumn(
                     label: Container(
                       padding: const EdgeInsets.all(8.0),
-                      child:
-                          const CustomText(text: 'Actions', color: AppColors.white),
+                      child: const CustomText(
+                          text: 'Actions', color: AppColors.white),
                     ),
                   ),
                 ],
@@ -318,7 +326,9 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                           ),
                         ),
                       ),
-                      DataCell(
+                      if(widget.userModel.viewFinance)
+
+                        DataCell(
                         Container(
                           padding: const EdgeInsets.all(8.0),
                           child: CustomText(
@@ -367,30 +377,33 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                             //   tooltip: 'Edit Order',
                             // ),
                             // if (getStatusText(statusIndex).toLowerCase() != 'pending')
-                            FormButton(
-                              onPressed: () async {
-                                await fetchOrderDetails(orderId);
-                                showEditPopup(
-                                    context,
-                                    orderId,
-                                    orderData['tableNo'],
-                                    orderData['createdBy'],
-                                    statusIndex);
-                                // await fetchOrderDetails(orderId);
-                                // showEditPopup(
-                                //     context,
-                                //     orderId,
-                                //     orderData['tableNo'],
-                                //     orderData['createdBy']);
-                                // await fetchOrderDetails(orderId);
-                                // _printReceipt();
-                              },
-                              text: "View Order",
-                              bgColor: AppColors.darkYellow,
-                              width: 150,
-                              textColor: AppColors.white,
-                              borderRadius: 10,
-                            ),
+                            if (!widget.userModel.voidingTableOrder)
+                              Container(),
+                            if (widget.userModel.voidingTableOrder)
+                              FormButton(
+                                onPressed: () async {
+                                  await fetchOrderDetails(orderId);
+                                  showEditPopup(
+                                      context,
+                                      orderId,
+                                      orderData['tableNo'],
+                                      orderData['createdBy'],
+                                      statusIndex);
+                                  // await fetchOrderDetails(orderId);
+                                  // showEditPopup(
+                                  //     context,
+                                  //     orderId,
+                                  //     orderData['tableNo'],
+                                  //     orderData['createdBy']);
+                                  // await fetchOrderDetails(orderId);
+                                  // _printReceipt();
+                                },
+                                text: "View Order",
+                                bgColor: AppColors.darkYellow,
+                                width: 150,
+                                textColor: AppColors.white,
+                                borderRadius: 10,
+                              ),
                           ],
                         ),
                       ),
@@ -431,8 +444,10 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                 ),
               ],
             )
-          ])
-        ]));
+          ])]
+        ]
+        )
+    );
   }
 
   List<OrderProduct> products = [];
@@ -552,8 +567,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           'Status is already canceled and its status cannot be changed');
       Navigator.pop(context);
       return;
-    } else if (statusIndex == 1)
-    {
+    } else if (statusIndex == 1) {
       DocumentSnapshot<Map<String, dynamic>> docSnapshot =
           await FirebaseFirestore.instance
               .collection('Enrolled Entities')
@@ -661,11 +675,11 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         //orderProducts = allOrderProducts;
         foodProducts = orderModel.products
             .where((orderProduct) =>
-        orderProduct.productType.toLowerCase() == 'food')
+                orderProduct.productType.toLowerCase() == 'food')
             .toList();
         drinksProducts = orderModel.products
             .where((orderProduct) =>
-        orderProduct.productType.toLowerCase() == 'drinks')
+                orderProduct.productType.toLowerCase() == 'drinks')
             .toList();
       });
       _printDockets(orderModel.orderId);

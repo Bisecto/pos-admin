@@ -366,7 +366,9 @@ class _MainProductScreenState extends State<MainProductScreen> {
                     ],
                   ),
                 ),
-                Padding(
+                if(widget.userModel.addingEditingProductsDetails)
+
+                  Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: GestureDetector(
                     onTap: _addProduct,

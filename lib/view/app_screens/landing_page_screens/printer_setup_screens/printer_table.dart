@@ -143,17 +143,18 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                   LogActivity logActivity = LogActivity();
                   LogModel logModel = LogModel(
                       actionType: LogActionType.printerEdit.toString(),
-                      actionDescription: "${widget.userModel.fullname} changed the pinter details from ${widget.printerList[index]} to ${newPrinter} ",
+                      actionDescription:
+                          "${widget.userModel.fullname} changed the pinter details from ${widget.printerList[index]} to ${newPrinter} ",
                       performedBy: widget.userModel.fullname,
                       userId: widget.userModel.userId);
-                  logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+                  logActivity.logAction(
+                      widget.userModel.tenantId.trim(), logModel);
                   setState(() {
                     widget.printerList[index].printerName =
                         printerNameController.text;
                     widget.printerList[index].port =
                         int.parse(printerPortController.text);
-                    widget.printerList[index].ip =
-                        printerIpController.text;
+                    widget.printerList[index].ip = printerIpController.text;
                   });
                   print(
                       'Printer ${widget.printerList[index].printerName} edited');
@@ -205,7 +206,7 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
   //   );
   // }
 
-  void _deletePrinter(int index, String printerId,String printerName) {
+  void _deletePrinter(int index, String printerId, String printerName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -243,10 +244,12 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                   LogActivity logActivity = LogActivity();
                   LogModel logModel = LogModel(
                       actionType: LogActionType.printerDelete.toString(),
-                      actionDescription: "${widget.userModel.fullname} deleted a printer with id $printerId and na me $printerName",
+                      actionDescription:
+                          "${widget.userModel.fullname} deleted a printer with id $printerId and na me $printerName",
                       performedBy: widget.userModel.fullname,
                       userId: widget.userModel.userId);
-                  logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+                  logActivity.logAction(
+                      widget.userModel.tenantId.trim(), logModel);
                 } catch (e) {
                   print(e);
                 }
@@ -302,7 +305,8 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                       DataColumn(
                         label: Text('PRINTER PORT',
                             style: TextStyle(color: Colors.white)),
-                      ),DataColumn(
+                      ),
+                      DataColumn(
                         label: Text('PRINTER TYPE',
                             style: TextStyle(color: Colors.white)),
                       ),
@@ -326,10 +330,12 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                         DataCell(Text(
                           paginatedprinters[index].printerName.toString(),
                           style: const TextStyle(color: Colors.white),
-                        )),  DataCell(Text(
+                        )),
+                        DataCell(Text(
                           paginatedprinters[index].ip.toString(),
                           style: const TextStyle(color: Colors.white),
-                        )), DataCell(Text(
+                        )),
+                        DataCell(Text(
                           paginatedprinters[index].port.toString(),
                           style: const TextStyle(color: Colors.white),
                         )),
@@ -339,22 +345,28 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                         )),
                         DataCell(Row(
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () {
-                                _editPrinter(printerIndex);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                _deletePrinter(
-                                  printerIndex,
-                                  paginatedprinters[index].printerId!,
-                                  paginatedprinters[index].printerName!,
-                                );
-                              },
-                            ),
+                            if (!widget.userModel.addingEditingPrinters)
+                              Container(),
+                            if (widget.userModel.addingEditingPrinters) ...[
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () {
+                                  _editPrinter(printerIndex);
+                                },
+                              ),
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  _deletePrinter(
+                                    printerIndex,
+                                    paginatedprinters[index].printerId!,
+                                    paginatedprinters[index].printerName!,
+                                  );
+                                },
+                              ),
+                            ]
                           ],
                         )),
                       ]);

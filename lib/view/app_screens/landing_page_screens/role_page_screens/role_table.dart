@@ -133,7 +133,8 @@ class _UserTableScreenState extends State<UserTableScreen> {
                           width: double.maxFinite,
                           child: GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
                               crossAxisSpacing: 5.0,
                               mainAxisSpacing: 5.0,
@@ -191,19 +192,20 @@ class _UserTableScreenState extends State<UserTableScreen> {
                 FormButton(
                   onPressed: () {
                     UserModel userModel = UserModel(
-                        userId: widget.userList[index].userId,
-                        email: widget.userList[index].email,
-                        fullname: fullNameController.text,
-                        //widget.userList[index].fullname,
-                        imageUrl: 'imageUrl',
-                        phone: phoneController.text,
-                        //widget.userList[index].phone,
-                        role: roleController.text,
-                        //roleController.text,
-                        tenantId: widget.userModel.tenantId,
-                        createdAt: widget.userList[index].createdAt,
-                        updatedAt: Timestamp.fromDate(DateTime.now()),
-                        accountStatus: widget.userList[index].accountStatus,startEndDay: isSelected[0],
+                      userId: widget.userList[index].userId,
+                      email: widget.userList[index].email,
+                      fullname: fullNameController.text,
+                      //widget.userList[index].fullname,
+                      imageUrl: 'imageUrl',
+                      phone: phoneController.text,
+                      //widget.userList[index].phone,
+                      role: roleController.text,
+                      //roleController.text,
+                      tenantId: widget.userModel.tenantId,
+                      createdAt: widget.userList[index].createdAt,
+                      updatedAt: Timestamp.fromDate(DateTime.now()),
+                      accountStatus: widget.userList[index].accountStatus,
+                      startEndDay: isSelected[0],
                       viewFinance: isSelected[1],
                       creatingEditingProfile: isSelected[2],
                       addingEditingBusinessProfile: isSelected[3],
@@ -213,7 +215,8 @@ class _UserTableScreenState extends State<UserTableScreen> {
                       addingEditingPrinters: isSelected[7],
                       voidingProducts: isSelected[8],
                       voidingTableOrder: isSelected[9],
-                      addingEditingTable: isSelected[10],);
+                      addingEditingTable: isSelected[10],
+                    );
 
                     FirebaseFirestore.instance
                         .collection('Users')
@@ -222,10 +225,12 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     LogActivity logActivity = LogActivity();
                     LogModel logModel = LogModel(
                         actionType: LogActionType.userEdit.toString(),
-                        actionDescription: "${widget.userModel.fullname} edited user with Id from ${widget.userList[index]} to $userModel",
+                        actionDescription:
+                            "${widget.userModel.fullname} edited user with Id from ${widget.userList[index]} to $userModel",
                         performedBy: widget.userModel.fullname,
                         userId: widget.userModel.userId);
-                    logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+                    logActivity.logAction(
+                        widget.userModel.tenantId.trim(), logModel);
                     setState(() {
                       widget.userList[index].fullname = fullNameController.text;
                       widget.userList[index].phone = phoneController.text;
@@ -233,7 +238,8 @@ class _UserTableScreenState extends State<UserTableScreen> {
                     });
                     print('User ${widget.userList[index].fullname} edited');
 
-                    Navigator.of(context).pop();                  },
+                    Navigator.of(context).pop();
+                  },
                   text: "Update",
                   bgColor: AppColors.green,
                   textColor: AppColors.white,
@@ -247,7 +253,6 @@ class _UserTableScreenState extends State<UserTableScreen> {
         );
       },
     );
-
   }
 
   void _deleteUser(int index, String userId) {
@@ -299,7 +304,9 @@ class _UserTableScreenState extends State<UserTableScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
+        if(widget.userModel.creatingEditingProfile)
+
+          Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal, // Enable horizontal scrolling
             child: ConstrainedBox(
@@ -355,19 +362,23 @@ class _UserTableScreenState extends State<UserTableScreen> {
                       )),
                       DataCell(Row(
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () {
-                              _editUser(userIndex, paginatedUsers[index]);
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              _deleteUser(
-                                  userIndex, paginatedUsers[index].userId!);
-                            },
-                          ),
+                          if (!widget.userModel.creatingEditingProfile)
+                            Container(),
+                          if (widget.userModel.creatingEditingProfile) ...[
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                _editUser(userIndex, paginatedUsers[index]);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                _deleteUser(
+                                    userIndex, paginatedUsers[index].userId!);
+                              },
+                            ),
+                          ]
                         ],
                       )),
                     ]);

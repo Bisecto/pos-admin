@@ -219,7 +219,10 @@ class _MainCategoryScreenState extends State<MainCategoryScreen> {
                                   ],
                                 ),
                               ),
-                              Padding(
+
+                              if(widget.userModel.addingEditingProductsDetails)
+
+                                Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: GestureDetector(
                                   onTap: () {

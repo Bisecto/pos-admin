@@ -55,9 +55,9 @@ class _DashboardState extends State<Dashboard> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-
+                  if(widget.userModel.viewFinance)
                   AllMetricsOverview(tenantId: widget.tenantId),
-                  DayStartStopPage(tenantId: widget.tenantId.trim(),)
+                  DayStartStopPage(tenantId: widget.tenantId.trim(), userModel: widget.userModel,)
 
                 ],
               ),

@@ -2,14 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_admin/model/start_stop_model.dart';
+import 'package:pos_admin/model/user_model.dart';
 
 import '../../../../../model/log_model.dart';
 import 'daily_start_grid.dart';
 
 class DayStartStopPage extends StatefulWidget {
   final String tenantId;
+  final UserModel userModel;
 
-  const DayStartStopPage({Key? key, required this.tenantId}) : super(key: key);
+  const DayStartStopPage({Key? key, required this.tenantId, required this.userModel}) : super(key: key);
 
   @override
   _DayStartStopPageState createState() => _DayStartStopPageState();
@@ -74,6 +76,7 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
                 )
               : DailyStartHorizontalList(
                   dailyStartModel: dailyStartModel,
+        userModel:widget.userModel
                 ),
     );
   }

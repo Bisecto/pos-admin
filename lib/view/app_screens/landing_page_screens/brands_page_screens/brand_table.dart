@@ -94,7 +94,9 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
               iconWidget: Icons.clear,
               borderRadius: 20,
             ),
-            FormButton(
+            if(widget.userModel.addingEditingProductsDetails)
+
+              FormButton(
               onPressed: () {
                 String? userId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -277,7 +279,11 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                             style: const TextStyle(color: Colors.white))),
                         DataCell(Row(
                           children: [
-                            IconButton(
+                            if(!widget.userModel.addingEditingProductsDetails)
+                              Container(),
+                            if(widget.userModel.addingEditingProductsDetails)
+
+                              ...[IconButton(
                               icon: const Icon(Icons.edit, color: Colors.blue),
                               onPressed: () {
                                 _editBrand(brandIndex);
@@ -289,7 +295,7 @@ class _BrandTableScreenState extends State<BrandTableScreen> {
                                 _deleteBrand(brandIndex,
                                     paginatedbrands[index].brandId!,paginatedbrands[index].brandName!);
                               },
-                            ),
+                            ),]
                           ],
                         )),
                       ]);

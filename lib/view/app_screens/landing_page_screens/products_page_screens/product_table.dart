@@ -188,7 +188,9 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
               iconWidget: Icons.clear,
               borderRadius: 20,
             ),
-            FormButton(
+            if(widget.userModel.addingEditingProductsDetails)
+
+              FormButton(
               onPressed: () {
                 String userId = FirebaseAuth.instance.currentUser!.uid;
                 if (productNameController.text.isNotEmpty) {
@@ -377,7 +379,11 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Row(
                               children: [
-                                IconButton(
+                                if(!widget.userModel.addingEditingProductsDetails)
+                                  Container(),
+                                if(widget.userModel.addingEditingProductsDetails)
+
+                                  ...[IconButton(
                                   icon: const Icon(Icons.edit,
                                       color: Colors.blue),
                                   onPressed: () {
@@ -391,7 +397,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                                     _deleteProduct(productIndex,
                                         paginatedProducts[index].productId,paginatedProducts[index].productName,);
                                   },
-                                ),
+                                ),]
                               ],
                             )),
                           ]);
