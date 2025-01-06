@@ -29,10 +29,11 @@ class CreateUserRoleEventClick extends AuthEvent {
   String tenantId;
   TenantModel tenantModel;
   final UserModel userModel;
+  final List<bool> roles;
 
   // final String loginOption;
   // final String accessPin;
 
   CreateUserRoleEventClick(this.email, this.tenantId, this.phone, this.imageUrl,
-      this.fullname, this.role, this.password, this.tenantModel, this.userModel);
+      this.fullname, this.role, this.password, this.tenantModel, this.userModel, this.roles);
 }

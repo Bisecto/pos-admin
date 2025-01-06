@@ -46,6 +46,21 @@ class _CreateNewUserState extends State<CreateNewUser> {
     super.initState();
   }
 
+  final List<String> activitiesRoles = [
+    'Start/End Day',
+    'View Finance',
+    'Creating/Editing Profile',
+    'Adding/Editing Business Profile',
+    'Adding/Editing Products Details',
+    'Viewing Logs',
+    'Adding/Editing Bank Details',
+    'Adding/Editing Printers',
+    'Voiding Products',
+    'Voiding Table Order',
+    'Adding/Editing Table',
+  ];
+  List<bool> isSelected = List.generate(11, (_) => false);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,21 +163,79 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                                 "Waiter"
                                               ]
                                             : const [
-                                              //  "Chef",
-                                               // "Bartender",
-                                                    "Cashier","Waiter"
+                                                //  "Chef",
+                                                // "Bartender",
+                                                "Cashier", "Waiter"
                                               ],
                                         onChanged: (value) {
-                                          roleController.text = value;
+                                          setState(() {
+                                            roleController.text = value;
+                                          });
                                         },
                                       ),
+                                      if (roleController.text.toLowerCase() ==
+                                          'manager')
+                                        Container(
+                                          height: 150,
+                                          // Adjust height as needed
+                                          child: GridView.builder(
+                                            physics:
+                                                NeverScrollableScrollPhysics(),
+                                            gridDelegate:
+                                                SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 6,
+                                              // Number of columns in the grid
+                                              crossAxisSpacing: 5.0,
+                                              // Space between columns
+                                              mainAxisSpacing: 5.0,
+                                              // Space between rows
+                                              childAspectRatio:
+                                                  3, // Aspect ratio of each grid item (width/height)
+                                            ),
+                                            itemCount: activitiesRoles.length,
+                                            itemBuilder: (context, index) {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    isSelected[index] =
+                                                        !isSelected[index];
+                                                  });
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    Checkbox(
+                                                      value: isSelected[index],
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          isSelected[index] =
+                                                              value ?? false;
+                                                        });
+                                                      },
+                                                      activeColor: Colors.green,
+                                                    ),
+                                                    Expanded(
+                                                      child: CustomText(
+                                                        text: activitiesRoles[
+                                                            index],
+                                                        color: AppColors.white,
+                                                        maxLines: 2,
+                                                        size: 11,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
                                           FormButton(
                                             onPressed: () {
-                                              // Navigator.of(context).pop();
+                                              print(isSelected);
+                                              Navigator.of(context).pop();
                                             },
                                             bgColor: AppColors.red,
                                             textColor: AppColors.white,
@@ -181,15 +254,17 @@ class _CreateNewUserState extends State<CreateNewUser> {
                                                 setState(() {
                                                   authBloc.add(
                                                       CreateUserRoleEventClick(
-                                                    _emailController.text,
-                                                    widget.userModel.tenantId,
-                                                    phoneController.text,
-                                                    'imageUrl',
-                                                    fullNameController.text,
-                                                    roleController.text,
-                                                    'Qwerty123@',
-                                                    widget.tenantModel, widget.userModel
-                                                  ));
+                                                          _emailController.text,
+                                                          widget.userModel
+                                                              .tenantId,
+                                                          phoneController.text,
+                                                          'imageUrl',
+                                                          fullNameController
+                                                              .text,
+                                                          roleController.text,
+                                                          'Qwerty123@',
+                                                          widget.tenantModel,
+                                                          widget.userModel,isSelected));
                                                 });
                                               }
                                             },

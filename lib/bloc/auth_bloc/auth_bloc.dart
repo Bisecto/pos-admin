@@ -362,17 +362,41 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       var newUserCollection =
           FirebaseFirestore.instance.collection('Users').doc(newUser!.uid);
 
+      // UserModel userModel = UserModel(
+      //     userId: newUser.uid,
+      //     email: event.email,
+      //     fullname: event.fullname,
+      //     imageUrl: '',
+      //     phone: event.phone,
+      //     role: event.role,
+      //     tenantId: event.tenantId,
+      //     createdAt: Timestamp.fromDate(DateTime.now()),
+      //     updatedAt: Timestamp.fromDate(DateTime.now()),
+      //     accountStatus: true);
       UserModel userModel = UserModel(
-          userId: newUser.uid,
-          email: event.email,
-          fullname: event.fullname,
-          imageUrl: '',
-          phone: event.phone,
-          role: event.role,
-          tenantId: event.tenantId,
-          createdAt: Timestamp.fromDate(DateTime.now()),
-          updatedAt: Timestamp.fromDate(DateTime.now()),
-          accountStatus: true);
+        userId: newUser.uid,
+        email: event.email,
+        fullname: event.fullname,
+        imageUrl: '',
+        phone: event.phone,
+        role: event.role,
+        tenantId: event.tenantId,
+        createdAt: Timestamp.fromDate(DateTime.now()),
+        updatedAt: Timestamp.fromDate(DateTime.now()),
+        accountStatus: true,
+        startEndDay: event.roles[0],
+        viewFinance: event.roles[1],
+        creatingEditingProfile: event.roles[2],
+        addingEditingBusinessProfile: event.roles[3],
+        addingEditingProductsDetails: event.roles[4],
+        viewingLogs: event.roles[5],
+        addingEditingBankDetails: event.roles[6],
+        addingEditingPrinters: event.roles[7],
+        voidingProducts: event.roles[8],
+        voidingTableOrder: event.roles[9],
+        addingEditingTable: event.roles[10],
+      );
+
       await newUserCollection.set(userModel.toFirestore());
       LogActivity logActivity = LogActivity();
       LogModel logModel = LogModel(

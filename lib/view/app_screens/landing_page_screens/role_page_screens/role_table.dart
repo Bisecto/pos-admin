@@ -37,7 +37,7 @@ class _UserTableScreenState extends State<UserTableScreen> {
         start, end > widget.userList.length ? widget.userList.length : end);
   }
 
-  void _editUser(int index) {
+  void _editUser(int index, UserModel userModel) {
     //final TextEditingController emailController = TextEditingController();
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController phoneController = TextEditingController();
@@ -48,134 +48,206 @@ class _UserTableScreenState extends State<UserTableScreen> {
     fullNameController.text = widget.userList[index].fullname;
     phoneController.text = widget.userList[index].phone;
     roleController.text = widget.userList[index].role.toString();
+    final List<String> activitiesRoles = [
+      'Start/End Day',
+      'View Finance',
+      'Creating/Editing Profile',
+      'Adding/Editing Business Profile',
+      'Adding/Editing Products Details',
+      'Viewing Logs',
+      'Adding/Editing Bank Details',
+      'Adding/Editing Printers',
+      'Voiding Products',
+      'Voiding Table Order',
+      'Adding/Editing Table',
+    ];
 
+// Retrieve the role states from the UserModel
+    List<bool> isSelected = [
+      userModel.startEndDay,
+      userModel.viewFinance,
+      userModel.creatingEditingProfile,
+      userModel.addingEditingBusinessProfile,
+      userModel.addingEditingProductsDetails,
+      userModel.viewingLogs,
+      userModel.addingEditingBankDetails,
+      userModel.addingEditingPrinters,
+      userModel.voidingProducts,
+      userModel.voidingTableOrder,
+      userModel.addingEditingTable,
+    ];
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: TextStyles.textHeadings(
-              textValue: 'Edit User', textSize: 22, textColor: AppColors.white),
-          backgroundColor: AppColors.darkModeBackgroundContainerColor,
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // String userImageUrl;
-
-                  CustomTextFormField(
-                    controller: fullNameController,
-                    label: 'Full name',
-                    width: 250,
-                    hint: 'Enter full name',
-                    validator: AppValidator.validateTextfield,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  CustomTextFormField(
-                    controller: phoneController,
-                    label: 'Phone',
-                    width: 250,
-                    hint: 'Enter phone number of user',
-                    textInputType: TextInputType.number,
-                    validator: AppValidator.validateTextfield,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-
-                  DropDown(
-                    width: 250,
-                    borderColor: AppColors.white,
-                    borderRadius: 10,
-                    hint: "Select role of user",
-                    selectedValue: roleController.text,
-                    items: widget.userModel.role.toLowerCase() == 'admin'
-                        ? const [
-                            'Manager',
-                            "Admin",
-                            "Cashier",
-                            // "Chef",
-                            // "Bartender",
-                            "Waiter"
-                          ]
-                        : const [
-                            //  "Chef",
-                            // "Bartender",
-                            "Cashier", "Waiter"
-                          ],
-                    onChanged: (value) {
-                      roleController.text = value;
-                    },
-                  ),
-
-                  SizedBox(
-                    height: 10,
-                  ),
-                ],
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setDialogState) {
+            return AlertDialog(
+              title: TextStyles.textHeadings(
+                textValue: 'Edit User',
+                textSize: 22,
+                textColor: AppColors.white,
               ),
-            ),
-          ),
-          actions: [
-            FormButton(
-              onPressed: () => Navigator.of(context).pop(),
-              text: "Discard",
-              bgColor: AppColors.red,
-              textColor: AppColors.white,
-              width: 120,
-              iconWidget: Icons.clear,
-              borderRadius: 20,
-            ),
-            FormButton(
-              onPressed: () {
-                //String userId = u.FirebaseAuth.instance.currentUser!.uid;
-                UserModel userModel = UserModel(
-                    userId: widget.userList[index].userId,
-                    email: widget.userList[index].email,
-                    fullname: fullNameController.text,
-                    //widget.userList[index].fullname,
-                    imageUrl: 'imageUrl',
-                    phone: phoneController.text,
-                    //widget.userList[index].phone,
-                    role: roleController.text,
-                    //roleController.text,
-                    tenantId: widget.userModel.tenantId,
-                    createdAt: widget.userList[index].createdAt,
-                    updatedAt: Timestamp.fromDate(DateTime.now()),
-                    accountStatus: widget.userList[index].accountStatus);
+              backgroundColor: AppColors.darkModeBackgroundContainerColor,
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomTextFormField(
+                        controller: fullNameController,
+                        label: 'Full name',
+                        width: 250,
+                        hint: 'Enter full name',
+                        validator: AppValidator.validateTextfield,
+                      ),
+                      const SizedBox(height: 10),
+                      CustomTextFormField(
+                        controller: phoneController,
+                        label: 'Phone',
+                        width: 250,
+                        hint: 'Enter phone number of user',
+                        textInputType: TextInputType.number,
+                        validator: AppValidator.validateTextfield,
+                      ),
+                      const SizedBox(height: 10),
+                      DropDown(
+                        width: 250,
+                        borderColor: AppColors.white,
+                        borderRadius: 10,
+                        hint: "Select role of user",
+                        selectedValue: roleController.text,
+                        items: widget.userModel.role.toLowerCase() == 'admin'
+                            ? const ['Manager', "Admin", "Cashier", "Waiter"]
+                            : const ["Cashier", "Waiter"],
+                        onChanged: (value) {
+                          setState(() {
+                            roleController.text = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      if (roleController.text.toLowerCase() == 'manager')
+                        SizedBox(
+                          height: 200,
+                          width: double.maxFinite,
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              crossAxisSpacing: 5.0,
+                              mainAxisSpacing: 5.0,
+                              childAspectRatio: 3,
+                            ),
+                            itemCount: activitiesRoles.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  setDialogState(() {
+                                    isSelected[index] = !isSelected[index];
+                                    print(isSelected[index]);
+                                  });
+                                },
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: isSelected[index],
+                                      onChanged: (value) {
+                                        setDialogState(() {
+                                          isSelected[index] = value ?? false;
+                                        });
+                                      },
+                                      activeColor: Colors.green,
+                                    ),
+                                    Expanded(
+                                      child: CustomText(
+                                        text: activitiesRoles[index],
+                                        color: AppColors.white,
+                                        maxLines: 2,
+                                        size: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                FormButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  text: "Discard",
+                  bgColor: AppColors.red,
+                  textColor: AppColors.white,
+                  width: 120,
+                  iconWidget: Icons.clear,
+                  borderRadius: 20,
+                ),
+                FormButton(
+                  onPressed: () {
+                    UserModel userModel = UserModel(
+                        userId: widget.userList[index].userId,
+                        email: widget.userList[index].email,
+                        fullname: fullNameController.text,
+                        //widget.userList[index].fullname,
+                        imageUrl: 'imageUrl',
+                        phone: phoneController.text,
+                        //widget.userList[index].phone,
+                        role: roleController.text,
+                        //roleController.text,
+                        tenantId: widget.userModel.tenantId,
+                        createdAt: widget.userList[index].createdAt,
+                        updatedAt: Timestamp.fromDate(DateTime.now()),
+                        accountStatus: widget.userList[index].accountStatus,startEndDay: isSelected[0],
+                      viewFinance: isSelected[1],
+                      creatingEditingProfile: isSelected[2],
+                      addingEditingBusinessProfile: isSelected[3],
+                      addingEditingProductsDetails: isSelected[4],
+                      viewingLogs: isSelected[5],
+                      addingEditingBankDetails: isSelected[6],
+                      addingEditingPrinters: isSelected[7],
+                      voidingProducts: isSelected[8],
+                      voidingTableOrder: isSelected[9],
+                      addingEditingTable: isSelected[10],);
 
-                FirebaseFirestore.instance
-                    .collection('Users')
-                    .doc(widget.userList[index].userId)
-                    .update(userModel.toFirestore());
-                LogActivity logActivity = LogActivity();
-                LogModel logModel = LogModel(
-                    actionType: LogActionType.userEdit.toString(),
-                    actionDescription: "${widget.userModel.fullname} edited user with Id from ${widget.userList[index]} to $userModel",
-                    performedBy: widget.userModel.fullname,
-                    userId: widget.userModel.userId);
-                logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
-                setState(() {
-                  widget.userList[index].fullname = fullNameController.text;
-                  widget.userList[index].phone = phoneController.text;
-                  widget.userList[index].role = roleController.text;
-                });
-                print('User ${widget.userList[index].fullname} edited');
+                    FirebaseFirestore.instance
+                        .collection('Users')
+                        .doc(widget.userList[index].userId)
+                        .update(userModel.toFirestore());
+                    LogActivity logActivity = LogActivity();
+                    LogModel logModel = LogModel(
+                        actionType: LogActionType.userEdit.toString(),
+                        actionDescription: "${widget.userModel.fullname} edited user with Id from ${widget.userList[index]} to $userModel",
+                        performedBy: widget.userModel.fullname,
+                        userId: widget.userModel.userId);
+                    logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+                    setState(() {
+                      widget.userList[index].fullname = fullNameController.text;
+                      widget.userList[index].phone = phoneController.text;
+                      widget.userList[index].role = roleController.text;
+                    });
+                    print('User ${widget.userList[index].fullname} edited');
 
-                Navigator.of(context).pop();
-              },
-              text: "Update",
-              bgColor: AppColors.green,
-              textColor: AppColors.white,
-              width: 120,
-              iconWidget: Icons.add,
-              borderRadius: 20,
-            ),
-          ],
+                    Navigator.of(context).pop();                  },
+                  text: "Update",
+                  bgColor: AppColors.green,
+                  textColor: AppColors.white,
+                  width: 120,
+                  iconWidget: Icons.add,
+                  borderRadius: 20,
+                ),
+              ],
+            );
+          },
         );
       },
     );
+
   }
 
   void _deleteUser(int index, String userId) {
@@ -183,7 +255,7 @@ class _UserTableScreenState extends State<UserTableScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Deativate User'),
+          title: const Text('Deativate User'),
           content: Text(
               'Are you sure you want to Deativate ${widget.userList[index].fullname}?'),
           actions: [
@@ -207,10 +279,12 @@ class _UserTableScreenState extends State<UserTableScreen> {
                 LogActivity logActivity = LogActivity();
                 LogModel logModel = LogModel(
                     actionType: LogActionType.userEdit.toString(),
-                    actionDescription: "${widget.userModel.fullname} deactivated user with Id  ${widget.userList[index].userId} and name ${widget.userList[index].fullname} ",
+                    actionDescription:
+                        "${widget.userModel.fullname} deactivated user with Id  ${widget.userList[index].userId} and name ${widget.userList[index].fullname} ",
                     performedBy: widget.userModel.fullname,
                     userId: widget.userModel.userId);
-                logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+                logActivity.logAction(
+                    widget.userModel.tenantId.trim(), logModel);
                 print('User deleted');
                 Navigator.of(context).pop();
               },
@@ -284,7 +358,7 @@ class _UserTableScreenState extends State<UserTableScreen> {
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.blue),
                             onPressed: () {
-                              _editUser(userIndex);
+                              _editUser(userIndex, paginatedUsers[index]);
                             },
                           ),
                           IconButton(
