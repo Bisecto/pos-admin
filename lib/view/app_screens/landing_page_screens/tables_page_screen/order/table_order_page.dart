@@ -1220,7 +1220,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
       printer.hr();
 
       // Print Title (Food or Drinks)
-      printer.text("DOCKET",
+      printer.text("VOIDED PRODUCT DOCKET",
           styles: const PosStyles(align: PosAlign.center, bold: true));
       printer.hr();
       printer.hr();
