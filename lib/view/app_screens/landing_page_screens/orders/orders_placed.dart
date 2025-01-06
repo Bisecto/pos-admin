@@ -681,6 +681,10 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
             .where((orderProduct) =>
                 orderProduct.productType.toLowerCase() == 'drinks')
             .toList();
+        shishaProducts = orderModel.products
+            .where((orderProduct) =>
+                orderProduct.productType.toLowerCase() == 'shisha')
+            .toList();
       });
       _printDockets(orderModel.orderId);
       voidedProductsActivity.voidAction(
@@ -972,6 +976,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
   List<OrderProduct> foodProducts = [];
   List<OrderProduct> drinksProducts = [];
+  List<OrderProduct> shishaProducts = [];
 
   Future<void> _printDockets(String orderId) async {
     if (foodProducts.isNotEmpty) {
@@ -985,6 +990,11 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       await Future.delayed(const Duration(seconds: 3));
       await printDockets(drinksPrinter.ip, drinksPrinter.port, drinksProducts,
           'Drinks Items', orderId);
+    } if (shishaProducts.isNotEmpty) {
+      final shishaPrinter = await getPrinter('printerName', 'shisha');
+      await Future.delayed(const Duration(seconds: 3));
+      await printDockets(shishaPrinter.ip, shishaPrinter.port, shishaProducts,
+          'Shisha Items', orderId);
     }
   }
 
@@ -1060,8 +1070,9 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       printer.hr();
 
       // Print Title (Food or Drinks)
-      printer.text("DOCKET",
+      printer.text(" VOIDED ITEM DOCKET",
           styles: const PosStyles(align: PosAlign.center, bold: true));
+      //printer.i
       printer.hr();
       printer.hr();
       // Print Company Logo

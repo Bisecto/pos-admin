@@ -75,6 +75,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
   List<OrderProduct> products = [];
   List<OrderProduct> foodProducts = [];
   List<OrderProduct> drinksProducts = [];
+  List<OrderProduct> shishaProducts = [];
 
   double calculateTax(double totalPrice, double taxRate) {
     return totalPrice * taxRate;
@@ -406,8 +407,10 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                             orderId,
                                                             true);
                                                       }
-                                                    }else{
-                                                      MSG.warningSnackBar(context, 'You dont have permission to void product');
+                                                    } else {
+                                                      MSG.warningSnackBar(
+                                                          context,
+                                                          'You dont have permission to void product');
                                                     }
                                                   },
                                                   text: product.isProductVoid
@@ -606,6 +609,10 @@ class _TableOrderPageState extends State<TableOrderPage> {
           drinksProducts = [productToVoid]
               .where((orderProduct) =>
                   orderProduct.productType.toLowerCase() == 'drinks')
+              .toList();
+          shishaProducts = [productToVoid]
+              .where((orderProduct) =>
+                  orderProduct.productType.toLowerCase() == 'shisha')
               .toList();
         });
         _printDockets(orderData['orderId']);
@@ -1133,6 +1140,11 @@ class _TableOrderPageState extends State<TableOrderPage> {
       await Future.delayed(const Duration(seconds: 3));
       await printDockets(drinksPrinter.ip, drinksPrinter.port, drinksProducts,
           'Drinks Items', orderId);
+    } if (shishaProducts.isNotEmpty) {
+      final shishaPrinter = await getPrinter('printerName', 'shisha');
+      await Future.delayed(const Duration(seconds: 3));
+      await printDockets(shishaPrinter.ip, shishaPrinter.port, shishaProducts,
+          'ShiSha Items', orderId);
     }
   }
 

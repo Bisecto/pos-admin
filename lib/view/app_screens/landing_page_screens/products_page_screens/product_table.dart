@@ -115,7 +115,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                   selectedValue: selectedProductType.text,
                   borderRadius: 10,
                   hint: "Product Type*",
-                  items: const ['food', 'drinks'],
+                  items: const ['food', 'drinks','shisha'],
                   onChanged: (value) {
                     //int index = categories.indexOf(value);
                     setState(() {
