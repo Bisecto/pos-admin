@@ -1140,7 +1140,8 @@ class _TableOrderPageState extends State<TableOrderPage> {
       await Future.delayed(const Duration(seconds: 3));
       await printDockets(drinksPrinter.ip, drinksPrinter.port, drinksProducts,
           'Drinks Items', orderId);
-    } if (shishaProducts.isNotEmpty) {
+    }
+    if (shishaProducts.isNotEmpty) {
       final shishaPrinter = await getPrinter('printerName', 'shisha');
       await Future.delayed(const Duration(seconds: 3));
       await printDockets(shishaPrinter.ip, shishaPrinter.port, shishaProducts,
@@ -1226,7 +1227,8 @@ class _TableOrderPageState extends State<TableOrderPage> {
 
       printer.row([
         PosColumn(
-            text: "Date: ${DateTime.now()}",
+            text:
+                "Date: ${AppUtils.formateSimpleDate(dateTime: DateTime.now().toString())}",
             width: 12,
             styles: const PosStyles(bold: false)),
       ]);
@@ -1254,7 +1256,6 @@ class _TableOrderPageState extends State<TableOrderPage> {
             text: "Description",
             width: 10,
             styles: const PosStyles(bold: true)),
-
       ]);
 
       // Print Products
@@ -1262,13 +1263,11 @@ class _TableOrderPageState extends State<TableOrderPage> {
         printer.row([
           PosColumn(text: product.quantity.toString(), width: 2),
           PosColumn(text: product.productName, width: 10),
-
         ]);
       }
 
       printer.hr();
 
-      
       printer.beep();
       printer.feed(2);
 

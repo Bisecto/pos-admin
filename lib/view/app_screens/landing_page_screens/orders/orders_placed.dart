@@ -122,332 +122,334 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           //   Container(),
           // if(widget.userModel.voidingTableOrder)
 
-            ...[Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomTextFormField(
-                  controller: searchController,
-                  // decoration: InputDecoration(
-                  //   labelText: 'Search by Order ID',
-                  //   suffixIcon: IconButton(
-                  //     icon: const Icon(Icons.clear),
-                  //     onPressed: () {
-                  //       setState(() {
-                  //         searchController.clear();
-                  //         searchQuery = '';
-                  //       });
-                  //     },
-                  //   ),
-                  //   border: const OutlineInputBorder(),
-                  // ),
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                  width: 250,
-                  hint: 'Search by ID',
-                  label: 'Search',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.filter_list),
-                  onPressed: () => pickDateRange(context),
-                ),
-              ],
-            ),
-          ),
-          if (dateRange != null)
+          ...[
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Filtered by date: ${DateFormat('yyyy/MM/dd').format(dateRange!.start)} - ${DateFormat('yyyy/MM/dd').format(dateRange!.end)}',
-                style: const TextStyle(color: AppColors.white),
-              ),
-            ),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor:
-                    MaterialStateProperty.all<Color>(AppColors.darkYellow),
-                columns: [
-                  // DataColumn(
-                  //   label: Container(
-                  //     padding: EdgeInsets.all(8.0),
-                  //     child:
-                  //         CustomText(text: 'Order No', color: AppColors.white),
-                  //   ),
-                  // ),DataColumn(
-                  //   label: Container(
-                  //     padding: EdgeInsets.all(8.0),
-                  //     child:
-                  //         CustomText(text: 'Sent To', color: AppColors.white),
-                  //   ),
-                  //),
-                  DataColumn(
-                    label: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const CustomText(
-                          text: 'Table Number', color: AppColors.white),
-                    ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomTextFormField(
+                    controller: searchController,
+                    // decoration: InputDecoration(
+                    //   labelText: 'Search by Order ID',
+                    //   suffixIcon: IconButton(
+                    //     icon: const Icon(Icons.clear),
+                    //     onPressed: () {
+                    //       setState(() {
+                    //         searchController.clear();
+                    //         searchQuery = '';
+                    //       });
+                    //     },
+                    //   ),
+                    //   border: const OutlineInputBorder(),
+                    // ),
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value;
+                      });
+                    },
+                    width: 250,
+                    hint: 'Search by ID',
+                    label: 'Search',
                   ),
-                  DataColumn(
-                    label: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const CustomText(
-                          text: 'Ordered By', color: AppColors.white),
-                    ),
-                  ),
-
-                  if(widget.userModel.viewFinance)
-
-                    DataColumn(
-                    label: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const CustomText(
-                          text: 'Amount Paid', color: AppColors.white),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const CustomText(
-                          text: 'Created At', color: AppColors.white),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const CustomText(
-                          text: 'Updated At', color: AppColors.white),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const CustomText(
-                          text: 'Status', color: AppColors.white),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const CustomText(
-                          text: 'Actions', color: AppColors.white),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.filter_list),
+                    onPressed: () => pickDateRange(context),
                   ),
                 ],
-                rows: filteredOrders
-                    .sublist(startIndex, endIndex)
-                    .map((orderDoc) {
-                  final orderData = orderDoc.data();
-                  final orderId = orderDoc.id;
-                  final createdAt =
-                      (orderData['createdAt'] as Timestamp).toDate();
-                  final statusIndex = orderData['status'] as int;
-
-                  return DataRow(
-                    color: MaterialStateProperty.resolveWith<Color?>(
-                        (Set<MaterialState> states) {
-                      return states.contains(MaterialState.selected)
-                          ? Colors.purple.withOpacity(0.08)
-                          : null; // Use default value for unselected rows
-                    }),
-                    cells: [
-                      // DataCell(
-                      //   Container(
-                      //     padding: EdgeInsets.all(8.0),
-                      //     child: CustomText(
-                      //         text: orderData['orderCode'],
-                      //         color: AppColors.white),
-                      //   ),
-                      // ),
-                      // DataCell(
-                      //   Container(
-                      //     padding: EdgeInsets.all(8.0),
-                      //     child: CustomText(
-                      //         text: orderData['orderTo'],
-                      //         color: AppColors.white),
-                      //   ),
-                      // ),
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FutureBuilder<String>(
-                            future: getTableName(orderDoc['tableNo']),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const CircularProgressIndicator(); // Show a loading indicator
-                              } else if (snapshot.hasError) {
-                                return const Text('Error'); // Handle error case
-                              } else {
-                                return CustomText(
-                                  text: "Table ${snapshot.data}" ?? 'Settled',
-                                  color: AppColors.white,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-
-                        // Container(
-                        //   padding: const EdgeInsets.all(8.0),
-                        //   child: CustomText(
-                        //     text:
-                        //         "Table ${AppUtils().extractNumbers(orderDoc['tableNo'].toString().isEmpty ? 'TTHHJH' : orderDoc['tableNo'].toString().substring(0, 3))}",
-                        //     color: AppColors.white,
-                        //     weight: FontWeight.bold,
-                        //     size: 16,
-                        //   ),
-                        // ),
-                      ),
-
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FutureBuilder<String>(
-                            future: getUserFullName(orderData['createdBy']),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const CircularProgressIndicator(); // Show a loading indicator
-                              } else if (snapshot.hasError) {
-                                return const Text('Error'); // Handle error case
-                              } else {
-                                return CustomText(
-                                  text: snapshot.data ?? 'Unknown',
-                                  color: AppColors.white,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                      if(widget.userModel.viewFinance)
-
-                        DataCell(
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CustomText(
-                              text: orderData['amountPaid'] ?? 'NAN',
-                              color: AppColors.white),
-                        ),
-                      ),
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CustomText(
-                              text: formatDate(orderData['createdAt']),
-                              color: AppColors.white),
-                        ),
-                      ),
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CustomText(
-                              text: formatDate(orderData['updatedAt']),
-                              color: AppColors.white),
-                        ),
-                      ),
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CustomText(
-                              text: getStatusText(statusIndex).toUpperCase(),
-                              color: AppColors.white),
-                        ),
-                      ),
-                      DataCell(
-                        Row(
-                          children: [
-                            // IconButton(
-                            //   icon:
-                            //       Icon(Icons.edit, color: AppColors.darkYellow),
-                            //   onPressed: () async {
-                            //     await fetchOrderDetails(orderId);
-                            //     showEditPopup(
-                            //         context,
-                            //         orderId,
-                            //         orderData['tableNo'],
-                            //         orderData['createdBy']);
-                            //   },
-                            //   tooltip: 'Edit Order',
-                            // ),
-                            // if (getStatusText(statusIndex).toLowerCase() != 'pending')
-                            if (!widget.userModel.voidingTableOrder)
-                              Container(),
-                            if (widget.userModel.voidingTableOrder)
-                              FormButton(
-                                onPressed: () async {
-                                  await fetchOrderDetails(orderId);
-                                  showEditPopup(
-                                      context,
-                                      orderId,
-                                      orderData['tableNo'],
-                                      orderData['createdBy'],
-                                      statusIndex);
-                                  // await fetchOrderDetails(orderId);
-                                  // showEditPopup(
-                                  //     context,
-                                  //     orderId,
-                                  //     orderData['tableNo'],
-                                  //     orderData['createdBy']);
-                                  // await fetchOrderDetails(orderId);
-                                  // _printReceipt();
-                                },
-                                text: "View Order",
-                                bgColor: AppColors.darkYellow,
-                                width: 150,
-                                textColor: AppColors.white,
-                                borderRadius: 10,
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
               ),
             ),
-          ),
+            if (dateRange != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Filtered by date: ${DateFormat('yyyy/MM/dd').format(dateRange!.start)} - ${DateFormat('yyyy/MM/dd').format(dateRange!.end)}',
+                  style: const TextStyle(color: AppColors.white),
+                ),
+              ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  headingRowColor:
+                      MaterialStateProperty.all<Color>(AppColors.darkYellow),
+                  columns: [
+                    // DataColumn(
+                    //   label: Container(
+                    //     padding: EdgeInsets.all(8.0),
+                    //     child:
+                    //         CustomText(text: 'Order No', color: AppColors.white),
+                    //   ),
+                    // ),DataColumn(
+                    //   label: Container(
+                    //     padding: EdgeInsets.all(8.0),
+                    //     child:
+                    //         CustomText(text: 'Sent To', color: AppColors.white),
+                    //   ),
+                    //),
+                    DataColumn(
+                      label: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: const CustomText(
+                            text: 'Table Number', color: AppColors.white),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: const CustomText(
+                            text: 'Ordered By', color: AppColors.white),
+                      ),
+                    ),
 
-          // Pagination controls
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(
-              'Page ${currentPage + 1} of $totalPages',
-              style: const TextStyle(color: AppColors.white),
+                    if (widget.userModel.viewFinance)
+                      DataColumn(
+                        label: Container(
+                          padding: const EdgeInsets.all(8.0),
+                          child: const CustomText(
+                              text: 'Amount Paid', color: AppColors.white),
+                        ),
+                      ),
+                    DataColumn(
+                      label: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: const CustomText(
+                            text: 'Created At', color: AppColors.white),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: const CustomText(
+                            text: 'Updated At', color: AppColors.white),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: const CustomText(
+                            text: 'Status', color: AppColors.white),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: const CustomText(
+                            text: 'Actions', color: AppColors.white),
+                      ),
+                    ),
+                  ],
+                  rows: filteredOrders
+                      .sublist(startIndex, endIndex)
+                      .map((orderDoc) {
+                    final orderData = orderDoc.data();
+                    final orderId = orderDoc.id;
+                    final createdAt =
+                        (orderData['createdAt'] as Timestamp).toDate();
+                    final statusIndex = orderData['status'] as int;
+
+                    return DataRow(
+                      color: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) {
+                        return states.contains(MaterialState.selected)
+                            ? Colors.purple.withOpacity(0.08)
+                            : null; // Use default value for unselected rows
+                      }),
+                      cells: [
+                        // DataCell(
+                        //   Container(
+                        //     padding: EdgeInsets.all(8.0),
+                        //     child: CustomText(
+                        //         text: orderData['orderCode'],
+                        //         color: AppColors.white),
+                        //   ),
+                        // ),
+                        // DataCell(
+                        //   Container(
+                        //     padding: EdgeInsets.all(8.0),
+                        //     child: CustomText(
+                        //         text: orderData['orderTo'],
+                        //         color: AppColors.white),
+                        //   ),
+                        // ),
+                        DataCell(
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: FutureBuilder<String>(
+                              future: getTableName(orderDoc['tableNo']),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator(); // Show a loading indicator
+                                } else if (snapshot.hasError) {
+                                  return const Text(
+                                      'Error'); // Handle error case
+                                } else {
+                                  return CustomText(
+                                    text: "Table ${snapshot.data}" ?? 'Settled',
+                                    color: AppColors.white,
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+
+                          // Container(
+                          //   padding: const EdgeInsets.all(8.0),
+                          //   child: CustomText(
+                          //     text:
+                          //         "Table ${AppUtils().extractNumbers(orderDoc['tableNo'].toString().isEmpty ? 'TTHHJH' : orderDoc['tableNo'].toString().substring(0, 3))}",
+                          //     color: AppColors.white,
+                          //     weight: FontWeight.bold,
+                          //     size: 16,
+                          //   ),
+                          // ),
+                        ),
+
+                        DataCell(
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: FutureBuilder<String>(
+                              future: getUserFullName(orderData['createdBy']),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator(); // Show a loading indicator
+                                } else if (snapshot.hasError) {
+                                  return const Text(
+                                      'Error'); // Handle error case
+                                } else {
+                                  return CustomText(
+                                    text: snapshot.data ?? 'Unknown',
+                                    color: AppColors.white,
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        if (widget.userModel.viewFinance)
+                          DataCell(
+                            Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CustomText(
+                                  text: orderData['amountPaid'] ?? 'NAN',
+                                  color: AppColors.white),
+                            ),
+                          ),
+                        DataCell(
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CustomText(
+                                text: formatDate(orderData['createdAt']),
+                                color: AppColors.white),
+                          ),
+                        ),
+                        DataCell(
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CustomText(
+                                text: formatDate(orderData['updatedAt']),
+                                color: AppColors.white),
+                          ),
+                        ),
+                        DataCell(
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CustomText(
+                                text: getStatusText(statusIndex).toUpperCase(),
+                                color: AppColors.white),
+                          ),
+                        ),
+                        DataCell(
+                          Row(
+                            children: [
+                              // IconButton(
+                              //   icon:
+                              //       Icon(Icons.edit, color: AppColors.darkYellow),
+                              //   onPressed: () async {
+                              //     await fetchOrderDetails(orderId);
+                              //     showEditPopup(
+                              //         context,
+                              //         orderId,
+                              //         orderData['tableNo'],
+                              //         orderData['createdBy']);
+                              //   },
+                              //   tooltip: 'Edit Order',
+                              // ),
+                              // if (getStatusText(statusIndex).toLowerCase() != 'pending')
+                              if (!widget.userModel.voidingTableOrder)
+                                Container(),
+                              if (widget.userModel.voidingTableOrder)
+                                FormButton(
+                                  onPressed: () async {
+                                    await fetchOrderDetails(orderId);
+                                    showEditPopup(
+                                        context,
+                                        orderId,
+                                        orderData['tableNo'],
+                                        orderData['createdBy'],
+                                        statusIndex);
+                                    // await fetchOrderDetails(orderId);
+                                    // showEditPopup(
+                                    //     context,
+                                    //     orderId,
+                                    //     orderData['tableNo'],
+                                    //     orderData['createdBy']);
+                                    // await fetchOrderDetails(orderId);
+                                    // _printReceipt();
+                                  },
+                                  text: "View Order",
+                                  bgColor: AppColors.darkYellow,
+                                  width: 150,
+                                  textColor: AppColors.white,
+                                  borderRadius: 10,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left, color: AppColors.white),
-                  onPressed: currentPage > 0
-                      ? () {
-                          setState(() {
-                            currentPage--;
-                          });
-                        }
-                      : null,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right, color: AppColors.white),
-                  onPressed: currentPage < totalPages - 1
-                      ? () {
-                          setState(() {
-                            currentPage++;
-                          });
-                        }
-                      : null,
-                ),
-              ],
-            )
-          ])]
-        ]
-        )
-    );
+
+            // Pagination controls
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text(
+                'Page ${currentPage + 1} of $totalPages',
+                style: const TextStyle(color: AppColors.white),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon:
+                        const Icon(Icons.chevron_left, color: AppColors.white),
+                    onPressed: currentPage > 0
+                        ? () {
+                            setState(() {
+                              currentPage--;
+                            });
+                          }
+                        : null,
+                  ),
+                  IconButton(
+                    icon:
+                        const Icon(Icons.chevron_right, color: AppColors.white),
+                    onPressed: currentPage < totalPages - 1
+                        ? () {
+                            setState(() {
+                              currentPage++;
+                            });
+                          }
+                        : null,
+                  ),
+                ],
+              )
+            ])
+          ]
+        ]));
   }
 
   List<OrderProduct> products = [];
@@ -990,7 +992,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       await Future.delayed(const Duration(seconds: 3));
       await printDockets(drinksPrinter.ip, drinksPrinter.port, drinksProducts,
           'Drinks Items', orderId);
-    } if (shishaProducts.isNotEmpty) {
+    }
+    if (shishaProducts.isNotEmpty) {
       final shishaPrinter = await getPrinter('printerName', 'shisha');
       await Future.delayed(const Duration(seconds: 3));
       await printDockets(shishaPrinter.ip, shishaPrinter.port, shishaProducts,
@@ -1079,7 +1082,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       // printer.image(img.decodeImage(companyImage)!);
       printer.row([
         PosColumn(
-            text: "Date: ${DateTime.now()}",
+            text:
+                "Date: ${AppUtils.formateSimpleDate(dateTime: DateTime.now().toString())}",
             width: 12,
             styles: const PosStyles(bold: false)),
       ]);
