@@ -27,6 +27,8 @@ class OrderList extends StatelessWidget {
           .where('createdAt',
               isLessThanOrEqualTo: dailyStartModel.endTime ?? DateTime.now())
           .orderBy('createdAt', descending: true)
+          .where('products', arrayContains: {'isProductVoid': false})
+
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -99,8 +101,6 @@ class OrderList extends StatelessWidget {
   }
 
   Widget _buildNoOrdersView(DateTime? startDate, DateTime? endDate) {
-
-
     return Align(
       alignment: Alignment.center,
       child: Container(

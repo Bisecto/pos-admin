@@ -1219,25 +1219,17 @@ class _TableOrderPageState extends State<TableOrderPage> {
       }
       printer.hr();
 
-      // Print Title (Food or Drinks)
       printer.text("VOIDED PRODUCT DOCKET",
           styles: const PosStyles(align: PosAlign.center, bold: true));
       printer.hr();
       printer.hr();
-      // Print Company Logo
-      // printer.image(img.decodeImage(companyImage)!);
+
       printer.row([
         PosColumn(
             text: "Date: ${DateTime.now()}",
             width: 12,
             styles: const PosStyles(bold: false)),
       ]);
-      // printer.row([
-      //   PosColumn(
-      //       text: "Table: ${widget.tableModel.tableName}",
-      //       width: 12,
-      //       styles: const PosStyles(bold: false)),
-      // ]);
       printer.row([
         PosColumn(
             text: "Ticket No: ${orderNo.substring(0, 6).toUpperCase()}",
@@ -1253,21 +1245,16 @@ class _TableOrderPageState extends State<TableOrderPage> {
       printer.hr();
 
       printer.hr();
-
-      // Print Title (Food or Drinks)
       printer.text("Voided $title",
           styles: const PosStyles(align: PosAlign.center, bold: true));
       printer.hr();
-
-      // Print Header
       printer.row([
         PosColumn(text: "QTY", width: 2, styles: const PosStyles(bold: true)),
         PosColumn(
             text: "Description",
             width: 10,
             styles: const PosStyles(bold: true)),
-        // PosColumn(text: "Price", width: 2, styles: PosStyles(bold: true)),
-        // PosColumn(text: "Total", width: 2, styles: PosStyles(bold: true)),
+
       ]);
 
       // Print Products
@@ -1275,53 +1262,13 @@ class _TableOrderPageState extends State<TableOrderPage> {
         printer.row([
           PosColumn(text: product.quantity.toString(), width: 2),
           PosColumn(text: product.productName, width: 10),
-          // PosColumn(text: product.price.toStringAsFixed(2), width: 2),
-          // PosColumn(
-          //   text: (product.price * product.quantity).toStringAsFixed(2),
-          //   width: 2,
-          // ),
+
         ]);
       }
 
       printer.hr();
 
-      // Print Subtotal
-      // final subtotal =
-      //     products.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
-      // printer.row([
-      //   PosColumn(text: 'Subtotal:', width: 8),
-      //   PosColumn(
-      //     text: 'NGN ${subtotal.toStringAsFixed(2)}',
-      //     width: 4,
-      //     styles: PosStyles(align: PosAlign.right),
-      //   ),
-      // ]);
-
-      // Print VAT
-      // final vatAmount = calculateTax(subtotal, widget.tenantModel.vat / 100);
-      // printer.row([
-      //   PosColumn(text: 'VAT(${widget.tenantModel.vat}%):', width: 8),
-      //   PosColumn(
-      //     text: 'NGN ${vatAmount.toStringAsFixed(2)}',
-      //     width: 4,
-      //     styles: PosStyles(align: PosAlign.right),
-      //   ),
-      // ]);
-
-      // Print Total
-      // final total = subtotal + vatAmount;
-      // printer.row([
-      //   PosColumn(
-      //       text: 'Total:',
-      //       width: 8,
-      //       styles: PosStyles(bold: true, fontType: PosFontType.fontA)),
-      //   PosColumn(
-      //     text: 'NGN ${total.toStringAsFixed(2)}',
-      //     width: 4,
-      //     styles: PosStyles(
-      //         align: PosAlign.right, bold: true, fontType: PosFontType.fontA),
-      //   ),
-      // ]);
+      
       printer.beep();
       printer.feed(2);
 

@@ -34,7 +34,7 @@ class VoidedOrdersPage extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('Enrolled Entities')
             .doc(tenantId.trim())
-            .collection('Orders')
+            .collection('VoidedItems')
             //.where('products', arrayContains: {'isProductVoid': true})
             .where('createdAt',
                 isGreaterThanOrEqualTo: dailyStartModel.startTime)
@@ -77,7 +77,7 @@ class VoidedOrdersPage extends StatelessWidget {
                 columns: const [
                   DataColumn(
                     label: Text(
-                      'User',
+                      'Ordered By',
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
@@ -105,6 +105,11 @@ class VoidedOrdersPage extends StatelessWidget {
                       'Voided By',
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
+                  ),DataColumn(
+                    label: Text(
+                      'From Order',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ),
                   DataColumn(
                     label: Text(
@@ -118,11 +123,11 @@ class VoidedOrdersPage extends StatelessWidget {
                   final products =
                       List<Map<String, dynamic>>.from(orderData['products']);
                   return products
-                      .where((product) => product['isProductVoid'] == true)
+
                       .map((voidedProduct) {
                     return DataRow(cells: [
                       DataCell(FutureBuilder<String>(
-                        future: getUserFullName(orderData['createdBy'] ?? ''),
+                        future: getUserFullName(orderData['orderedBy'] ?? ''),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -145,7 +150,7 @@ class VoidedOrdersPage extends StatelessWidget {
                           style: const TextStyle(color: Colors.white))),
                       DataCell(Text(
                     AppUtils.formateTime(
-                    dateTime: (voidedProduct['updatedAt'] as Timestamp?)?.toDate() ??
+                    dateTime: (orderData['createdAt'] as Timestamp?)?.toDate() ??
                     DateTime.now(),
                     ),
                           style: const TextStyle(color: Colors.white))),
@@ -154,7 +159,7 @@ class VoidedOrdersPage extends StatelessWidget {
 
                       DataCell(FutureBuilder<String>(
                         future:
-                            getUserFullName(voidedProduct['voidedBy'] ?? ''),
+                            getUserFullName(orderData['voidedBy'] ?? ''),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -171,6 +176,9 @@ class VoidedOrdersPage extends StatelessWidget {
                           );
                         },
                       )),
+                      DataCell(Text((orderData['fromOrder']).toString(),
+                          style: const TextStyle(color: Colors.white))),
+
                       DataCell(Text(
                           (voidedProduct['price'] * voidedProduct['quantity'])
                               .toString(),
