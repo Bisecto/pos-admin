@@ -27,7 +27,7 @@ class OrderList extends StatelessWidget {
           .where('createdAt',
               isLessThanOrEqualTo: dailyStartModel.endTime ?? DateTime.now())
           .orderBy('createdAt', descending: true)
-          .where('products', arrayContains: {'isProductVoid': false})
+         // .where('products', arrayContains: {'isProductVoid': false})
 
           .snapshots(),
       builder: (context, snapshot) {
