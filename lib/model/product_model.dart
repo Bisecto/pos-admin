@@ -11,6 +11,7 @@ class Product {
   String productType;
   String sku;
   double price;
+  int qty;
   double discount;
   Timestamp updatedAt;
   String updatedBy;
@@ -27,6 +28,7 @@ class Product {
     required this.productName,
     required this.productType,
     required this.sku,
+    required this.qty,
     required this.updatedAt,
     required this.updatedBy,
   });
@@ -46,6 +48,7 @@ class Product {
       productName: data['productName'],
       productType: data['productType'],
       sku: data['sku'],
+      qty: data['qty']??0,
       updatedAt: data['updatedAt'],
       updatedBy: data['updatedBy'],
     );
@@ -65,6 +68,7 @@ class Product {
       'price': price,
       'discount': discount,
       'sku': sku,
+      'qty': qty,
       'updatedAt': updatedAt,
       'updatedBy': updatedBy,
     };

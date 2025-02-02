@@ -102,7 +102,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
   void _addProduct() {
     final TextEditingController skuController = TextEditingController();
     final TextEditingController nameController = TextEditingController();
-    final TextEditingController quantityController = TextEditingController();
+    final TextEditingController quantityController = TextEditingController(text: '0');
     final TextEditingController priceController =
         TextEditingController(text: '0');
     final TextEditingController discountController =
@@ -184,6 +184,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                       controller: quantityController,
                       label: 'Quantity(optional)',
                       width: 250,
+
                       hint: 'Enter qty of product',
                       textInputType: TextInputType.number,
                     ),
@@ -289,7 +290,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                       double.parse(discountController.text),
                                       _imageFile!,
                                       widget.userModel.tenantId,
-                                      selectedProductType.text,widget.userModel),
+                                      selectedProductType.text,widget.userModel,int.parse(quantityController.text)),
                                 );
                               });
                             }

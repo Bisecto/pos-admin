@@ -71,9 +71,11 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
     final TextEditingController discountController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
     final TextEditingController selectedProductType = TextEditingController();
-    selectedProductType.text=widget.productList[index].productType;
+    final TextEditingController qtyController = TextEditingController();
+    selectedProductType.text = widget.productList[index].productType;
     productNameController.text = widget.productList[index].productName;
     skuController.text = widget.productList[index].sku;
+    qtyController.text = widget.productList[index].qty.toString();
     priceController.text = widget.productList[index].price.toString();
     discountController.text = widget.productList[index].discount.toString();
 
@@ -97,7 +99,17 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                   width: 250,
                   hint: 'Enter product sku',
                 ),
-                SizedBox(
+                const SizedBox(
+                  height: 10,
+                ),
+                CustomTextFormField(
+                  controller: qtyController,
+                  label: 'Quantity',
+                  width: 250,
+                  hint: 'Enter product qty',
+                  textInputType: TextInputType.number,
+                ),
+                const SizedBox(
                   height: 10,
                 ),
                 CustomTextFormField(
@@ -106,7 +118,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                   width: 250,
                   hint: 'Enter product name',
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 DropDown(
@@ -115,7 +127,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                   selectedValue: selectedProductType.text,
                   borderRadius: 10,
                   hint: "Product Type*",
-                  items: const ['food', 'drinks','shisha'],
+                  items: const ['food', 'drinks', 'shisha'],
                   onChanged: (value) {
                     //int index = categories.indexOf(value);
                     setState(() {
@@ -124,7 +136,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                     });
                   },
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 CustomTextFormField(
@@ -172,7 +184,7 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                 //   },
                 // ),
 
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
               ],
@@ -188,81 +200,87 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
               iconWidget: Icons.clear,
               borderRadius: 20,
             ),
-            if(widget.userModel.addingEditingProductsDetails)
-
+            if (widget.userModel.addingEditingProductsDetails)
               FormButton(
-              onPressed: () {
-                String userId = FirebaseAuth.instance.currentUser!.uid;
-                if (productNameController.text.isNotEmpty) {
-                  if (double.parse(discountController.text) > 100) {
-                    MSG.warningSnackBar(
-                        context, "Discount cannot be greater than 100.");
+                onPressed: () {
+                  String userId = FirebaseAuth.instance.currentUser!.uid;
+                  if (productNameController.text.isNotEmpty) {
+                    if (double.parse(discountController.text) > 100) {
+                      MSG.warningSnackBar(
+                          context, "Discount cannot be greater than 100.");
+                    } else
+                    {
+                      Product newProduct = Product(
+                        productName: productNameController.text.toLowerCase(),
+                        updatedBy: userId,
+                        createdAt: widget.productList[index].createdAt,
+                        updatedAt: Timestamp.fromDate(DateTime.now()),
+                        productId: widget.productList[index].productId,
+                        createdBy: widget.productList[index].createdBy,
+                        categoryId: widget.productList[index].categoryId,
+                        brandId: widget.productList[index].brandId,
+                        productImageUrl:
+                            widget.productList[index].productImageUrl,
+                        price: double.parse(priceController.text.toString()),
+                        sku: skuController.text,
+                        discount: double.parse(discountController.text),
+                        productType: selectedProductType
+                            .text, qty: int.parse(qtyController.text), // widget.productList[index].productType,
+                      );
+                      FirebaseFirestore.instance
+                          .collection('Enrolled Entities')
+                          .doc(widget
+                              .userModel.tenantId)
+                          .collection('Products')
+                          .doc(widget.productList[index].productId)
+                          .update(newProduct.toFirestore());
+                      LogActivity logActivity = LogActivity();
+                      LogModel logModel = LogModel(
+                          actionType: LogActionType.productEdit.toString(),
+                          actionDescription:
+                              "${widget.userModel.fullname} edited product with Id from ${widget.productList[index]} to $newProduct",
+                          performedBy: widget.userModel.fullname,
+                          userId: widget.userModel.userId);
+                      logActivity.logAction(
+                          widget.userModel.tenantId.trim(), logModel);
+                      setState(() {
+                        widget.productList[index].productName =
+                            productNameController.text;
+                        widget.productList[index].price =
+                            double.parse(priceController.text);
+                        widget.productList[index].discount =
+                            double.parse(discountController.text);
+                        widget.productList[index].qty =
+                            int.parse(qtyController.text);
+                      });
+                      print(
+                          'Product ${widget.productList[index].productName} edited');
+                    }
                   } else {
-                    Product newProduct = Product(
-                      productName: productNameController.text.toLowerCase(),
-                      updatedBy: userId,
-                      createdAt: widget.productList[index].createdAt,
-                      updatedAt: Timestamp.fromDate(DateTime.now()),
-                      productId: widget.productList[index].productId,
-                      createdBy: widget.productList[index].createdBy,
-                      categoryId: widget.productList[index].categoryId,
-                      brandId: widget.productList[index].brandId,
-                      productImageUrl:
-                          widget.productList[index].productImageUrl,
-                      price: double.parse(priceController.text.toString()),
-                      sku: skuController.text,
-                      discount: double.parse(discountController.text),
-                      productType:selectedProductType.text,// widget.productList[index].productType,
-                    );
-                    FirebaseFirestore.instance
-                        .collection('Enrolled Entities')
-                        .doc(
-                            widget.userModel.tenantId) // Replace with tenant ID
-                        .collection('Products')
-                        .doc(widget.productList[index].productId)
-                        .update(newProduct.toFirestore());
-                    LogActivity logActivity = LogActivity();
-                    LogModel logModel = LogModel(
-                        actionType: LogActionType.productEdit.toString(),
-                        actionDescription: "${widget.userModel.fullname} edited product with Id from ${widget.productList[index]} to ${newProduct}",
-                        performedBy: widget.userModel.fullname,
-                        userId: widget.userModel.userId);
-                    logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
-                    setState(() {
-                      widget.productList[index].productName =
-                          productNameController.text;
-                      widget.productList[index].price =
-                          double.parse(priceController.text);
-                      widget.productList[index].discount =
-                          double.parse(discountController.text);
-                    });
-                    print(
-                        'Product ${widget.productList[index].productName} edited');
+                    MSG.warningSnackBar(
+                        context, "Product name cannot be empty.");
                   }
-                } else {
-                  MSG.warningSnackBar(context, "Product name cannot be empty.");
-                }
-                Navigator.of(context).pop();
-              },
-              text: "Update",
-              bgColor: AppColors.green,
-              textColor: AppColors.white,
-              width: 120,
-              iconWidget: Icons.add,
-              borderRadius: 20,
-            ),
+                  Navigator.of(context).pop();
+                },
+                text: "Update",
+                bgColor: AppColors.green,
+                textColor: AppColors.white,
+                width: 120,
+                iconWidget: Icons.add,
+                borderRadius: 20,
+              ),
           ],
         );
       },
     );
   }
 
-  void _deleteProduct(int index, String productId,String productName) {
+  void _deleteProduct(int index, String productId, String productName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Product'),
+          title: const Text('Delete Product'),
           content: Text(
               'Are you sure you want to delete ${widget.productList[index].productName}?'),
           actions: [
@@ -288,10 +306,12 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                 LogActivity logActivity = LogActivity();
                 LogModel logModel = LogModel(
                     actionType: LogActionType.systemStartStopDay.toString(),
-                    actionDescription: "${widget.userModel.fullname} deleted product with id $productId and name $productName",
+                    actionDescription:
+                        "${widget.userModel.fullname} deleted product with id $productId and name $productName",
                     performedBy: widget.userModel.fullname,
                     userId: widget.userModel.userId);
-                logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+                logActivity.logAction(
+                    widget.userModel.tenantId.trim(), logModel);
                 print('Product deleted');
                 Navigator.of(context).pop();
               },
@@ -326,8 +346,11 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                           //     label: Text('INDEX', style: TextStyle(color: Colors.white))),
                           DataColumn(
                               label: Text('PRODUCT NAME',
-                                  style: TextStyle(color: Colors.white))),DataColumn(
+                                  style: TextStyle(color: Colors.white))),
+                          DataColumn(
                               label: Text('PRODUCT TYPE',
+                                  style: TextStyle(color: Colors.white))), DataColumn(
+                              label: Text('QUANTITY',
                                   style: TextStyle(color: Colors.white))),
                           DataColumn(
                               label: Text('BRAND',
@@ -355,7 +378,14 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                             // DataCell(Text((index + 1).toString(),
                             //     style: const TextStyle(color: Colors.white))),
                             DataCell(Text(paginatedProducts[index].productName,
-                                style: const TextStyle(color: Colors.white))),DataCell(Text(paginatedProducts[index].productType.toUpperCase(),
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(
+                                paginatedProducts[index]
+                                    .productType
+                                    .toUpperCase(),
+                                style: const TextStyle(color: Colors.white))),
+                            DataCell(Text(
+                                paginatedProducts[index].qty.toString(),
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Text(
                                 _getBrandName(
@@ -379,25 +409,30 @@ class _ProductTableScreenState extends State<ProductTableScreen> {
                                 style: const TextStyle(color: Colors.white))),
                             DataCell(Row(
                               children: [
-                                if(!widget.userModel.addingEditingProductsDetails)
+                                if (!widget
+                                    .userModel.addingEditingProductsDetails)
                                   Container(),
-                                if(widget.userModel.addingEditingProductsDetails)
-
-                                  ...[IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.blue),
-                                  onPressed: () {
-                                    _editProduct(productIndex);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red),
-                                  onPressed: () {
-                                    _deleteProduct(productIndex,
-                                        paginatedProducts[index].productId,paginatedProducts[index].productName,);
-                                  },
-                                ),]
+                                if (widget.userModel
+                                    .addingEditingProductsDetails) ...[
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.blue),
+                                    onPressed: () {
+                                      _editProduct(productIndex);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      _deleteProduct(
+                                        productIndex,
+                                        paginatedProducts[index].productId,
+                                        paginatedProducts[index].productName,
+                                      );
+                                    },
+                                  ),
+                                ]
                               ],
                             )),
                           ]);

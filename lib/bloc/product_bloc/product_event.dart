@@ -21,6 +21,7 @@ class AddProductEvent extends ProductEvent {
   final File imageFile;
   final String productType;
   final UserModel userModel;
+  final int qty;
 
   AddProductEvent(
       this.productName,
@@ -31,7 +32,7 @@ class AddProductEvent extends ProductEvent {
       this.discount,
       this.imageFile,
       this.tenantId,
-      this.productType, this.userModel);
+      this.productType, this.userModel, this.qty);
 }
 
 class DeleteProductEvent extends ProductEvent {

@@ -96,7 +96,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         sku: event.sku,
         //productType:event.productType,
         discount: event.discount,
-        productType: event.productType,
+        productType: event.productType, qty: event.qty,
       );
 
       await collection.doc(generatedId).set(newProduct.toFirestore());
