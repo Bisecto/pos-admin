@@ -553,7 +553,28 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       MSG.warningSnackBar(context, 'Failed to fetch order details.');
     }
   }
+  Future<void> restoreProductQuantities(Map<OrderProduct, int> productsToRestore) async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
 
+    productsToRestore.forEach((product, qtyToRestore) {
+      DocumentReference productRef = FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.tenantId)
+          .collection('Products')
+          .doc(product.productId);
+
+      batch.update(productRef, {
+        'qty': FieldValue.increment(qtyToRestore), // Add back the quantity
+      });
+    });
+
+    try {
+      await batch.commit();
+      print('Product quantities restored successfully.');
+    } catch (e) {
+      print('Failed to restore product quantities: $e');
+    }
+  }
   Future<void> updateOrderStatus(
       String status, orderId, tableId, createdBy, previousStatusIndex) async {
     final orderRef = FirebaseFirestore.instance
@@ -564,42 +585,33 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
 
     int statusIndex = statusOptions.indexOf(status);
     await orderRef.update({'status': statusIndex});
+
     if (previousStatusIndex == 4) {
       MSG.warningSnackBar(context,
           'Status is already canceled and its status cannot be changed');
       Navigator.pop(context);
       return;
-    } else if (statusIndex == 1) {
-      DocumentSnapshot<Map<String, dynamic>> docSnapshot =
-          await FirebaseFirestore.instance
-              .collection('Enrolled Entities')
-              .doc(widget.tenantId.trim())
-              .collection('Tables')
-              .doc(tableId)
-              .get();
+    }
 
-      //if (docSnapshot.exists) {
-      // Parse the document data into a TableModel
-      // Map<String, dynamic> data = docSnapshot.data()!;
+    if (statusIndex == 1) {
+      // Order is now active, update table activity
+      DocumentSnapshot<Map<String, dynamic>> docSnapshot =
+      await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.tenantId.trim())
+          .collection('Tables')
+          .doc(tableId)
+          .get();
+
       TableModel retrievedTableModel = TableModel.fromFirestore(docSnapshot);
       DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
-          await FirebaseFirestore.instance
-              .collection('Users')
-              .doc(createdBy.trim())
-              .get();
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(createdBy.trim())
+          .get();
 
-      //if (docSnapshot.exists) {
-      // Parse the document data into a TableModel
-      // Map<String, dynamic> data = docSnapshot.data()!;
       UserModel userModel = UserModel.fromFirestore(userDocSnapshot);
-      print(userModel.tenantId);
-      print(userModel.tenantId);
-      print(userModel.tenantId);
-      print(userModel.tenantId);
-      print(userModel.tenantId);
 
-      // return tableModel;
-      //}
       final tableModel = TableModel(
         activity: ActivityModel(
           attendantId: userModel.userId,
@@ -621,20 +633,17 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           .doc(retrievedTableModel.tableId)
           .update(tableModel.toFirestore());
     } else if (statusIndex == 4) {
+      // Order is being canceled, restore product quantities
       DocumentSnapshot<Map<String, dynamic>> docSnapshot =
-          await FirebaseFirestore.instance
-              .collection('Enrolled Entities')
-              .doc(widget.tenantId.trim())
-              .collection('Tables')
-              .doc(tableId)
-              .get();
+      await FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.tenantId.trim())
+          .collection('Tables')
+          .doc(tableId)
+          .get();
 
-      //if (docSnapshot.exists) {
-      // Parse the document data into a TableModel
-      // Map<String, dynamic> data = docSnapshot.data()!;
       TableModel retrievedTableModel = TableModel.fromFirestore(docSnapshot);
 
-      //}
       final tableModel = TableModel(
         activity: ActivityModel(
           attendantId: '',
@@ -656,53 +665,216 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           .doc(retrievedTableModel.tableId)
           .update(tableModel.toFirestore());
 
-      final DocumentSnapshot<Map<String, dynamic>> orderSnapshot =
-          await orderRef.get();
-
-      //OrderModel orderModel=OrderModel.fromFirestore(orderSnapshot.);
-      print(orderSnapshot);
+      // Fetch the order to restore product quantities
+      DocumentSnapshot<Map<String, dynamic>> orderSnapshot = await orderRef.get();
       Map<String, dynamic>? orderData = orderSnapshot.data();
-      print(orderData!['products']);
-      OrderModel orderModel = OrderModel.fromFirestore(orderData);
-      orderModel.products.removeWhere((product) => product.isProductVoid);
-      print(orderModel.products);
-      VoidedProductsActivity voidedProductsActivity = VoidedProductsActivity();
-      VoidModel voidModel = VoidModel(
-        voidedBy: widget.userModel.userId,
-        orderedBy: orderData['createdBy'],
-        fromOrder: orderId,
-        products: orderModel.products,
-      );
-      setState(() {
-        //orderProducts = allOrderProducts;
-        foodProducts = orderModel.products
-            .where((orderProduct) =>
-                orderProduct.productType.toLowerCase() == 'food')
-            .toList();
-        drinksProducts = orderModel.products
-            .where((orderProduct) =>
-                orderProduct.productType.toLowerCase() == 'drinks')
-            .toList();
-        shishaProducts = orderModel.products
-            .where((orderProduct) =>
-                orderProduct.productType.toLowerCase() == 'shisha')
-            .toList();
-      });
-      _printDockets(orderModel.orderId);
-      voidedProductsActivity.voidAction(
-          widget.userModel.tenantId.trim(), voidModel);
+
+      if (orderData != null) {
+        OrderModel orderModel = OrderModel.fromFirestore(orderData);
+
+        // Filter out voided products, only restore valid ones
+        Map<OrderProduct, int> productsToRestore = {};
+        for (var product in orderModel.products) {
+          if (!product.isProductVoid) {
+            productsToRestore[product] = product.quantity; // Restore full quantity
+          }
+        }
+
+        // Restore product quantities in Firestore
+        await restoreProductQuantities(productsToRestore);
+
+        // Handle voided products separately
+        VoidedProductsActivity voidedProductsActivity = VoidedProductsActivity();
+        VoidModel voidModel = VoidModel(
+          voidedBy: widget.userModel.userId,
+          orderedBy: orderData['createdBy'],
+          fromOrder: orderId,
+          products: orderModel.products,
+        );
+
+        setState(() {
+          foodProducts = orderModel.products
+              .where((orderProduct) =>
+          orderProduct.productType.toLowerCase() == 'food')
+              .toList();
+          drinksProducts = orderModel.products
+              .where((orderProduct) =>
+          orderProduct.productType.toLowerCase() == 'drinks')
+              .toList();
+          shishaProducts = orderModel.products
+              .where((orderProduct) =>
+          orderProduct.productType.toLowerCase() == 'shisha')
+              .toList();
+        });
+
+        _printDockets(orderModel.orderId);
+        voidedProductsActivity.voidAction(
+            widget.userModel.tenantId.trim(), voidModel);
+      }
     }
 
+    // Log the status change
     LogActivity logActivity = LogActivity();
     LogModel logModel = LogModel(
         actionType: LogActionType.orderStatusChange.toString(),
         actionDescription:
-            "${widget.userModel.fullname} change the order status of order Id $orderId to $status",
+        "${widget.userModel.fullname} changed the order status of order ID $orderId to $status",
         performedBy: widget.userModel.fullname,
         userId: widget.userModel.userId);
     logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+
     Navigator.pop(context);
   }
+
+  // Future<void> updateOrderStatus(
+  //     String status, orderId, tableId, createdBy, previousStatusIndex) async {
+  //   final orderRef = FirebaseFirestore.instance
+  //       .collection('Enrolled Entities')
+  //       .doc(widget.tenantId)
+  //       .collection('Orders')
+  //       .doc(orderId);
+  //
+  //   int statusIndex = statusOptions.indexOf(status);
+  //   await orderRef.update({'status': statusIndex});
+  //   if (previousStatusIndex == 4) {
+  //     MSG.warningSnackBar(context,
+  //         'Status is already canceled and its status cannot be changed');
+  //     Navigator.pop(context);
+  //     return;
+  //   } else if (statusIndex == 1) {
+  //     DocumentSnapshot<Map<String, dynamic>> docSnapshot =
+  //         await FirebaseFirestore.instance
+  //             .collection('Enrolled Entities')
+  //             .doc(widget.tenantId.trim())
+  //             .collection('Tables')
+  //             .doc(tableId)
+  //             .get();
+  //
+  //     //if (docSnapshot.exists) {
+  //     // Parse the document data into a TableModel
+  //     // Map<String, dynamic> data = docSnapshot.data()!;
+  //     TableModel retrievedTableModel = TableModel.fromFirestore(docSnapshot);
+  //     DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
+  //         await FirebaseFirestore.instance
+  //             .collection('Users')
+  //             .doc(createdBy.trim())
+  //             .get();
+  //
+  //     //if (docSnapshot.exists) {
+  //     // Parse the document data into a TableModel
+  //     // Map<String, dynamic> data = docSnapshot.data()!;
+  //     UserModel userModel = UserModel.fromFirestore(userDocSnapshot);
+  //     print(userModel.tenantId);
+  //     print(userModel.tenantId);
+  //     print(userModel.tenantId);
+  //     print(userModel.tenantId);
+  //     print(userModel.tenantId);
+  //
+  //     // return tableModel;
+  //     //}
+  //     final tableModel = TableModel(
+  //       activity: ActivityModel(
+  //         attendantId: userModel.userId,
+  //         attendantName: userModel.fullname,
+  //         isActive: true,
+  //         currentOrderId: orderId,
+  //         isMerged: true,
+  //       ),
+  //       tableId: retrievedTableModel.tableId,
+  //       tableName: retrievedTableModel.tableName,
+  //       createdAt: retrievedTableModel.createdAt,
+  //       updatedAt: Timestamp.now(),
+  //     );
+  //
+  //     await FirebaseFirestore.instance
+  //         .collection('Enrolled Entities')
+  //         .doc(widget.tenantId)
+  //         .collection('Tables')
+  //         .doc(retrievedTableModel.tableId)
+  //         .update(tableModel.toFirestore());
+  //   } else if (statusIndex == 4) {
+  //     DocumentSnapshot<Map<String, dynamic>> docSnapshot =
+  //         await FirebaseFirestore.instance
+  //             .collection('Enrolled Entities')
+  //             .doc(widget.tenantId.trim())
+  //             .collection('Tables')
+  //             .doc(tableId)
+  //             .get();
+  //
+  //     //if (docSnapshot.exists) {
+  //     // Parse the document data into a TableModel
+  //     // Map<String, dynamic> data = docSnapshot.data()!;
+  //     TableModel retrievedTableModel = TableModel.fromFirestore(docSnapshot);
+  //
+  //     //}
+  //     final tableModel = TableModel(
+  //       activity: ActivityModel(
+  //         attendantId: '',
+  //         attendantName: '',
+  //         isActive: false,
+  //         currentOrderId: '',
+  //         isMerged: false,
+  //       ),
+  //       tableId: retrievedTableModel.tableId,
+  //       tableName: retrievedTableModel.tableName,
+  //       createdAt: retrievedTableModel.createdAt,
+  //       updatedAt: Timestamp.now(),
+  //     );
+  //
+  //     await FirebaseFirestore.instance
+  //         .collection('Enrolled Entities')
+  //         .doc(widget.tenantId)
+  //         .collection('Tables')
+  //         .doc(retrievedTableModel.tableId)
+  //         .update(tableModel.toFirestore());
+  //
+  //     final DocumentSnapshot<Map<String, dynamic>> orderSnapshot =
+  //         await orderRef.get();
+  //
+  //     //OrderModel orderModel=OrderModel.fromFirestore(orderSnapshot.);
+  //     print(orderSnapshot);
+  //     Map<String, dynamic>? orderData = orderSnapshot.data();
+  //     print(orderData!['products']);
+  //     OrderModel orderModel = OrderModel.fromFirestore(orderData);
+  //     orderModel.products.removeWhere((product) => product.isProductVoid);
+  //     print(orderModel.products);
+  //     VoidedProductsActivity voidedProductsActivity = VoidedProductsActivity();
+  //     VoidModel voidModel = VoidModel(
+  //       voidedBy: widget.userModel.userId,
+  //       orderedBy: orderData['createdBy'],
+  //       fromOrder: orderId,
+  //       products: orderModel.products,
+  //     );
+  //     setState(() {
+  //       //orderProducts = allOrderProducts;
+  //       foodProducts = orderModel.products
+  //           .where((orderProduct) =>
+  //               orderProduct.productType.toLowerCase() == 'food')
+  //           .toList();
+  //       drinksProducts = orderModel.products
+  //           .where((orderProduct) =>
+  //               orderProduct.productType.toLowerCase() == 'drinks')
+  //           .toList();
+  //       shishaProducts = orderModel.products
+  //           .where((orderProduct) =>
+  //               orderProduct.productType.toLowerCase() == 'shisha')
+  //           .toList();
+  //     });
+  //     _printDockets(orderModel.orderId);
+  //     voidedProductsActivity.voidAction(
+  //         widget.userModel.tenantId.trim(), voidModel);
+  //   }
+  //
+  //   LogActivity logActivity = LogActivity();
+  //   LogModel logModel = LogModel(
+  //       actionType: LogActionType.orderStatusChange.toString(),
+  //       actionDescription:
+  //           "${widget.userModel.fullname} change the order status of order Id $orderId to $status",
+  //       performedBy: widget.userModel.fullname,
+  //       userId: widget.userModel.userId);
+  //   logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+  //   Navigator.pop(context);
+  // }
 
   // Calculate total order price
   double calculateTotalOrderPrice() {

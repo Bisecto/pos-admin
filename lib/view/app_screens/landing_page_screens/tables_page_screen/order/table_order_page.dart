@@ -555,6 +555,35 @@ class _TableOrderPageState extends State<TableOrderPage> {
     }
   }
 
+  Future<void> updateProductQuantities(
+      Map<OrderProduct, int> orderedProducts) async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    // Iterate through each product and its ordered quantity
+    orderedProducts.forEach((product, orderedQuantity) {
+      // Reference to the product document in Firestore
+      DocumentReference productRef = FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(widget.userModel.tenantId.trim())
+          .collection('Products')
+          .doc(product.productId);
+
+      // Update the 'qty' field by decrementing the ordered quantity
+      batch.update(productRef, {
+        'qty': FieldValue.increment(orderedQuantity),
+      });
+    });
+
+    try {
+      // Commit the batch update to Firestore
+      await batch.commit();
+      print('Product quantities updated successfully.');
+    } catch (e) {
+      print('Failed to update product quantities: $e');
+      MSG.snackBar(context, 'Error updating quantities.');
+    }
+  }
+
   Future<void> voidProductInOrder(
       OrderProduct productToVoid, orderId, bool isAll) async {
     print('Product to void: ${productToVoid.productId}');
@@ -578,6 +607,10 @@ class _TableOrderPageState extends State<TableOrderPage> {
       // Retrieve the current list of products
       List<dynamic> products = List.from(orderData['products']);
       print(products);
+
+      // Map to store voided products and their quantities
+      Map<OrderProduct, int> voidedProductsWithQuantities = {};
+
       // Find and update the specific product
       bool productFound = false;
       for (var product in products) {
@@ -586,6 +619,10 @@ class _TableOrderPageState extends State<TableOrderPage> {
           product['voidedBy'] = widget.userModel.userId;
           product['updatedAt'] = Timestamp.now();
           productFound = true;
+
+          // Track the voided product and its ordered quantity
+          voidedProductsWithQuantities[productToVoid] = product['quantity'];
+
           break; // Exit loop once product is updated
         }
       }
@@ -593,6 +630,11 @@ class _TableOrderPageState extends State<TableOrderPage> {
       if (productFound) {
         // Update the order with the modified list
         await ordersRef.doc(orderDoc.id).update({'products': products});
+
+        // Call the updateProductQuantities method to update the quantities
+        await updateProductQuantities(voidedProductsWithQuantities);
+
+        // Voided products activity
         VoidedProductsActivity voidedProductsActivity =
             VoidedProductsActivity();
         VoidModel voidModel = VoidModel(
@@ -600,8 +642,9 @@ class _TableOrderPageState extends State<TableOrderPage> {
             orderedBy: orderData['createdBy'],
             fromOrder: orderData['orderId'],
             products: [productToVoid]);
+
         setState(() {
-          //orderProducts = allOrderProducts;
+          // Filter products by type
           foodProducts = [productToVoid]
               .where((orderProduct) =>
                   orderProduct.productType.toLowerCase() == 'food')
@@ -615,10 +658,14 @@ class _TableOrderPageState extends State<TableOrderPage> {
                   orderProduct.productType.toLowerCase() == 'shisha')
               .toList();
         });
+
+        // Print dockets
         _printDockets(orderData['orderId']);
 
+        // Log voided product action
         voidedProductsActivity.voidAction(
             widget.userModel.tenantId.trim(), voidModel);
+
         // Log the action
         LogActivity logActivity = LogActivity();
         LogModel logModel = LogModel(
@@ -643,6 +690,95 @@ class _TableOrderPageState extends State<TableOrderPage> {
       MSG.snackBar(context, 'No matching order found to update.');
     }
   }
+
+  // Future<void> voidProductInOrder(
+  //     OrderProduct productToVoid, orderId, bool isAll) async {
+  //   print('Product to void: ${productToVoid.productId}');
+  //
+  //   final ordersRef = FirebaseFirestore.instance
+  //       .collection('Enrolled Entities')
+  //       .doc(widget.userModel.tenantId.trim())
+  //       .collection('Orders');
+  //
+  //   // Query the specific order
+  //   final querySnapshot = await ordersRef
+  //       .where('orderId', isEqualTo: orderId)
+  //       .where('status', isEqualTo: OrderStatus.booked.index)
+  //       .get();
+  //
+  //   if (querySnapshot.docs.isNotEmpty) {
+  //     // Get the first ongoing order
+  //     final orderDoc = querySnapshot.docs.first;
+  //     final orderData = orderDoc.data();
+  //
+  //     // Retrieve the current list of products
+  //     List<dynamic> products = List.from(orderData['products']);
+  //     print(products);
+  //     // Find and update the specific product
+  //     bool productFound = false;
+  //     for (var product in products) {
+  //       if (product['productId'] == productToVoid.productId) {
+  //         product['isProductVoid'] = isAll;
+  //         product['voidedBy'] = widget.userModel.userId;
+  //         product['updatedAt'] = Timestamp.now();
+  //         productFound = true;
+  //         break; // Exit loop once product is updated
+  //       }
+  //     }
+  //
+  //     if (productFound) {
+  //       // Update the order with the modified list
+  //       await ordersRef.doc(orderDoc.id).update({'products': products});
+  //       VoidedProductsActivity voidedProductsActivity =
+  //           VoidedProductsActivity();
+  //       VoidModel voidModel = VoidModel(
+  //           voidedBy: widget.userModel.userId,
+  //           orderedBy: orderData['createdBy'],
+  //           fromOrder: orderData['orderId'],
+  //           products: [productToVoid]);
+  //       setState(() {
+  //         //orderProducts = allOrderProducts;
+  //         foodProducts = [productToVoid]
+  //             .where((orderProduct) =>
+  //                 orderProduct.productType.toLowerCase() == 'food')
+  //             .toList();
+  //         drinksProducts = [productToVoid]
+  //             .where((orderProduct) =>
+  //                 orderProduct.productType.toLowerCase() == 'drinks')
+  //             .toList();
+  //         shishaProducts = [productToVoid]
+  //             .where((orderProduct) =>
+  //                 orderProduct.productType.toLowerCase() == 'shisha')
+  //             .toList();
+  //       });
+  //       _printDockets(orderData['orderId']);
+  //
+  //       voidedProductsActivity.voidAction(
+  //           widget.userModel.tenantId.trim(), voidModel);
+  //       // Log the action
+  //       LogActivity logActivity = LogActivity();
+  //       LogModel logModel = LogModel(
+  //         actionType: LogActionType.orderVoid.toString(),
+  //         actionDescription:
+  //             "${widget.userModel.fullname} voided product '${productToVoid.productName}' in order '${orderDoc.id}'",
+  //         performedBy: widget.userModel.fullname,
+  //         userId: widget.userModel.userId,
+  //       );
+  //       logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+  //
+  //       // Notify user
+  //       Navigator.pop(context);
+  //       Navigator.pop(context);
+  //       MSG.snackBar(context, 'Product voided successfully.');
+  //     } else {
+  //       print('Product not found in the order.');
+  //       MSG.snackBar(context, 'Product not found in the order.');
+  //     }
+  //   } else {
+  //     print('No matching order found to update.');
+  //     MSG.snackBar(context, 'No matching order found to update.');
+  //   }
+  // }
 
   Stream<List<OrderModel>> streamOrdersByOrderNo() {
     return FirebaseFirestore.instance
