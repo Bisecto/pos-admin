@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../model/user_model.dart';
+import '../../../../widgets/app_custom_text.dart';
 import 'complete_analytics.dart';
 
 class DailyStartHorizontalList extends StatelessWidget {
@@ -17,7 +18,8 @@ class DailyStartHorizontalList extends StatelessWidget {
 
   const DailyStartHorizontalList({
     Key? key,
-    required this.dailyStartModel, required this.userModel,
+    required this.dailyStartModel,
+    required this.userModel,
   }) : super(key: key);
 
   Future<Map<String, UserModel?>> fetchUserDetailsSeparately(
@@ -121,12 +123,12 @@ class DailyStartHorizontalList extends StatelessWidget {
                       accountStatus: false);
 
               Widget infoText(String label, String? value) {
-                return Text(
-                  "$label: ${value ?? 'N/A'}",
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                return CustomText(
+                  text: "$label: ${value ?? 'N/A'}",
+                  //style: const TextStyle(
+                  color: Colors.white70,
+                  size: 13,
+                  //),
                 );
               }
 
@@ -146,7 +148,8 @@ class DailyStartHorizontalList extends StatelessWidget {
                         child: CompleteAnalytics(
                           startedUser: startedByUser!,
                           endeduser: endedByUser!,
-                          dailyStartModel: dailyStart, userModel: userModel,
+                          dailyStartModel: dailyStart,
+                          userModel: userModel,
                         ),
                       );
                     },
@@ -175,7 +178,7 @@ class DailyStartHorizontalList extends StatelessWidget {
                         "Started By: ${startedByUser?.fullname ?? 'N/A'}",
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -200,7 +203,7 @@ class DailyStartHorizontalList extends StatelessWidget {
                           color: dailyStart.status.toLowerCase() == 'active'
                               ? AppColors.green
                               : AppColors.red,
-                          fontSize: 14,
+                          fontSize: 13,
                         ),
                       ),
                     ],
