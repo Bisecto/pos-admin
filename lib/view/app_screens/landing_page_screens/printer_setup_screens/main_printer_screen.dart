@@ -62,6 +62,9 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
   }
 
   void _addPrinter() {
+    bool isPrinterUsb =
+        false; // Keep this inside the function to avoid resetting global state
+
     final TextEditingController printerNameController = TextEditingController();
     final TextEditingController printerPortController = TextEditingController();
     final TextEditingController printerIpController = TextEditingController();
@@ -69,90 +72,114 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: TextStyles.textHeadings(
-              textValue: 'Add New Printer',
-              textSize: 20,
-              textColor: AppColors.white),
-          backgroundColor: AppColors.darkModeBackgroundContainerColor,
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                CustomTextFormField(
-                  controller: printerNameController,
-                  label: 'Printer Name',
-                  width: 250,
-                  hint: 'Enter printer name',
+        return StatefulBuilder(
+          // Add StatefulBuilder to manage state inside the dialog
+          builder: (context, setState) {
+            return AlertDialog(
+              title: TextStyles.textHeadings(
+                  textValue: 'Add New Printer',
+                  textSize: 20,
+                  textColor: AppColors.white),
+              backgroundColor: AppColors.darkModeBackgroundContainerColor,
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    CustomTextFormField(
+                      controller: printerNameController,
+                      label: 'Printer Name',
+                      width: 250,
+                      hint: 'Enter printer name',
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: CustomText(
+                            text: 'Is Printer USB?',
+                            size: 15,
+                            color: AppColors.white,
+                            weight: FontWeight.bold,
+                          ),
+                        ),
+                        Switch(
+                          value: isPrinterUsb,
+                          onChanged: (value) {
+                            setState(() {
+                              // This setState is from StatefulBuilder, not the main widget
+                              isPrinterUsb = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    CustomTextFormField(
+                      controller: printerIpController,
+                      label: isPrinterUsb ? 'Printer VendorId' : 'Printer IP',
+                      width: 250,
+                      hint: isPrinterUsb
+                          ? 'Enter printer VendorId'
+                          : 'Enter printer IP address',
+                    ),
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: printerPortController,
+                      label:
+                          isPrinterUsb ? 'Printer ProductId' : 'Printer Port',
+                      width: 250,
+                      textInputType: TextInputType.number,
+                      hint: isPrinterUsb
+                          ? 'Enter printer ProductId'
+                          : 'Enter printer port',
+                    ),
+                    SizedBox(height: 10),
+                  ],
                 ),
-                SizedBox(
-                  height: 10,
+              ),
+              actions: [
+                FormButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  bgColor: AppColors.red,
+                  textColor: AppColors.white,
+                  width: 120,
+                  text: "Discard",
+                  iconWidget: Icons.clear,
+                  borderRadius: 20,
                 ),
-                CustomTextFormField(
-                  controller: printerIpController,
-                  label: 'Printer IP',
-                  width: 250,
-                  hint: 'Enter printer ip address',
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomTextFormField(
-                  controller: printerPortController,
-                  label: 'Printer Port',
-                  width: 250,
-                  textInputType: TextInputType.number,
-                  hint: 'Enter printer port',
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            FormButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              bgColor: AppColors.red,
-              textColor: AppColors.white,
-              width: 120,
-              text: "Discard",
-              iconWidget: Icons.clear,
-              borderRadius: 20,
-            ),
-            FormButton(
-              onPressed: () {
-                if (printerNameController.text.isNotEmpty) {
-                  if (printerIpController.text.isNotEmpty) {
-                    if (printerPortController.text.isNotEmpty) {
+                FormButton(
+                  onPressed: () {
+                    if (printerNameController.text.isNotEmpty &&
+                        printerIpController.text.isNotEmpty &&
+                        printerPortController.text.isNotEmpty) {
                       printerBloc.add(AddPrinterEvent(
-                          printerNameController.text.trim(),
-                          widget.userModel.tenantId,
-                          printerIpController.text,
-                          int.parse(printerPortController.text),
-                          'thermal',widget.userModel));
+                        printerNameController.text.trim(),
+                        widget.userModel.tenantId,
+                        printerIpController.text,
+                        int.parse(printerPortController.text),
+                        'thermal',
+                        isPrinterUsb,
+                        // Now correctly passes the updated value
+                        widget.userModel,
+                      ));
+                      Navigator.of(context).pop();
                     } else {
                       MSG.warningSnackBar(
-                          context, "Printer port cannot be empty.");
+                          context, "All fields must be filled.");
                     }
-                  } else {
-                    MSG.warningSnackBar(
-                        context, "Printer ip address cannot be empty.");
-                  }
-                } else {
-                  MSG.warningSnackBar(context, "Printer name cannot be empty.");
-                }
-                Navigator.of(context).pop();
-              },
-              text: "Add",
-              iconWidget: Icons.add,
-              bgColor: AppColors.green,
-              textColor: AppColors.white,
-              width: 120,
-              borderRadius: 20,
-            )
-          ],
+                  },
+                  text: "Add",
+                  iconWidget: Icons.add,
+                  bgColor: AppColors.green,
+                  textColor: AppColors.white,
+                  width: 120,
+                  borderRadius: 20,
+                )
+              ],
+            );
+          },
         );
       },
     );
@@ -240,40 +267,71 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                                   ],
                                 ),
                               ),
-                              if(widget.userModel.addingEditingPrinters)
-
+                              if (widget.userModel.addingEditingPrinters) ...[
                                 Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _addPrinter();
-                                  },
-                                  child: Container(
-                                    width: 150,
-                                    height: 45,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: AppColors.darkYellow,
+                                  padding: const EdgeInsets.only(top: 20.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      printerBloc.add(GetPrinterEvent(widget.userModel.tenantId));
+                                    },
+                                    child: Container(
+                                      width: 150,
+                                      height: 45,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: AppColors.darkYellow,
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(0.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.refresh,
+                                                color: AppColors.white),
+                                            CustomText(
+                                              text: "  Refresh",
+                                              size: 18,
+                                              color: AppColors.white,
+                                            )
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(0.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.add,
-                                              color: AppColors.white),
-                                          CustomText(
-                                            text: "  Printer",
-                                            size: 18,
-                                            color: AppColors.white,
-                                          )
-                                        ],
+                                  ),
+                                ) ,  SizedBox(width: 50,)    ,                         Padding(
+                                  padding: const EdgeInsets.only(top: 20.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _addPrinter();
+                                    },
+                                    child: Container(
+                                      width: 150,
+                                      height: 45,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: AppColors.darkYellow,
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(0.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.add,
+                                                color: AppColors.white),
+                                            CustomText(
+                                              text: "  Printer",
+                                              size: 18,
+                                              color: AppColors.white,
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
+                              ]
                             ],
                           ),
                           const SizedBox(height: 20),

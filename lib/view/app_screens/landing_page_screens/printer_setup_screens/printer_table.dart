@@ -59,118 +59,150 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
     final TextEditingController printerNameController = TextEditingController();
     final TextEditingController printerPortController = TextEditingController();
     final TextEditingController printerIpController = TextEditingController();
+
+    // Initialize controllers with existing printer data
     printerPortController.text = widget.printerList[index].port.toString();
     printerIpController.text = widget.printerList[index].ip.toString();
     printerNameController.text = widget.printerList[index].printerName;
+
+    bool isPrinterUsb = widget.printerList[index].isPrinterUsb; // Local state for USB switch
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: TextStyles.textHeadings(
-              textValue: 'Edit Printer',
-              textSize: 20,
-              textColor: AppColors.white),
-          backgroundColor: AppColors.darkModeBackgroundContainerColor,
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                CustomTextFormField(
-                  controller: printerNameController,
-                  label: 'Printer Name',
-                  width: 250,
-                  hint: 'Enter printer name',
+        return StatefulBuilder( // Use StatefulBuilder to maintain dialog state
+          builder: (context, setState) {
+            return AlertDialog(
+              title: TextStyles.textHeadings(
+                textValue: 'Edit Printer',
+                textSize: 20,
+                textColor: AppColors.white,
+              ),
+              backgroundColor: AppColors.darkModeBackgroundContainerColor,
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    CustomTextFormField(
+                      controller: printerNameController,
+                      label: 'Printer Name',
+                      width: 250,
+                      hint: 'Enter printer name',
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: CustomText(
+                            text: 'Is Printer USB?',
+                            size: 15,
+                            color: AppColors.white,
+                            weight: FontWeight.bold,
+                          ),
+                        ),
+                        Switch(
+                          value: isPrinterUsb,
+                          onChanged: (value) {
+                            setState(() { // This updates the local dialog state
+                              isPrinterUsb = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    CustomTextFormField(
+                      controller: printerIpController,
+                      label: isPrinterUsb ? 'Printer VendorId' : 'Printer IP',
+                      width: 250,
+                      hint: isPrinterUsb ? 'Enter printer VendorId' : 'Enter printer IP address',
+                    ),
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: printerPortController,
+                      label: isPrinterUsb ? 'Printer ProductId' : 'Printer Port',
+                      width: 250,
+                      textInputType: TextInputType.number,
+                      hint: isPrinterUsb ? 'Enter printer ProductId' : 'Enter printer port',
+                    ),
+                    SizedBox(height: 10),
+                  ],
                 ),
-                SizedBox(
-                  height: 10,
+              ),
+              actions: [
+                FormButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  bgColor: AppColors.red,
+                  textColor: AppColors.white,
+                  width: 120,
+                  text: "Discard",
+                  iconWidget: Icons.clear,
+                  borderRadius: 20,
                 ),
-                CustomTextFormField(
-                  controller: printerIpController,
-                  label: 'Printer IP',
-                  width: 250,
-                  hint: 'Enter printer ip address',
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomTextFormField(
-                  controller: printerPortController,
-                  label: 'Printer Port',
-                  width: 250,
-                  textInputType: TextInputType.number,
-                  hint: 'Enter printer port',
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            FormButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              bgColor: AppColors.red,
-              textColor: AppColors.white,
-              width: 120,
-              text: "Discard",
-              iconWidget: Icons.clear,
-              borderRadius: 20,
-            ),
-            FormButton(
-              onPressed: () {
-                String? userId = FirebaseAuth.instance.currentUser!.uid;
+                FormButton(
+                  onPressed: () {
+                    String? userId = FirebaseAuth.instance.currentUser!.uid;
 
-                if (printerNameController.text.isNotEmpty) {
-                  PrinterModel newPrinter = PrinterModel(
-                    printerName: printerNameController.text,
-                    updatedBy: userId,
-                    createdAt: widget.printerList[index].createdAt,
-                    updatedAt: Timestamp.fromDate(DateTime.now()),
-                    printerId: widget.printerList[index].printerId,
-                    createdBy: widget.printerList[index].createdBy,
-                    ip: printerIpController.text,
-                    port: int.parse(printerPortController.text),
-                    type: widget.printerList[index].type,
-                  );
-                  FirebaseFirestore.instance
-                      .collection('Enrolled Entities')
-                      .doc(widget
-                          .userModel.tenantId) // Replace with the tenant ID
-                      .collection('Printer')
-                      .doc(widget.printerList[index].printerId)
-                      .update(newPrinter.toFirestore());
-                  LogActivity logActivity = LogActivity();
-                  LogModel logModel = LogModel(
-                      actionType: LogActionType.printerEdit.toString(),
-                      actionDescription:
-                          "${widget.userModel.fullname} changed the pinter details from ${widget.printerList[index]} to ${newPrinter} ",
-                      performedBy: widget.userModel.fullname,
-                      userId: widget.userModel.userId);
-                  logActivity.logAction(
-                      widget.userModel.tenantId.trim(), logModel);
-                  setState(() {
-                    widget.printerList[index].printerName =
-                        printerNameController.text;
-                    widget.printerList[index].port =
-                        int.parse(printerPortController.text);
-                    widget.printerList[index].ip = printerIpController.text;
-                  });
-                  print(
-                      'Printer ${widget.printerList[index].printerName} edited');
-                } else {
-                  MSG.warningSnackBar(context, "Printer name cannot be empty.");
-                }
-                Navigator.of(context).pop();
-              },
-              text: "Update",
-              iconWidget: Icons.add,
-              bgColor: AppColors.green,
-              textColor: AppColors.white,
-              width: 120,
-              borderRadius: 20,
-            )
-          ],
+                    if (printerNameController.text.isNotEmpty) {
+                      PrinterModel newPrinter = PrinterModel(
+                        printerName: printerNameController.text,
+                        updatedBy: userId,
+                        createdAt: widget.printerList[index].createdAt,
+                        updatedAt: Timestamp.fromDate(DateTime.now()),
+                        printerId: widget.printerList[index].printerId,
+                        createdBy: widget.printerList[index].createdBy,
+                        ip: printerIpController.text,
+                        port: int.parse(printerPortController.text),
+                        type: widget.printerList[index].type,
+                        isPrinterUsb: isPrinterUsb, // Now correctly updates USB status
+                      );
+
+                      // Update Firestore
+                      FirebaseFirestore.instance
+                          .collection('Enrolled Entities')
+                          .doc(widget.userModel.tenantId) // Tenant ID
+                          .collection('Printer')
+                          .doc(widget.printerList[index].printerId)
+                          .update(newPrinter.toFirestore());
+
+                      // Log the action
+                      LogActivity logActivity = LogActivity();
+                      LogModel logModel = LogModel(
+                        actionType: LogActionType.printerEdit.toString(),
+                        actionDescription:
+                        "${widget.userModel.fullname} changed the printer details from ${widget.printerList[index]} to ${newPrinter} ",
+                        performedBy: widget.userModel.fullname,
+                        userId: widget.userModel.userId,
+                      );
+                      logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
+
+                      // Update UI
+                      setState(() {
+                        widget.printerList[index].printerName = printerNameController.text;
+                        widget.printerList[index].port = int.parse(printerPortController.text);
+                        widget.printerList[index].ip = printerIpController.text;
+                        widget.printerList[index].isPrinterUsb = isPrinterUsb; // Update USB status
+                      });
+
+                      print('Printer ${widget.printerList[index].printerName} edited');
+                    } else {
+                      MSG.warningSnackBar(context, "Printer name cannot be empty.");
+                    }
+
+                    Navigator.of(context).pop();
+                  },
+                  text: "Update",
+                  iconWidget: Icons.add,
+                  bgColor: AppColors.green,
+                  textColor: AppColors.white,
+                  width: 120,
+                  borderRadius: 20,
+                )
+              ],
+            );
+          },
         );
       },
     );
@@ -299,11 +331,11 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                             style: TextStyle(color: Colors.white)),
                       ),
                       DataColumn(
-                        label: Text('PRINTER IP ADDRESS',
+                        label: Text('PRINTER IP/VendorID',
                             style: TextStyle(color: Colors.white)),
                       ),
                       DataColumn(
-                        label: Text('PRINTER PORT',
+                        label: Text('PRINTER PORT/ProductID',
                             style: TextStyle(color: Colors.white)),
                       ),
                       DataColumn(
@@ -340,7 +372,7 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                           style: const TextStyle(color: Colors.white),
                         )),
                         DataCell(Text(
-                          paginatedprinters[index].type.toString(),
+                          paginatedprinters[index].isPrinterUsb ? 'USB' : "LAN",
                           style: const TextStyle(color: Colors.white),
                         )),
                         DataCell(Row(

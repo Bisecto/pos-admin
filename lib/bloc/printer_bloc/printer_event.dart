@@ -14,10 +14,11 @@ class AddPrinterEvent extends PrinterEvent {
   final String ip;
   final int port;
   final String type;
+  final bool isPrinterUsb;
   final UserModel userModel;
 
   AddPrinterEvent(
-      this.printerName, this.tenantId, this.ip, this.port, this.type, this.userModel);
+      this.printerName, this.tenantId, this.ip, this.port, this.type,this.isPrinterUsb, this.userModel);
 }
 
 class DeletePrinterEvent extends PrinterEvent {

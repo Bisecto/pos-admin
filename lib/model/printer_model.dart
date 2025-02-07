@@ -1,21 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PrinterModel {
-   String printerId; // Firestore document ID
-   String printerName; // Printer name
-   String ip; // Printer IP address
-   int port; // Printer port
-   String type; // Printer type (e.g., thermal, inkjet)
-   String createdBy; // User ID of creator
-   String updatedBy; // User ID of last updater
-   Timestamp createdAt; // Timestamp for creation
-   Timestamp updatedAt; // Timestamp for last update
-
+  String printerId;
+  String printerName;
+  String ip;
+  int port;
+  bool isPrinterUsb;
+  String type;
+  String createdBy;
+  String updatedBy;
+  Timestamp createdAt;
+  Timestamp updatedAt;
   PrinterModel({
     required this.printerId,
     required this.printerName,
     required this.ip,
     required this.port,
+    required this.isPrinterUsb,
     required this.type,
     required this.createdBy,
     required this.updatedBy,
@@ -31,6 +32,7 @@ class PrinterModel {
       printerId: data['printerId'],
       printerName: data['printerName'] as String,
       ip: data['ip'] as String,
+      isPrinterUsb: data['isPrinterUsb']??false,
       port: data['port'] as int,
       type: data['type'] as String,
       createdBy: data['createdBy'] as String,
@@ -46,6 +48,7 @@ class PrinterModel {
       'printerName': printerName,
       'ip': ip,
       'printerId':printerId,
+      'isPrinterUsb': isPrinterUsb,
       'port': port,
       'type': type,
       'createdBy': createdBy,

@@ -69,7 +69,7 @@ class PrinterBloc extends Bloc<PrinterEvent, PrinterState> {
         updatedAt: Timestamp.fromDate(DateTime.now()),
         ip: event.ip,
         port: event.port,
-        type: event.type,
+        type: event.type, isPrinterUsb: event.isPrinterUsb,
       );
 
       await collection.doc(generatedId).set(newPrinter.toFirestore());
