@@ -96,11 +96,8 @@ class _PageSelectorState extends State<PageSelector> {
                   return MainPrinterScreen(
                     userModel: widget.userModel,
                   );
+
                 case 10:
-                  return LogUI(
-                    tenantId: widget.userModel.tenantId.trim(),
-                  );
-                case 11:
                   return MainBankScreen(
                     userModel: widget.userModel,
                   );

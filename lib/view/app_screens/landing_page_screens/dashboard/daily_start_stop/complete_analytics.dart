@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../model/user_model.dart';
 import '../../../../../res/app_colors.dart';
+import '../../logs/log_page.dart';
 import '../metrics_overview.dart';
 import '../recent_orders.dart';
 import 'complete_order_payment_type.dart';
@@ -86,6 +87,14 @@ class CompleteAnalytics extends StatelessWidget {
                 dailyStartModel: dailyStartModel,
               ),
             ],
+            if (userModel.viewingLogs)
+              SizedBox(
+                height: 100, // Set a height to avoid an infinite scroll conflict
+                child: UserLogsUI(
+                  tenantId: startedUser.tenantId.trim(),
+                  dailyStartModel: dailyStartModel,
+                ),
+              ),
             if (userModel.viewFinance) ...[
               Padding(
                 padding: EdgeInsets.all(8.0),
@@ -97,7 +106,8 @@ class CompleteAnalytics extends StatelessWidget {
                 tenantId: startedUser.tenantId.trim(),
                 dailyStartModel: dailyStartModel,
               ),
-            ]
+            ],
+
           ],
         ),
       ),

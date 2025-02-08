@@ -1,248 +1,164 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../../model/log_model.dart';
-import '../../../../res/app_enums.dart';
+import 'package:pos_admin/utills/app_utils.dart';
+import '../../../../model/start_stop_model.dart';
 import '../../../widgets/app_custom_text.dart';
 
-class LogUI extends StatefulWidget {
+class UserLogsUI extends StatefulWidget {
   final String tenantId;
+  final DailyStartModel dailyStartModel; // Start date
 
-  const LogUI({Key? key, required this.tenantId}) : super(key: key);
+  const UserLogsUI({Key? key, required this.tenantId, required this.dailyStartModel}) : super(key: key);
 
   @override
-  _LogUIState createState() => _LogUIState();
+  _UserLogsUIState createState() => _UserLogsUIState();
 }
 
-class _LogUIState extends State<LogUI> {
-  List<LogModel> logs = [];
-  String? selectedUserId;
-  LogActionType? selectedActionType;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchLogs(widget.tenantId);
-  }
-
-  Future<void> fetchLogs(String tenantId) async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('Enrolled Entities')
-              .doc(tenantId)
-              .collection('Logs')
-              .orderBy('timestamp', descending: true)
-              .get();
-
-      List<LogModel> fetchedLogs =
-          querySnapshot.docs.map((doc) => LogModel.fromFirestore(doc)).toList();
-
-      // Update logs and rebuild the UI
-      setState(() {
-        logs = fetchedLogs;
-      });
-    } catch (e) {
-      print('Error fetching logs: $e');
-    }
-  }
-
-  List<LogModel> _applyFilters() {
-    return logs.where((log) {
-      bool matchesUser =
-          selectedUserId == null || log.performedBy == selectedUserId;
-      bool matchesAction =
-          selectedActionType == null || log.actionType == selectedActionType;
-
-      return matchesUser && matchesAction;
-    }).toList();
-  }
-
+class _UserLogsUIState extends State<UserLogsUI> {
   @override
   Widget build(BuildContext context) {
-    List<LogModel> filteredLogs = _applyFilters();
+    return Container(
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('Users')
+            .where('tenantId', isEqualTo: widget.tenantId.trim())
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: CustomText(text: "No users found.", color: Colors.grey),
+            );
+          }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const CustomText(text: "Activity Logs"),
-        centerTitle: true,
-        backgroundColor: Colors.black,
-      ),
-      backgroundColor: Colors.black, // Dark background color
-      body: Column(
-        children: [
-          // Filter Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const CustomText(
-                  text: "Filters",
-                  //style: TextStyle(
-                  weight: FontWeight.bold,
-                  size: 16,
-                  color: Colors.white, // Light text color
-                  // ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    // Action Type Filter
-                    Expanded(
-                      child: DropdownButtonFormField<LogActionType>(
-                        decoration: InputDecoration(
-                          labelText: "Action Type",
-                          labelStyle: const TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.grey[800],
-                          // Darker field background
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+          List<DocumentSnapshot> users = snapshot.data!.docs;
+
+          return SizedBox(
+            height: 120, // Ensures proper height for horizontal scrolling
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              scrollDirection: Axis.horizontal,
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                var user = users[index];
+                String userName = user['fullname'] ?? 'Unknown User';
+                String userRole = user['role'] ?? 'No Role';
+                String userId = user.id;
+
+                return GestureDetector(
+                  onTap: () => _showUserLogs(userId, userName),
+                  child: Card(
+                    color: Colors.grey[900], // Dark background
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      width: 200, // Adjust card width as needed
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: userName,
+                            weight: FontWeight.bold,
+                            size: 16,
+                            color: Colors.white,
                           ),
-                        ),
-                        dropdownColor: Colors.grey[900],
-                        // Dropdown background
-                        value: selectedActionType,
-                        items: LogActionType.values.map((action) {
-                          return DropdownMenuItem<LogActionType>(
-                            value: action,
-                            child: CustomText(
-                              text: action.name
-                                  .replaceAll('_', ' ')
-                                  .toUpperCase(),
-                              color: Colors.white,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedActionType = value;
-                          });
-                        },
+                          const SizedBox(height: 4),
+                          CustomText(
+                            text: "Role: $userRole",
+                            size: 14,
+                            color: Colors.grey[400]!,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    // User Filter
-                    Expanded(
-                      child: FutureBuilder<QuerySnapshot>(
-                        future: FirebaseFirestore.instance
-                            .collection('Users')
-                            .where('tenantId',
-                                isEqualTo: widget.tenantId.trim())
-                            .get(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return const CircularProgressIndicator();
-                          }
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-                          List<DropdownMenuItem<String>> userItems =
-                              snapshot.data!.docs.map((doc) {
-                            final userId = doc.id;
-                            final userName = doc['fullname'];
-                            return DropdownMenuItem<String>(
-                              value: userId,
-                              child: CustomText(
-                                text: userName,
-                                color: Colors.white,
-                              ),
-                            );
-                          }).toList();
+  void _showUserLogs(String userId, String userName) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: CustomText(
+            text: "$userName's Logs",
+            weight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          content: SizedBox(
+            width:200, //AppUtils.deviceScreenSize(context).width/2,
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('Enrolled Entities').doc(widget.tenantId.trim())
+                  .collection('Logs')
+                  .where('userId', isEqualTo: userId) .where('timestamp',
+                  isGreaterThanOrEqualTo:
+                  widget.dailyStartModel.startTime ?? DateTime(2000))
+                  .where('timestamp',
+                  isLessThanOrEqualTo:  widget.dailyStartModel.endTime ?? DateTime.now())
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+               // print("Fetched ${snapshot.data!.docs.length} logs");
 
-                          return DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: "User",
-                              labelStyle: const TextStyle(color: Colors.white),
-                              filled: true,
-                              fillColor: Colors.grey[800],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            dropdownColor: Colors.grey[900],
-                            value: selectedUserId,
-                            items: userItems,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedUserId = value;
-                              });
-                            },
-                          );
-                        },
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                 // print(snapshot);
+                  return const CustomText(
+                    text: "No logs available.",
+                    color: Colors.grey,
+                  );
+                }
+
+                List<DocumentSnapshot> logs = snapshot.data!.docs;
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: logs.length,
+                  itemBuilder: (context, index) {
+                    var log = logs[index];
+                    String description = log['actionDescription'] ?? 'No Description';
+                    Timestamp? timestamp = log['timestamp'];
+                    String date = timestamp != null ? timestamp.toDate().toString() : 'Unknown';
+
+                    return ListTile(
+                      title: CustomText(
+                        text: description,
+                        color: Colors.white,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      subtitle: CustomText(
+                        text: "Date: $date",
+                        color: Colors.grey,
+                        size: 12,
+                      ),
+                    );
+                  },
+                );
+              },
             ),
           ),
-          const SizedBox(height: 10),
-          // Logs List
-          Expanded(
-            child: filteredLogs.isEmpty
-                ? const Center(
-                    child: CustomText(
-                      text: "No logs found.",
-                      size: 16,
-                      color: Colors.grey,
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(8),
-                    itemCount: filteredLogs.length,
-                    itemBuilder: (context, index) {
-                      final log = filteredLogs[index];
-                      return Card(
-                        color: Colors.grey[900],
-                        // Card background
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 3,
-                        margin: const EdgeInsets.symmetric(vertical: 6),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blue,
-                            child: Icon(
-                              Icons.event_note,
-                              color: Colors.white,
-                            ),
-                          ),
-                          title: CustomText(
-                            text: log.actionDescription,
-                            weight: FontWeight.bold,
-                            color: Colors.white, // Light text
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              CustomText(
-                                text: "Performed By: ${log.performedBy}",
-                                color: Colors.white,
-                              ),
-                              CustomText(
-                                text:
-                                    "Date: ${log.timestamp?.toLocal().toString() ?? 'N/A'}",
-                                size: 12,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                          trailing: Icon(
-                            Icons.chevron_right,
-                            color: Colors.grey[600],
-                          ),
-                          onTap: () {
-                            // Show detailed log view or other actions
-                          },
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const CustomText(text: "Close", color: Colors.blue),
+            ),
+          ],
+        );
+      },
     );
   }
 }
