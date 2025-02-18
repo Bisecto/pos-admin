@@ -122,7 +122,7 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                       controller: printerPortController,
                       label: isPrinterUsb ? 'Printer ProductId' : 'Printer Port',
                       width: 250,
-                      textInputType: TextInputType.number,
+                      textInputType:isPrinterUsb? TextInputType.text:TextInputType.number,
                       hint: isPrinterUsb ? 'Enter printer ProductId' : 'Enter printer port',
                     ),
                     SizedBox(height: 10),

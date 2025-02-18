@@ -22,18 +22,14 @@ class RecentOrders extends StatefulWidget {
 class _RecentOrdersState extends State<RecentOrders> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: OrderList(
-              tenantId: widget.tenantId, dailyStartModel: widget.dailyStartModel,
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        OrderList(
+          tenantId: widget.tenantId,
+          dailyStartModel: widget.dailyStartModel,
+        ),
+      ],
     );
   }
 }

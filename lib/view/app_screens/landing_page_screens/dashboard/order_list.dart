@@ -128,51 +128,48 @@ class OrderList extends StatelessWidget {
   }
 
   Widget _buildOrderList(Map<String, Map<String, dynamic>> itemSummary) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        headingRowColor: MaterialStateProperty.all(Colors.grey.shade900),
-        dataRowColor: MaterialStateProperty.all(Colors.grey.shade800),
-        columns: const [
-          DataColumn(
-            label: Text(
-              'Item',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    return ListView(
+      shrinkWrap: true, // Allows it to wrap content
+      physics: NeverScrollableScrollPhysics(), // Prevents scrolling inside another scrollable widget
+      children: [
+        DataTable(
+          headingRowColor: MaterialStateProperty.all(Colors.grey.shade900),
+          dataRowColor: MaterialStateProperty.all(Colors.grey.shade800),
+          columns: const [
+            DataColumn(
+              label: Text(
+                'Item',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          DataColumn(
-            label: Text(
-              'Quantity',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            DataColumn(
+              label: Text(
+                'Quantity',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          DataColumn(
-            label: Text(
-              'Total Price',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            DataColumn(
+              label: Text(
+                'Total Price',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-        ],
-        rows: itemSummary.entries.map((entry) {
-          final itemName = entry.key;
-          final quantity = entry.value['quantity'];
-          final totalPrice = entry.value['totalPrice'];
+          ],
+          rows: itemSummary.entries.map((entry) {
+            final itemName = entry.key;
+            final quantity = entry.value['quantity'];
+            final totalPrice = entry.value['totalPrice'];
 
-          return DataRow(
-            cells: [
-              DataCell(
-                  Text(itemName, style: const TextStyle(color: Colors.white))),
-              DataCell(Text('$quantity',
-                  style: const TextStyle(color: Colors.white))),
-              DataCell(Text('NGN ${totalPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(color: Colors.white))),
-            ],
-          );
-        }).toList(),
-      ),
+            return DataRow(
+              cells: [
+                DataCell(Text(itemName, style: const TextStyle(color: Colors.white))),
+                DataCell(Text('$quantity', style: const TextStyle(color: Colors.white))),
+                DataCell(Text('NGN ${totalPrice.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white))),
+              ],
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }
