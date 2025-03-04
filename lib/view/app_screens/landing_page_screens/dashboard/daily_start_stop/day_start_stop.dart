@@ -46,8 +46,11 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
           .doc(tenantId.trim())
           .collection('dailyStart');
 
-      // Fetch the documents, ordered by startTime in descending order
-      final querySnapshot = await dailyStart.orderBy('startTime', descending: true).get();
+      // Fetch only the last 5 documents ordered by startTime in descending order
+      final querySnapshot = await dailyStart
+          .orderBy('startTime', descending: true)
+          .limit(5) // Limit to last 5 documents
+          .get();
 
       // Map the fetched documents to the DailyStartModel
       return querySnapshot.docs.map((doc) {
