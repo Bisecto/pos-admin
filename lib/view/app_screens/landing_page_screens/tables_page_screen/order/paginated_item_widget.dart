@@ -6,7 +6,7 @@ import 'package:image/image.dart' as img;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:intl/intl.dart';
 
 import 'dart:typed_data';
 
@@ -24,7 +24,6 @@ import '../../../../important_pages/dialog_box.dart';
 import '../../../../widgets/app_custom_text.dart';
 import '../../../../widgets/form_input.dart';
 
-
 class PaginatedProductList extends StatefulWidget {
   final String tenantId;
   final UserModel userModel;
@@ -37,13 +36,13 @@ class PaginatedProductList extends StatefulWidget {
 
   PaginatedProductList(
       {required this.tenantId,
-        required this.userModel,
-        required this.tableModel,
-        required this.tenantModel,
-        required this.tableList,
-        required this.isMoreThanOneOrder,
-        required this.orderNum,
-        required this.selectedOrderId});
+      required this.userModel,
+      required this.tableModel,
+      required this.tenantModel,
+      required this.tableList,
+      required this.isMoreThanOneOrder,
+      required this.orderNum,
+      required this.selectedOrderId});
 
   @override
   _PaginatedProductListState createState() => _PaginatedProductListState();
@@ -66,9 +65,6 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
   List<DropdownMenuItem<String>> brandItems = [];
   List<DropdownMenuItem<String>> categoryItems = [];
 
-
-
-
   Stream<Map<Product, int>> getOngoingOrderStream(String orderId) {
     // if (orderId.isEmpty) {
     //   // Return an empty stream if no order IDs are provided
@@ -82,8 +78,8 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
         .collection('Orders')
         .where('tableNo', isEqualTo: widget.tableModel.tableId)
         .where('status', isEqualTo: OrderStatus.pending.index)
-    // .where('orderId',
-    //     isEqualTo: orderId) // Apply filter only if list is non-empty
+        // .where('orderId',
+        //     isEqualTo: orderId) // Apply filter only if list is non-empty
         .snapshots()
         .map((querySnapshot) {
       if (querySnapshot.docs.isNotEmpty) {
@@ -168,10 +164,10 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
     });
 
     QuerySnapshot<Map<String, dynamic>> querySnapshot =
-    await getPaginatedQuery().get();
+        await getPaginatedQuery().get();
 
     List<Product> fetchedProducts =
-    querySnapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
+        querySnapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
 
     if (querySnapshot.docs.isNotEmpty) {
       lastDocument = querySnapshot.docs.last; // Update the last document
@@ -204,7 +200,7 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
         .get();
 
     List<DropdownMenuItem<String>> brandDropdownItems =
-    brandSnapshot.docs.map((doc) {
+        brandSnapshot.docs.map((doc) {
       var brand = doc.data();
       return DropdownMenuItem<String>(
         value: doc.id,
@@ -222,14 +218,14 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
 
   Future<void> fetchCategories() async {
     QuerySnapshot<Map<String, dynamic>> categorySnapshot =
-    await FirebaseFirestore.instance
-        .collection('Enrolled Entities')
-        .doc(widget.tenantId)
-        .collection('Category')
-        .get();
+        await FirebaseFirestore.instance
+            .collection('Enrolled Entities')
+            .doc(widget.tenantId)
+            .collection('Category')
+            .get();
 
     List<DropdownMenuItem<String>> categoryDropdownItems =
-    categorySnapshot.docs.map((doc) {
+        categorySnapshot.docs.map((doc) {
       var category = doc.data();
       return DropdownMenuItem<String>(
         value: doc.id,
@@ -262,10 +258,10 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
   void getCurrentOrder() {
     ongoingOrderSubscription =
         getOngoingOrderStream(widget.selectedOrderId).listen((orderProducts) {
-          setState(() {
-            selectedProducts = orderProducts;
-          });
-        });
+      setState(() {
+        selectedProducts = orderProducts;
+      });
+    });
   }
 
   // Future<void> clearAllSelectedProducts() async {
@@ -386,7 +382,6 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
 
   List<OrderProduct> orderProducts = [];
 
-
   double calculateTax(double totalPrice, double taxRate) {
     return totalPrice * taxRate;
   }
@@ -408,7 +403,6 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
 
       setState(() {
         //selectedStatus = statusOptions[orderStatusIndex];
-
 
         orderProducts = productList.map((productJson) {
           return OrderProduct.fromJson(productJson); // Parse products
@@ -457,7 +451,6 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
   late ByteData qrCodeBytes;
   late Uint8List companyImage;
 
-
   void toggleContainer() {
     setState(() {
       isContainerExpanded = true; //!isContainerExpanded; // Toggle expansion
@@ -497,146 +490,174 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
 
   @override
   Widget build(BuildContext context) {
-    Stream<List<MapEntry<Product, int>>> getSelectedProductsStream() {
-      return FirebaseFirestore.instance
-          .collection('Enrolled Entities')
-          .doc(widget.tenantId)
-          .collection('SelectedProducts')
-          .snapshots()
-          .map((querySnapshot) {
-        return querySnapshot.docs.map((doc) {
-          Product product = Product.fromFirestore(doc);
-          int quantity = doc['quantity'] as int;
-          return MapEntry(product, quantity);
-        }).toList();
-      });
-    }
-
+    final screenWidth = MediaQuery.of(context).size.width;
+    final gridWidth =
+        widget.isMoreThanOneOrder ? screenWidth * 0.6 : screenWidth;
+    final itemWidth = 180;
+    final crossAxisCount = (gridWidth / itemWidth).floor().clamp(1, 5);
     return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        elevation: 0,
-        automaticallyImplyLeading: false,
         backgroundColor: AppColors.white,
-        title: Padding(
-          padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 10),
-          child: CustomTextFormField(
-            onChanged: (value) {
-              applyFilters(selectedBrandId, selectedCategoryId, value);
-            },
-            width: 250,
-            controller: null,
-            hint: 'Search products...',
-            label: '',
-          ),
-        ),
-        actions: [
-          // Dropdown to filter by Brand
-          DropdownButton<String>(
-            value: selectedBrandId,
-            hint: const Text("Select Brand"),
-            onChanged: (value) {
-              applyFilters(value, selectedCategoryId, searchQuery);
-            },
-            items: brandItems, // Use Firestore-fetched brands
-          ),
-          // Dropdown to filter by Category
-          DropdownButton<String>(
-            value: selectedCategoryId,
-            hint: const Text("Select Category"),
-            onChanged: (value) {
-              applyFilters(selectedBrandId, value, searchQuery);
-            },
-            items: categoryItems, // Use Firestore-fetched categories
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          isLoading && products.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount:
-              (MediaQuery.of(context).size.width ~/ 200).toInt() - 1,
-              childAspectRatio: 1,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
+        appBar: AppBar(
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          backgroundColor: AppColors.white,
+          title: Padding(
+            padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 10),
+            child: CustomTextFormField(
+              onChanged: (value) {
+                applyFilters(selectedBrandId, selectedCategoryId, value);
+              },
+              width: 200,
+              controller: null,
+              hint: 'Search...',
+              label: '',
             ),
-            itemCount: products.length + (isLoading ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index < products.length) {
-                Product product = products[index];
-
-                return GestureDetector(
-                 // onTap: () => toggleSelection(product),
-                  child: Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      Card(
-                        elevation: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height:
-                              !widget.isMoreThanOneOrder ? 120 : 60,
-                              decoration: BoxDecoration(
-                                  borderRadius:
-                                  BorderRadius.circular(15)),
-                              child: Image.asset(
-                                product.productType.toLowerCase()=='food'?AppImages.food:AppImages.drink,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                              )
-                              // Image.network(
-                              //   product.productImageUrl,
-                              //   fit: BoxFit.cover,
-                              //   width: double.infinity,
-                              // ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    product.productName.toUpperCase(),
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text('\₦${product.price.toString()}'),
-                                  if (selectedProducts
-                                      .containsKey(product))
-                                    const Icon(Icons.check_circle,
-                                        color: Colors.green),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                return const Center(child: CircularProgressIndicator());
-              }
-            },
           ),
+          actions: [
+            // Dropdown to filter by Brand
+            DropdownButton<String>(
+              value: selectedBrandId,
+              hint: const Text("Select Brand"),
+              onChanged: (value) {
+                applyFilters(value, selectedCategoryId, searchQuery);
+              },
+              items: brandItems, // Use Firestore-fetched brands
+            ),
+            // Dropdown to filter by Category
+            DropdownButton<String>(
+              value: selectedCategoryId,
+              hint: const Text("Select Category"),
+              onChanged: (value) {
+                applyFilters(selectedBrandId, value, searchQuery);
+              },
+              items: categoryItems, // Use Firestore-fetched categories
+            ),
+          ],
+        ),
+        body: SizedBox(
+            height: MediaQuery.of(context).size.height - 210,
+            width: gridWidth,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      childAspectRatio: 1.2, // Slightly more compact
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                    ),
+                    itemCount: products.length + (isLoading ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index < products.length) {
+                        Product product = products[index];
 
-          // Floating container for the new order
-
-        ],
-      ),
-    );
+                        return GestureDetector(
+                          //onTap: () => _toggleSelection(product),
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: _getGradientColors(index),
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 6,
+                                  spreadRadius: 2,
+                                )
+                              ],
+                            ),
+                            child: Stack(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        product.productName.toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '₦${NumberFormat("#,##0").format(product.price)}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Positioned(
+                                //   top: 10,
+                                //   right: 10,
+                                //   child: Container(
+                                //     padding: EdgeInsets.all(6),
+                                //     decoration: BoxDecoration(
+                                //       shape: BoxShape.circle,
+                                //       color: Colors.red,
+                                //     ),
+                                //     child: Text(
+                                //       product.productQuantity.toString(),
+                                //       style: TextStyle(
+                                //         color: Colors.white,
+                                //         fontSize: 12,
+                                //         fontWeight: FontWeight.bold,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                    },
+                  );
+                },
+              ),
+            )));
   }
 
-
-
-
-
-
+  List<Color> _getGradientColors(int index) {
+    List<List<Color>> gradients = [
+      [Colors.blue, Colors.purple],
+      [Colors.orange, Colors.red],
+      [Colors.green, Colors.teal],
+      [Colors.pink, Colors.deepPurple],
+      [Colors.yellow, Colors.amber],
+      [Colors.cyan, Colors.indigo],
+      [Colors.lime, Colors.green],
+      [Colors.deepOrange, Colors.brown],
+      [Colors.blueGrey, Colors.black],
+      [Colors.deepPurple, Colors.blueGrey],
+      [Colors.teal, Colors.deepOrange],
+      [Colors.purple, Colors.pink],
+      [Colors.redAccent, Colors.deepPurpleAccent],
+      [Colors.indigo, Colors.cyan],
+      [Colors.brown, Colors.deepOrangeAccent],
+      [Colors.lightBlue, Colors.blueGrey],
+      [Colors.amber, Colors.orangeAccent],
+      [Colors.limeAccent, Colors.teal],
+      [Colors.deepPurpleAccent, Colors.blueAccent],
+      [Colors.black, Colors.blueGrey],
+    ];
+    return gradients[index % gradients.length];
+  }
 }
