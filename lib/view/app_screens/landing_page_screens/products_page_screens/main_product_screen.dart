@@ -75,17 +75,17 @@ class _MainProductScreenState extends State<MainProductScreen> {
 
   List<Brand> brandList = [];
   List<Category> categoryList = [];
-  File? _imageFile;
-  final picker = ImagePicker();
+ // File? _imageFile;
+  //final picker = ImagePicker();
 
-  Future<void> _pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
+  // Future<void> _pickImage() async {
+  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _imageFile = File(pickedFile.path);
+  //     });
+  //   }
+  // }
 
   void _clearFilter() {
     setState(() {
@@ -143,27 +143,27 @@ class _MainProductScreenState extends State<MainProductScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _imageFile != null
-                            ? Image.file(
-                                _imageFile!,
-                                height: 150,
-                                width: 150,
-                                fit: BoxFit.contain,
-                              )
-                            : const Icon(
-                                Icons.image,
-                                size: 200,
-                                color: AppColors.grey,
-                              ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () async {
-                            await _pickImage();
-                            // Use setState from StatefulBuilder to update the dialog's state
-                            setStateDialog(() {});
-                          },
-                          child: const Text('Select Image'),
-                        ),
+                        // _imageFile != null
+                        //     ? Image.file(
+                        //         _imageFile!,
+                        //         height: 150,
+                        //         width: 150,
+                        //         fit: BoxFit.contain,
+                        //       )
+                        //     : const Icon(
+                        //         Icons.image,
+                        //         size: 200,
+                        //         color: AppColors.grey,
+                        //       ),
+                       // const SizedBox(height: 20),
+                        // ElevatedButton(
+                        //   onPressed: () async {
+                        //     await _pickImage();
+                        //     // Use setState from StatefulBuilder to update the dialog's state
+                        //     setStateDialog(() {});
+                        //   },
+                        //   child: const Text('Select Image'),
+                        // ),
                       ],
                     ),
                     CustomTextFormField(
@@ -256,9 +256,9 @@ class _MainProductScreenState extends State<MainProductScreen> {
                       children: [
                         FormButton(
                           onPressed: () {
-                            setState(() {
-                              _imageFile = null;
-                            });
+                            // setState(() {
+                            //   _imageFile = null;
+                            // });
                             Navigator.of(context).pop();
                           },
                           bgColor: AppColors.red,
@@ -274,11 +274,11 @@ class _MainProductScreenState extends State<MainProductScreen> {
                               MSG.warningSnackBar(context,
                                   "Discount cannot be greater than 100.");
                             } else {
-                              if (_imageFile == null) {
-                                MSG.warningSnackBar(
-                                    context, "Select product image");
-                                return;
-                              }
+                              // if (_imageFile == null) {
+                              //   MSG.warningSnackBar(
+                              //       context, "Select product image");
+                              //   return;
+                              // }
                               setState(() {
                                 productBloc.add(
                                   AddProductEvent(
@@ -288,16 +288,16 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                       selectedCategoryId.text,
                                       selectedBrandId.text,
                                       double.parse(discountController.text),
-                                      _imageFile!,
+                                      //_imageFile!,
                                       widget.userModel.tenantId,
                                       selectedProductType.text,widget.userModel,int.parse(quantityController.text)),
                                 );
                               });
                             }
                             Navigator.of(context).pop();
-                            setState(() {
-                              _imageFile = null;
-                            });
+                            // setState(() {
+                            //   _imageFile = null;
+                            // });
                           },
                           text: "Add",
                           iconWidget: Icons.add,

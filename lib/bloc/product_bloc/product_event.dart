@@ -18,7 +18,7 @@ class AddProductEvent extends ProductEvent {
   final String brandId;
   final String categoryId;
   final double discount;
-  final File imageFile;
+  //final File imageFile;
   final String productType;
   final UserModel userModel;
   final int qty;
@@ -30,7 +30,7 @@ class AddProductEvent extends ProductEvent {
       this.categoryId,
       this.brandId,
       this.discount,
-      this.imageFile,
+      //this.imageFile,
       this.tenantId,
       this.productType, this.userModel, this.qty);
 }
