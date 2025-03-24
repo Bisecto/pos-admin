@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "checkpointpos-6e50f"
-  }
+  },
+  "targets": {
+    "checkpointpos-6e50f": {
+      "hosting": {
+        "admin-panel": [
+          "checkpoint-pos-admin"
+        ],
+        "main-app": [
+          "checkpointpos"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

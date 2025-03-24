@@ -5,7 +5,6 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart' as modalSheet;
 
 import 'package:cross_connectivity/cross_connectivity.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_images.dart';
