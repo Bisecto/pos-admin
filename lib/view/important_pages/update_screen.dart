@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
 
-import 'package:url_launcher/url_launcher.dart';
+//import 'package:url_launcher/url_launcher.dart';
 
 import '../../res/app_colors.dart';
 import '../../res/app_images.dart';
@@ -23,7 +23,9 @@ class _UpdateAppState extends State<UpdateApp> {
       backgroundColor: AppColors.black,
       body: SafeArea(
         child: Container(
-          width: AppUtils.deviceScreenSize(context).width,
+          width: AppUtils
+              .deviceScreenSize(context)
+              .width,
           child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -54,42 +56,42 @@ class _UpdateAppState extends State<UpdateApp> {
                     )
                   ],
                 ),
-                GestureDetector(
-                  onTap: () async {
-                    if (Platform.isAndroid) {
-                      if (await canLaunchUrl(Uri.parse(widget.appUrl))) {
-                        await launchUrl(Uri.parse(widget.appUrl));
-                      } else {
-                        throw 'Could not launch ${widget.appUrl}';
-                      }
-
-                      //launch("https://play.google.com/store/apps/details?id=com.jithvar.gambhir_mudda");
-                    } else if (Platform.isIOS) {
-                      // iOS-specific code
-                      if (await canLaunchUrl(Uri.parse(widget.appUrl))) {
-                        await launchUrl(Uri.parse(widget.appUrl));
-                      } else {
-                        throw 'Could not launch ${widget.appUrl}';
-                      }
-                    }
-                  },
-                  child: Container(
-                    height: 40,
-                    width: 150,
-                    decoration: BoxDecoration(
-                        color: AppColors.orange,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: const Center(
-                      child: Text(
-                        "Update",
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-                    ),
-                  ),
-                )
+                // GestureDetector(
+                //   onTap: () async {
+                //     if (Platform.isAndroid) {
+                //       if (await canLaunchUrl(Uri.parse(widget.appUrl))) {
+                //         await launchUrl(Uri.parse(widget.appUrl));
+                //       } else {
+                //         throw 'Could not launch ${widget.appUrl}';
+                //       }
+                //
+                //       //launch("https://play.google.com/store/apps/details?id=com.jithvar.gambhir_mudda");
+                //     } else if (Platform.isIOS) {
+                //       // iOS-specific code
+                //       if (await canLaunchUrl(Uri.parse(widget.appUrl))) {
+                //         await launchUrl(Uri.parse(widget.appUrl));
+                //       } else {
+                //         throw 'Could not launch ${widget.appUrl}';
+                //       }
+                //     }
+                //   },
+                //   child: Container(
+                //     height: 40,
+                //     width: 150,
+                //     decoration: BoxDecoration(
+                //         color: AppColors.orange,
+                //         borderRadius: BorderRadius.circular(10)),
+                //     child: const Center(
+                //       child: Text(
+                //         "Update",
+                //         style: TextStyle(
+                //             fontSize: 20,
+                //             fontWeight: FontWeight.bold,
+                //             color: Colors.white),
+                //       ),
+                //     ),
+                //   ),
+                // )
               ]),
         ),
       ),
