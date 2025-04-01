@@ -27,8 +27,6 @@ class OrderList extends StatelessWidget {
           .where('createdAt',
               isLessThanOrEqualTo: dailyStartModel.endTime ?? DateTime.now())
           .orderBy('createdAt', descending: true)
-         // .where('products', arrayContains: {'isProductVoid': false})
-
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -50,17 +48,32 @@ class OrderList extends StatelessWidget {
         }
 
         try {
-          final orders = snapshot.data!.docs.map((doc) {
-            return OrderModel.fromFirestore(doc.data() as Map<String, dynamic>);
+          // Convert Firestore documents to OrderModel
+          final orders = snapshot.data!.docs
+              .map((doc) =>
+                  OrderModel.fromFirestore(doc.data() as Map<String, dynamic>))
+              .toList();
+
+          // Filter orders to only include those that have at least one product with isProductVoid: false
+          var filteredOrders = orders.where((order) {
+            return order.products.any((product) {
+              print(product.productName);
+              print(product.isProductVoid);
+              return product.isProductVoid == false;
+            });
           }).toList();
+          filteredOrders = filteredOrders.map((order) {
+            order.products.removeWhere((product) => product.isProductVoid == true);
+            return order;
+          }).where((order) => order.products.isNotEmpty).toList();
+         // print(filteredOrders.length);
+          if (filteredOrders.isEmpty) {
 
-          final itemQuantities = _calculateItemQuantities(orders);
-
-          if (itemQuantities.isEmpty) {
             return _buildNoOrdersView(
                 dailyStartModel.startTime, dailyStartModel.endTime);
           }
 
+          final itemQuantities = _calculateItemQuantities(filteredOrders);
           return _buildOrderList(itemQuantities);
         } catch (e) {
           return Center(
@@ -129,8 +142,10 @@ class OrderList extends StatelessWidget {
 
   Widget _buildOrderList(Map<String, Map<String, dynamic>> itemSummary) {
     return ListView(
-      shrinkWrap: true, // Allows it to wrap content
-      physics: NeverScrollableScrollPhysics(), // Prevents scrolling inside another scrollable widget
+      shrinkWrap: true,
+      // Allows it to wrap content
+      physics: NeverScrollableScrollPhysics(),
+      // Prevents scrolling inside another scrollable widget
       children: [
         DataTable(
           headingRowColor: MaterialStateProperty.all(Colors.grey.shade900),
@@ -139,19 +154,22 @@ class OrderList extends StatelessWidget {
             DataColumn(
               label: Text(
                 'Item',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             DataColumn(
               label: Text(
                 'Quantity',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             DataColumn(
               label: Text(
                 'Total Price',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -162,9 +180,12 @@ class OrderList extends StatelessWidget {
 
             return DataRow(
               cells: [
-                DataCell(Text(itemName, style: const TextStyle(color: Colors.white))),
-                DataCell(Text('$quantity', style: const TextStyle(color: Colors.white))),
-                DataCell(Text('NGN ${totalPrice.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white))),
+                DataCell(Text(itemName,
+                    style: const TextStyle(color: Colors.white))),
+                DataCell(Text('$quantity',
+                    style: const TextStyle(color: Colors.white))),
+                DataCell(Text('NGN ${totalPrice.toStringAsFixed(2)}',
+                    style: const TextStyle(color: Colors.white))),
               ],
             );
           }).toList(),

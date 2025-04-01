@@ -15,6 +15,8 @@ class AllMetricsOverview extends StatelessWidget {
           .collection('Enrolled Entities')
           .doc(tenantId)
           .collection('Orders')
+          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(2024, 4, 1, 9, 0, 0)))
+
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

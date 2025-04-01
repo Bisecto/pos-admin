@@ -127,7 +127,7 @@ class DailyStartHorizontalList extends StatelessWidget {
                   text: "$label: ${value ?? 'N/A'}",
                   //style: const TextStyle(
                   color: Colors.white70,
-                  size: 13,
+                  size: 12,
                   //),
                 );
               }
@@ -178,7 +178,7 @@ class DailyStartHorizontalList extends StatelessWidget {
                         "Started By: ${startedByUser?.fullname ?? 'N/A'}",
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 13,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -203,7 +203,7 @@ class DailyStartHorizontalList extends StatelessWidget {
                           color: dailyStart.status.toLowerCase() == 'active'
                               ? AppColors.green
                               : AppColors.red,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                     ],
