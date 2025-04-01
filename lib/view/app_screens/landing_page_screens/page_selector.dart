@@ -55,7 +55,7 @@ class _PageSelectorState extends State<PageSelector> {
                 case 0:
                   return Dashboard(
                     tenantId: widget.userModel.tenantId,
-                    userModel: widget.userModel, queryStartDate: widget.tenantModel.queryStartDate,
+                    userModel: widget.userModel,
                   );
                 case 1:
                   return MainProductScreen(

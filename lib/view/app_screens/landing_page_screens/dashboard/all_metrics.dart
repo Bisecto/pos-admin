@@ -3,22 +3,59 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For number formatting
 import 'metric_card.dart';
 
-class AllMetricsOverview extends StatelessWidget {
+class AllMetricsOverview extends StatefulWidget {
   final String tenantId;
-  final Timestamp queryStartDate;
 
-  AllMetricsOverview({required this.tenantId, required this.queryStartDate});
 
+  AllMetricsOverview({required this.tenantId, });
+
+  @override
+  State<AllMetricsOverview> createState() => _AllMetricsOverviewState();
+}
+
+class _AllMetricsOverviewState extends State<AllMetricsOverview> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+  Future<Timestamp?> getStartDate() async {
+    var doc = await  FirebaseFirestore
+        .instance
+        .collection('Enrolled Entities')
+        .doc(widget.tenantId.toString())
+        .get();
+
+    return doc.exists ? doc.data()!['queryStartDate'] : null;
+  }
+  Stream<QuerySnapshot> getOrdersFromDynamicStartDate() async* {
+    Timestamp? startDate = await getStartDate();
+
+    if (startDate == null) {
+      yield* Stream.empty(); // If no start date is found, return empty stream
+      return;
+    }
+
+    yield* FirebaseFirestore.instance
+        .collection('Enrolled Entities')
+        .doc(widget.tenantId.trim())
+        .collection('Orders')
+        .where('createdAt', isGreaterThanOrEqualTo: startDate)
+        //.orderBy('orderDate', descending: false)
+        .snapshots();
+  }
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('Enrolled Entities')
-          .doc(tenantId)
-          .collection('Orders')
-          .where('createdAt', isGreaterThanOrEqualTo: queryStartDate)
-
-          .snapshots(),
+      // stream: FirebaseFirestore.instance
+      //     .collection('Enrolled Entities')
+      //     .doc(widget.tenantId)
+      //     .collection('Orders')
+      //     .where('createdAt', isGreaterThanOrEqualTo: startDate)
+      //
+      //     .snapshots(),
+      stream: getOrdersFromDynamicStartDate(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());

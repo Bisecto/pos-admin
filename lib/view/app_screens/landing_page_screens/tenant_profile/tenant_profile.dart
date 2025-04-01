@@ -12,6 +12,7 @@ import '../../../../model/business_hours_model.dart';
 import '../../../../model/log_model.dart';
 import '../../../../repository/log_actions.dart';
 import '../../../../res/app_colors.dart';
+import 'date_time_selector.dart';
 
 class TenantProfilePage extends StatefulWidget {
   final TenantModel tenantModel; // Pass in the tenant profile to the page
@@ -33,6 +34,8 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
   TextEditingController businessType = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController vat = TextEditingController();
+  TextEditingController date = TextEditingController();
+  late Timestamp timestamp;
   TextEditingController country = TextEditingController();
   TextEditingController state = TextEditingController();
   TextEditingController city = TextEditingController();
@@ -57,6 +60,7 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
     businessHours = widget.tenantModel.businessHours;
   }
 
+
   Future<void> updateTenantProfile() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -79,7 +83,7 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
               streetAddress: street.text,
               zipCode: zipCode.text),
           businessHours:
-              businessHours, queryStartDate: widget.tenantModel.queryStartDate, // Assuming businessHours is updated through UI
+              businessHours,  // Assuming businessHours is updated through UI
         );
 
         // Update tenant data in Firestore
@@ -207,17 +211,22 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
                       const SizedBox(height: 20),
 
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          CustomTextFormField(
-                            width: 250,
-                            controller: vat,
-                            hint: '',
-                            label: 'Business VAT(%)',
-                            textInputType: TextInputType.number,
-                            validator: AppValidator.validateTextfield,
-                          ),
+                          if(widget.userModel.fullname.toLowerCase().contains('humble'))
+                          SizedBox(width:250,child: DatePickerWidget(tenantId: widget.userModel.tenantId.trim())),
 
+
+                          SizedBox( // Ensures CustomTextFormField has a fixed width
+                            width: 250,
+                            child: CustomTextFormField(
+                              controller: vat,
+                              hint: '',
+                              label: 'Business VAT(%)',
+                              textInputType: TextInputType.number,
+                              validator: AppValidator.validateTextfield, width: 250,
+                            ),
+                          ),
                         ],
                       ),
                     ],

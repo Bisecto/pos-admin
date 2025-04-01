@@ -10,9 +10,8 @@ import 'daily_start_stop/day_start_stop.dart';
 class Dashboard extends StatefulWidget {
   final String tenantId;
   final UserModel userModel;
-  final Timestamp queryStartDate;
 
-  Dashboard({required this.tenantId, required this.userModel, required this.queryStartDate});
+  Dashboard({required this.tenantId, required this.userModel});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -57,7 +56,7 @@ class _DashboardState extends State<Dashboard> {
               child: Column(
                 children: [
                   if(widget.userModel.viewFinance)
-                  AllMetricsOverview(tenantId: widget.tenantId, queryStartDate: widget.queryStartDate,),
+                  AllMetricsOverview(tenantId: widget.tenantId,),
                   DayStartStopPage(tenantId: widget.tenantId.trim(), userModel: widget.userModel,)
 
                 ],
