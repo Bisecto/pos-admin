@@ -5,8 +5,9 @@ import 'metric_card.dart';
 
 class AllMetricsOverview extends StatelessWidget {
   final String tenantId;
+  final Timestamp queryStartDate;
 
-  AllMetricsOverview({required this.tenantId});
+  AllMetricsOverview({required this.tenantId, required this.queryStartDate});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class AllMetricsOverview extends StatelessWidget {
           .collection('Enrolled Entities')
           .doc(tenantId)
           .collection('Orders')
-          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(2024, 4, 1, 9, 0, 0)))
+          .where('createdAt', isGreaterThanOrEqualTo: queryStartDate)
 
           .snapshots(),
       builder: (context, snapshot) {

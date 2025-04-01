@@ -79,7 +79,7 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
               streetAddress: street.text,
               zipCode: zipCode.text),
           businessHours:
-              businessHours, // Assuming businessHours is updated through UI
+              businessHours, queryStartDate: widget.tenantModel.queryStartDate, // Assuming businessHours is updated through UI
         );
 
         // Update tenant data in Firestore
