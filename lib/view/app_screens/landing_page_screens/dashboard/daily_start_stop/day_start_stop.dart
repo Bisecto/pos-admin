@@ -11,7 +11,9 @@ class DayStartStopPage extends StatefulWidget {
   final String tenantId;
   final UserModel userModel;
 
-  const DayStartStopPage({Key? key, required this.tenantId, required this.userModel}) : super(key: key);
+  const DayStartStopPage(
+      {Key? key, required this.tenantId, required this.userModel})
+      : super(key: key);
 
   @override
   _DayStartStopPageState createState() => _DayStartStopPageState();
@@ -34,7 +36,8 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
     setState(() => isLoading = false);
   }
 
-  Future<List<DailyStartModel>> fetchDayStartStop(String tenantId, int limit) async {
+  Future<List<DailyStartModel>> fetchDayStartStop(
+      String tenantId, int limit) async {
     try {
       final dailyStart = FirebaseFirestore.instance
           .collection('Enrolled Entities')
@@ -46,7 +49,9 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
           .limit(limit)
           .get();
 
-      return querySnapshot.docs.map((doc) => DailyStartModel.fromFirestore(doc.data(), doc.id)).toList();
+      return querySnapshot.docs
+          .map((doc) => DailyStartModel.fromFirestore(doc.data(), doc.id))
+          .toList();
     } catch (e) {
       print("Failed to fetch logs: $e");
       return [];
@@ -68,7 +73,10 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
             // Title Section
             const Text(
               "Daily Start Logs",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.green),
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.green),
             ),
             const SizedBox(height: 5),
             const Text(
@@ -81,12 +89,16 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
             // Dropdown Selector
             Row(
               children: [
-                const Text("Show Last:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: AppColors.white)),
+                const Text("Show Last:",
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.white)),
                 const SizedBox(width: 10),
                 DropdownButton<String>(
                   value: selectedLimit.toString(),
                   style: const TextStyle(fontSize: 16, color: Colors.black),
-                  dropdownColor: AppColors.white,
+                  dropdownColor: AppColors.black,
                   onChanged: (value) {
                     setState(() {
                       selectedLimit = int.parse(value!);
@@ -95,9 +107,12 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
                   },
                   items: List.generate(
                     30,
-                        (index) => DropdownMenuItem(
+                    (index) => DropdownMenuItem(
                       value: (index + 1).toString(),
-                      child: Text("${index + 1} Entries", style: TextStyle(color: AppColors.white),),
+                      child: Text(
+                        "${index + 1} Entries",
+                        style: TextStyle(color: AppColors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -112,16 +127,17 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : dailyStartModel.isEmpty
-                  ? Center(
-                child: Text(
-                  "No logs available.",
-                  style: TextStyle(color: Colors.grey[700], fontSize: 16),
-                ),
-              )
-                  : DailyStartHorizontalList(
-                dailyStartModel: dailyStartModel,
-                userModel: widget.userModel,
-              ),
+                      ? Center(
+                          child: Text(
+                            "No logs available.",
+                            style: TextStyle(
+                                color: Colors.grey[700], fontSize: 16),
+                          ),
+                        )
+                      : DailyStartHorizontalList(
+                          dailyStartModel: dailyStartModel,
+                          userModel: widget.userModel,
+                        ),
             ),
           ],
         ),
