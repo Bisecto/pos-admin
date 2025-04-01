@@ -12,7 +12,7 @@ class AddPrinterEvent extends PrinterEvent {
   final String printerName;
   final String tenantId;
   final String ip;
-  final int port;
+  final String port;
   final String type;
   final bool isPrinterUsb;
   final UserModel userModel;

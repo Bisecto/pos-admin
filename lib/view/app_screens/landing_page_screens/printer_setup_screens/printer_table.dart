@@ -154,7 +154,7 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                         printerId: widget.printerList[index].printerId,
                         createdBy: widget.printerList[index].createdBy,
                         ip: printerIpController.text,
-                        port: int.parse(printerPortController.text),
+                        port: printerPortController.text,
                         type: widget.printerList[index].type,
                         isPrinterUsb: isPrinterUsb, // Now correctly updates USB status
                       );
@@ -181,7 +181,7 @@ class _PrinterTableScreenState extends State<PrinterTableScreen> {
                       // Update UI
                       setState(() {
                         widget.printerList[index].printerName = printerNameController.text;
-                        widget.printerList[index].port = int.parse(printerPortController.text);
+                        widget.printerList[index].port = printerPortController.text;
                         widget.printerList[index].ip = printerIpController.text;
                         widget.printerList[index].isPrinterUsb = isPrinterUsb; // Update USB status
                       });

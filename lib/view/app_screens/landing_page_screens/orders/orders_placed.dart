@@ -1230,14 +1230,14 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     }
   }
 
-  Future<void> printDockets(String printerIp, int printerPort,
+  Future<void> printDockets(String printerIp, String printerPort,
       List<OrderProduct> products, String title, String orderNo) async {
     try {
       final profile = await CapabilityProfile.load();
       final printer = NetworkPrinter(PaperSize.mm80, profile);
 
       final PosPrintResult connectResult =
-          await printer.connect(printerIp, port: printerPort);
+          await printer.connect(printerIp, port: int.parse(printerPort));
       if (connectResult != PosPrintResult.success) {
         print("Failed to connect: $connectResult");
         return;

@@ -4,7 +4,7 @@ class PrinterModel {
   String printerId;
   String printerName;
   String ip;
-  int port;
+  String port;
   bool isPrinterUsb;
   String type;
   String createdBy;
@@ -33,7 +33,7 @@ class PrinterModel {
       printerName: data['printerName'] as String,
       ip: data['ip'] as String,
       isPrinterUsb: data['isPrinterUsb']??false,
-      port: data['port'] as int,
+      port: data['port'] as String,
       type: data['type'] as String,
       createdBy: data['createdBy'] as String,
       updatedBy: data['updatedBy'] as String,

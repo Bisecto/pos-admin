@@ -613,19 +613,27 @@ class _TableOrderPageState extends State<TableOrderPage> {
 
       // Find and update the specific product
       bool productFound = false;
-      for (var product in products) {
+
+      // **Updated logic for voiding or deleting a product**
+      products.removeWhere((product) {
         if (product['productId'] == productToVoid.productId) {
-          product['isProductVoid'] = isAll;
-          product['voidedBy'] = widget.userModel.userId;
-          product['updatedAt'] = Timestamp.now();
           productFound = true;
 
-          // Track the voided product and its ordered quantity
-          voidedProductsWithQuantities[productToVoid] = product['quantity'];
+          if (isAll) {
+            // If isAll is true, remove the product from the list
+            return true; // Remove product from the list
+          } else {
+            // Otherwise, mark it as void
+            product['isProductVoid'] = isAll;
+            product['voidedBy'] = widget.userModel.userId;
+            product['updatedAt'] = Timestamp.now();
 
-          break; // Exit loop once product is updated
+            // Track the voided product and its ordered quantity
+            voidedProductsWithQuantities[productToVoid] = product['quantity'];
+          }
         }
-      }
+        return false; // Keep product in the list if it's not being removed
+      });
 
       if (productFound) {
         // Update the order with the modified list
@@ -638,10 +646,11 @@ class _TableOrderPageState extends State<TableOrderPage> {
         VoidedProductsActivity voidedProductsActivity =
             VoidedProductsActivity();
         VoidModel voidModel = VoidModel(
-            voidedBy: widget.userModel.userId,
-            orderedBy: orderData['createdBy'],
-            fromOrder: orderData['orderId'],
-            products: [productToVoid]);
+          voidedBy: widget.userModel.userId,
+          orderedBy: orderData['createdBy'],
+          fromOrder: orderData['orderId'],
+          products: [productToVoid],
+        );
 
         setState(() {
           // Filter products by type
@@ -1342,14 +1351,14 @@ class _TableOrderPageState extends State<TableOrderPage> {
     }
   }
 
-  Future<void> printDockets(String printerIp, int printerPort,
+  Future<void> printDockets(String printerIp, String printerPort,
       List<OrderProduct> products, String title, String orderNo) async {
     try {
       final profile = await CapabilityProfile.load();
       final printer = NetworkPrinter(PaperSize.mm80, profile);
 
       final PosPrintResult connectResult =
-          await printer.connect(printerIp, port: printerPort);
+          await printer.connect(printerIp, port: int.parse(printerPort));
       if (connectResult != PosPrintResult.success) {
         print("Failed to connect: $connectResult");
         return;

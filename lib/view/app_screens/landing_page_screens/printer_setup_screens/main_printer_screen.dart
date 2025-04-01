@@ -158,7 +158,7 @@ class _MainPrinterScreenState extends State<MainPrinterScreen> {
                         printerNameController.text.trim(),
                         widget.userModel.tenantId,
                         printerIpController.text,
-                        int.parse(printerPortController.text),
+                        printerPortController.text,
                         'thermal',
                         isPrinterUsb,
                         // Now correctly passes the updated value
