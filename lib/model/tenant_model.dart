@@ -13,9 +13,13 @@ class TenantModel {
   Timestamp createdAt;
   Timestamp updatedAt;
   Address address;
+  final String subscriptionPlan;
+  final DateTime? subscriptionStart;
+  final DateTime? subscriptionEnd;
+  final bool isSubscriptionActive;
   Map<String, businesTime.BusinessHours> businessHours;
 
-  TenantModel({
+  TenantModel( {
     required this.businessName,
     required this.businessPhoneNumber,
     required this.businessType,
@@ -25,6 +29,10 @@ class TenantModel {
     required this.createdAt,
     required this.updatedAt,
     required this.address,
+    required this.subscriptionPlan,
+    required this.subscriptionStart,
+    required this.subscriptionEnd,
+    required this.isSubscriptionActive,
     required this.businessHours,
   });
 
@@ -42,6 +50,10 @@ class TenantModel {
       createdAt: data['createdAt'],
       updatedAt: data['updateAt'],
       address: Address.fromFirestore(data['address']),
+      subscriptionPlan: data['subscriptionPlan'] ?? 'starter',
+      subscriptionStart: (data['subscriptionStart'] as Timestamp?)?.toDate(),
+      subscriptionEnd: (data['subscriptionEnd'] as Timestamp?)?.toDate(),
+      isSubscriptionActive: data['isSubscriptionActive'] ?? false,
       businessHours: (data['businessHours'] as Map<String, dynamic>).map(
         (day, hours) => MapEntry(
           day,
@@ -63,6 +75,10 @@ class TenantModel {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'address': address.toFirestore(),
+      'subscriptionPlan': subscriptionPlan,
+      'subscriptionStart': subscriptionStart,
+      'subscriptionEnd': subscriptionEnd,
+      'isSubscriptionActive': isSubscriptionActive,
       'businessHours': businessHours.map(
         (day, hours) => MapEntry(day, hours.toFirestore()),
       ),

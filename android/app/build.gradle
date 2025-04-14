@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.pos_admin"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34//flutter.compileSdkVersion
     ndkVersion = "25.1.8937393"
 
     compileOptions {

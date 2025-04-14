@@ -3,6 +3,7 @@ import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_colors.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/bank_details_page_screens/main_bank_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/dashboard/main_dashboard_page.dart';
+import 'package:pos_admin/view/app_screens/landing_page_screens/plans/plans_page.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/printer_setup_screens/main_printer_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/main_product_screen.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/role_page_screens/main_role_screen.dart';
@@ -11,6 +12,7 @@ import 'package:pos_admin/view/app_screens/landing_page_screens/tables_page_scre
 import 'package:pos_admin/view/app_screens/landing_page_screens/tenant_profile/tenant_profile.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../../../model/plan_model.dart';
 import '../../../model/tenant_model.dart';
 import '../../widgets/app_custom_text.dart';
 import 'brands_page_screens/main_brand_screen.dart';
@@ -22,12 +24,14 @@ class PageSelector extends StatefulWidget {
   final SidebarXController controller;
   TenantModel tenantModel;
   UserModel userModel;
+  final List<Plan> plans;
 
   PageSelector(
       {super.key,
       required this.controller,
       required this.tenantModel,
-      required this.userModel});
+      required this.userModel,
+      required this.plans});
 
   @override
   State<PageSelector> createState() => _PageSelectorState();
@@ -56,10 +60,13 @@ class _PageSelectorState extends State<PageSelector> {
                   return Dashboard(
                     tenantId: widget.userModel.tenantId,
                     userModel: widget.userModel,
+                    tenantModel: widget.tenantModel,
                   );
                 case 1:
                   return MainProductScreen(
                     userModel: widget.userModel,
+                    tenantModel: widget.tenantModel,
+                    plans: widget.plans,
                   );
                 case 2:
                   return MainBrandScreen(
@@ -100,6 +107,11 @@ class _PageSelectorState extends State<PageSelector> {
                 case 10:
                   return MainBankScreen(
                     userModel: widget.userModel,
+                  );
+                case 11:
+                  return PlansPage(
+                    userModel: widget.userModel,
+                    tenantModel: widget.tenantModel, plans: widget.plans,
                   );
                 default:
                   return TextStyles.textHeadings(

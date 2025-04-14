@@ -81,7 +81,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           .collection('Enrolled Entities')
           .doc(event.tenantId)
           .collection('Products');
-
       Product newProduct = Product(
         productId: generatedId,
         productName: event.productName,

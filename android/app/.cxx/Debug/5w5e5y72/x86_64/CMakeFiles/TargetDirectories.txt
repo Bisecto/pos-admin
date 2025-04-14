@@ -1,0 +1,2 @@
+/Users/precious/StudioProjects/pos_admin/android/app/.cxx/Debug/5w5e5y72/x86_64/CMakeFiles/rebuild_cache.dir
+/Users/precious/StudioProjects/pos_admin/android/app/.cxx/Debug/5w5e5y72/x86_64/CMakeFiles/edit_cache.dir

@@ -73,4 +73,23 @@ class Product {
       'updatedBy': updatedBy,
     };
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'categoryId': categoryId,
+      'createdAt': createdAt,
+      'createdBy': createdBy,
+      'brandId': brandId,
+      'productId': productId,
+      'productImageUrl': productImageUrl,
+      'productName': productName,
+      'productType': productType,
+      'price': price,
+      'discount': discount,
+      'sku': sku,
+      'qty': qty,
+      'updatedAt': updatedAt,
+      'updatedBy': updatedBy,
+    };
+  }
+
 }

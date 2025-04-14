@@ -21,13 +21,16 @@ import '../../../utills/app_utils.dart';
 import '../../../utills/custom_theme.dart';
 import '../../../utills/enums/toast_mesage.dart';
 import '../../../utills/shared_preferences.dart';
+import '../../model/plan_model.dart';
 import '../widgets/app_custom_text.dart';
 
 class LandingPage extends StatefulWidget {
   TenantModel tenantModel;
   UserModel userModel;
+  final List<Plan> plans;
 
-  LandingPage({super.key, required this.tenantModel, required this.userModel});
+
+  LandingPage({super.key, required this.tenantModel, required this.userModel, required this.plans});
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -170,7 +173,7 @@ class _LandingPageState extends State<LandingPage> {
                       child: PageSelector(
                     controller: _controller,
                     tenantModel: widget.tenantModel,
-                    userModel: widget.userModel,
+                    userModel: widget.userModel, plans: widget.plans,
                   )),
                 ),
               ],
@@ -317,9 +320,12 @@ class ExampleSidebarX extends StatelessWidget {
               //   icon: Icons.details_outlined,
               //   label: 'Logs',
               // ),
-               SidebarXItem(
+               const SidebarXItem(
                 icon: Icons.food_bank,
                 label: 'Bank Details',
+              ),const SidebarXItem(
+                icon: Icons.local_attraction_outlined,
+                label: 'Plans',
               ),
               SidebarXItem(
                 icon: Icons.logout,
@@ -375,8 +381,9 @@ String _getTitleByIndex(int index) {
     // case 10:
     //   return 'Logs';
     case 10:
-      return 'Bank Details';
-    case 11:
+      return 'Bank Details'; case 11:
+      return 'Plans';
+    case 12:
       return 'Logout';
 
     default:

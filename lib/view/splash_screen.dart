@@ -1,18 +1,11 @@
-import 'dart:typed_data';
-import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
-import 'package:esc_pos_printer/esc_pos_printer.dart';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
+import '../model/plan_model.dart';
 import '../res/app_colors.dart';
 import '../res/app_images.dart';
 import '../utills/app_utils.dart';
-import 'dart:ui' as ui;
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'dart:io';
-import 'package:image/image.dart' as img;
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,8 +17,115 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   AppUtils appUtils = AppUtils();
 
+
+  // Future<void> uploadPlansToFirebase() async {
+  //   final plansRef = FirebaseFirestore.instance.collection('plans');
+  //
+  //   final plans = {
+  //     'starter': Plan(
+  //       name: 'Starter',
+  //       monthlyPrice: 0,
+  //       yearlyPrice: 0,
+  //       maxProducts: 20,
+  //       maxTransactionsPerMonth: 100,
+  //       maxUsers: 1,
+  //       receiptPrinting: true,
+  //       cloudSync: false,
+  //       exportProductsToExcel: false,
+  //       printProductsA4: false,
+  //       printTransactionsA4: false,
+  //       exportTransactionsToExcel: false,
+  //       printStaffA4: false,
+  //       exportStaffToExcel: false,
+  //       accessToMultiTerminal: false,
+  //       offlineMode: true,
+  //       customBranding: false,
+  //       advancedRolesBranding: false,
+  //       apiAccess: false,
+  //       stockManagement: true,
+  //       logs: false,
+  //     ),
+  //     'basic': Plan(
+  //       name: 'Basic',
+  //       monthlyPrice: 9.99,
+  //       yearlyPrice: 99.99,
+  //       maxProducts: 50,
+  //       maxTransactionsPerMonth: 500,
+  //       maxUsers: 3,
+  //       receiptPrinting: true,
+  //       cloudSync: true,
+  //       exportProductsToExcel: true,
+  //       printProductsA4: true,
+  //       printTransactionsA4: true,
+  //       exportTransactionsToExcel: true,
+  //       printStaffA4: false,
+  //       exportStaffToExcel: false,
+  //       accessToMultiTerminal: true,
+  //       offlineMode: true,
+  //       customBranding: false,
+  //       advancedRolesBranding: false,
+  //       apiAccess: false,
+  //       stockManagement: true,
+  //       logs: false,
+  //     ),
+  //     'growth': Plan(
+  //       name: 'Growth',
+  //       monthlyPrice: 24.99,
+  //       yearlyPrice: 249.99,
+  //       maxProducts: 5000,
+  //       maxTransactionsPerMonth: 10000,
+  //       maxUsers: 10,
+  //       receiptPrinting: true,
+  //       cloudSync: true,
+  //       exportProductsToExcel: true,
+  //       printProductsA4: true,
+  //       printTransactionsA4: true,
+  //       exportTransactionsToExcel: true,
+  //       printStaffA4: true,
+  //       exportStaffToExcel: true,
+  //       accessToMultiTerminal: true,
+  //       offlineMode: true,
+  //       customBranding: true,
+  //       advancedRolesBranding: true,
+  //       apiAccess: false,
+  //       stockManagement: true,
+  //       logs: true,
+  //     ),
+  //     'enterprise': Plan(
+  //       name: 'Enterprise',
+  //       monthlyPrice: 49.99,
+  //       yearlyPrice: 499.99,
+  //       maxProducts: -1,
+  //       maxTransactionsPerMonth: -1,
+  //       maxUsers: -1,
+  //       receiptPrinting: true,
+  //       cloudSync: true,
+  //       exportProductsToExcel: true,
+  //       printProductsA4: true,
+  //       printTransactionsA4: true,
+  //       exportTransactionsToExcel: true,
+  //       printStaffA4: true,
+  //       exportStaffToExcel: true,
+  //       accessToMultiTerminal: true,
+  //       offlineMode: true,
+  //       customBranding: true,
+  //       advancedRolesBranding: true,
+  //       apiAccess: true,
+  //       stockManagement: true,
+  //       logs: true,
+  //     ),
+  //   };
+  //
+  //   for (final entry in plans.entries) {
+  //     await plansRef.doc(entry.key).set(entry.value.toJson());
+  //     print("Uploaded ${entry.key} plan");
+  //   }
+  // }
+
   @override
   void initState() {
+   // uploadPlansToFirebase();
+
     appUtils.openApp(context);
     //updateAllProductsQty('8V8YTiKWyObO7tppMHeP');
 
@@ -33,10 +133,35 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   // Future<void> printLabel() async {
-  //   final pdfData = await generateLabelPdf();
-  //   await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdfData);
+  //   final String labelHtml = """
+  //   <html>
+  //   <head>
+  //     <style>
+  //       @page { size: 60mm 40mm; margin: 0; }
+  //       body { font-family: Arial, sans-serif; font-size: 12px; text-align: center; margin: 0; padding: 0; }
+  //       .label { width: 60mm; height: 40mm; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  //       .company { font-size: 14px; font-weight: bold; }
+  //       .product { font-size: 12px; font-weight: bold; }
+  //       .price { font-size: 14px; font-weight: bold; margin: 5px 0; }
+  //       .size { font-size: 12px; }
+  //     </style>
+  //   </head>
+  //   <body>
+  //     <div class="label">
+  //       <div class="company">Nenny Stitches</div>
+  //       <div class="product">Adunni pant</div>
+  //       <div class="price">200,000</div>
+  //       <div class="size">Size: Meduim</div>
+  //     </div>
+  //   </body>
+  //   </html>
+  //   """;
+  //   final printWindow = web.window.open('', '_blank');
+  //   if (printWindow != null) {
+  //     printWindow.document.write(labelHtml.toJS);
+  //     printWindow.document.close();
+  //   }
   // }
-
   // Future<Uint8List> generateLabelPdf() async {
   //   final pdf = pw.Document();
   //
@@ -75,76 +200,6 @@ class _SplashScreenState extends State<SplashScreen> {
   //   return pdf.save();
   // }
 
-  // Future<void> printLabel(String printerIp, int printerPort) async {
-  //   try {
-  //     final profile = await CapabilityProfile.load();
-  //     final printer = NetworkPrinter(PaperSize.mm58, profile);
-  //
-  //     final PosPrintResult connectResult =
-  //     await printer.connect(printerIp, port: printerPort);
-  //
-  //     if (connectResult != PosPrintResult.success) {
-  //       print("Failed to connect: $connectResult");
-  //       return;
-  //     }
-  //
-  //     // Store Name
-  //     printer.text('COMPASS CLOTHING',
-  //         styles: PosStyles(
-  //             align: PosAlign.left,
-  //             bold: true,
-  //             height: PosTextSize.size1,
-  //             width: PosTextSize.size1));
-  //
-  //     printer.hr(); // Horizontal Line
-  //
-  //     // Size and Price
-  //     printer.text('Size: M',
-  //         styles: PosStyles(align: PosAlign.left, height: PosTextSize.size1));
-  //     printer.text('Price: NGN 5,000',
-  //         styles: PosStyles(align: PosAlign.left, height: PosTextSize.size1));
-  //
-  //     printer.hr(); // Horizontal Line
-  //
-  //     // QR Code
-  //     //printer.qrcode('https://compass.com', size: QRSize.Size4);
-  //
-  //     //printer.cut();
-  //     printer.disconnect();
-  //   } catch (e) {
-  //     print("Error in printLabel: $e");
-  //   }
-  // }
-  // Future<void> printReceipt() async {
-  //   // Pairing with the printer
-  //   await _printer.pairDevice(vendorId: 0x1fc9, productId: 0x2016);
-  //
-  //   // Print header
-  //   await _printer.printText('---------------------------------', centerAlign: true);
-  //   await _printer.printText('   COMPASS CLOTHING   ', bold: true, centerAlign: true);
-  //   await _printer.printText('---------------------------------', centerAlign: true);
-  //   await _printer.printEmptyLine();
-  //
-  //   // Print size and price
-  //   await _printer.printText('      Size: M', centerAlign: true);
-  //   await _printer.printText('   Price: NGN 5,000', centerAlign: true);
-  //   await _printer.printEmptyLine();
-  //
-  //   // Print separator
-  //   await _printer.printText('---------------------------------', centerAlign: true);
-  //   await _printer.printEmptyLine();
-  //
-  //   // Print QR Code (assuming the printer supports it)
-  //   await _printer.printBarcode('https://compass.com',);
-  //   await _printer.printEmptyLine();
-  //
-  //   // Print footer
-  //   await _printer.printText('---------------------------------', centerAlign: true);
-  //
-  //   // Close printer
-  //   //await _printer.cut();
-  //   await _printer.closePrinter();
-  // }
 
   @override
   Widget build(BuildContext context) {

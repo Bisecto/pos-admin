@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:pos_admin/model/plan_model.dart';
 
 import '../../model/log_model.dart';
 import '../../model/tenant_model.dart';
@@ -78,8 +79,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           //print(tenantDocumentSnapshot['businessName']);
           TenantModel tenantModel =
               TenantModel.fromFirestore(tenantDocumentSnapshot);
+          final snapshot = await FirebaseFirestore.instance.collection('plans').get();
 
-          emit(SuccessState("Successfully Signed in", tenantModel, userModel));
+          List<Plan> plans= snapshot.docs.map((doc) {
+            final data = doc.data();
+            return Plan.fromJson(data);
+          }).toList();
+          emit(SuccessState("Successfully Signed in", tenantModel, userModel,plans));
         } else {
           emit(ErrorState(
               "You don\'t have access to this, Please contact your admin.")); // Emit error message
@@ -132,175 +138,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // FutureOr<void> signUpEventClick(
-  //     SignUpEventClick event, Emitter<AuthState> emit) async {
-  //   emit(LoadingState());
-  //
-  //   try {
-  //     // User? adminUser = FirebaseAuth.instance.currentUser;
-  //
-  //     // if (adminUser == null) {
-  //     //   emit(ErrorState("Admin is not signed in"));
-  //     //   return;
-  //     // }
-  //
-  //     UserCredential userCredential =
-  //         await FirebaseAuth.instance.createUserWithEmailAndPassword(
-  //             email: event.email, password: 'Qwerty123@');
-  //
-  //     User? newUser = userCredential.user;
-  //
-  //     var newUserCollection =
-  //         FirebaseFirestore.instance.collection('Users').doc(newUser!.uid);
-  //
-  //     UserModel userModel = UserModel(
-  //         userId: newUser.uid,
-  //         email: event.email,
-  //         fullname: event.fullname,
-  //         imageUrl: '',
-  //         phone: event.phone,
-  //         role: event.role,
-  //         tenantId: event.tenantId,
-  //         createdAt: Timestamp.fromDate(DateTime.now()),
-  //         updatedAt: Timestamp.fromDate(DateTime.now()),
-  //         accountStatus: false);
-  //
-  //     await newUserCollection.set(userModel.toFirestore());
-  //     LogActivity logActivity = LogActivity();
-  //     LogModel logModel = LogModel(
-  //         actionType: LogActionType.userAdd.toString(),
-  //         actionDescription: "${event.userModel.fullname} Created a new user with name:${event. fullname}, email: ${event.email}, uid: ${newUser.uid}",
-  //         performedBy: userModel.fullname,
-  //         userId: userModel.userId);
-  //     await logActivity.logAction(userModel.tenantId.trim(), logModel);
-  //     emit(CreateUserSuccessState("Account created successfully"));
-  //   } on FirebaseAuthException catch (e) {
-  //     // Handle different FirebaseAuth exceptions during sign-up
-  //     print(e.toString());
-  //     print(e.code.toString());
-  //     // await FirebaseAuth.instance.signInWithEmailAndPassword(
-  //     //     email: await SharedPref.getString('email'),
-  //     //     password: await SharedPref.getString('password'));
-  //
-  //     String errorMessage =
-  //         "There was a problem signing you up, please try again."; // Default message
-  //
-  //     if (e.code == 'weak-password') {
-  //       print('The password provided is too weak.');
-  //       errorMessage = 'The password provided is too weak.';
-  //     } else if (e.code == 'email-already-in-use') {
-  //       print('The account already exists for that email.');
-  //       errorMessage = 'The account already exists for this email.';
-  //     } else if (e.code == 'invalid-email') {
-  //       print('Invalid email provided.');
-  //       errorMessage = 'Invalid email provided.';
-  //     } else if (e.code == 'operation-not-allowed') {
-  //       print('Operation not allowed.');
-  //       errorMessage = 'Operation not allowed, please contact support.';
-  //     }
-  //
-  //     emit(ErrorState(
-  //         errorMessage)); // Emit the error state with a custom message
-  //     emit(AuthInitial()); // Reset the state after handling the error
-  //   } catch (e) {
-  //     print(e.toString());
-  //     emit(ErrorState("An unexpected error occurred, please try again."));
-  //   } finally {
-  //     // Optional cleanup or reset actions if needed
-  //   }
-  // }
-
-  // FutureOr<void> signUpEventClick(
-  //     SignUpEventClick event, Emitter<AuthState> emit) async {
-  //   emit(LoadingState());
-  //
-  //   try {
-  //     await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
-  //
-  //     print(1234);
-  //     await FirebaseAuth.instance.signOut();
-  //     print(345);
-  //
-  //     // FirebaseAuth.instance.;
-  //     UserCredential userCredential =
-  //         await _auth.createUserWithEmailAndPassword(
-  //             email: event.email, password: 'Qwerty123@');
-  //     print("fr4iueu");
-  //
-  //     User? user = userCredential.user;
-  //     var userCollection =
-  //         FirebaseFirestore.instance.collection('Users').doc(user!.uid);
-  //     print("fr4iueu");
-  //
-  //     UserModel userModel = UserModel(
-  //         userId: user.uid,
-  //         email: event.email,
-  //         fullname: event.fullname,
-  //         imageUrl: '',
-  //         phone: event.phone,
-  //         role: event.role,
-  //         tenantId: event.tenantId,
-  //         createdAt: Timestamp.fromDate(DateTime.now()),
-  //         updatedAt: Timestamp.fromDate(DateTime.now()),
-  //         accountStatus: true);
-  //
-  //     await userCollection
-  //         .set(userModel.toFirestore()); //FirebaseAuth.instance.tenantId='';
-  //     // await user!.updateProfile(        'tenantId': newTenantId,
-  //     // );
-  //     print(user.tenantId);
-  //     print(user.uid);
-  //     await FirebaseAuth.instance.signOut();
-  //
-  //     // if (user.email!.isNotEmpty) {
-  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
-  //         email: await SharedPref.getString('email'),
-  //         password: await SharedPref.getString('password'));
-  //     emit(SuccessState("Successfully Signed in", event.tenantModel));
-  //
-  //     // } else {
-  //     //   emit(ErrorState(
-  //     //       "There was a problem logging you in, please try again.")); // Emit error message
-  //     //   emit(AuthInitial()); //
-  //     // }
-  //   } on FirebaseAuthException catch (e) {
-  //     // Handle different FirebaseAuth exceptions during sign-up
-  //     print(e.toString());
-  //     print(e.code.toString());
-  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
-  //         email: await SharedPref.getString('email'),
-  //         password: await SharedPref.getString('password'));
-  //
-  //     String errorMessage =
-  //         "There was a problem signing you up, please try again."; // Default message
-  //
-  //     if (e.code == 'weak-password') {
-  //       print('The password provided is too weak.');
-  //       errorMessage = 'The password provided is too weak.';
-  //     } else if (e.code == 'email-already-in-use') {
-  //       print('The account already exists for that email.');
-  //       errorMessage = 'The account already exists for this email.';
-  //     } else if (e.code == 'invalid-email') {
-  //       print('Invalid email provided.');
-  //       errorMessage = 'Invalid email provided.';
-  //     } else if (e.code == 'operation-not-allowed') {
-  //       print('Operation not allowed.');
-  //       errorMessage = 'Operation not allowed, please contact support.';
-  //     }
-  //
-  //     emit(ErrorState(
-  //         errorMessage)); // Emit the error state with a custom message
-  //     emit(AuthInitial()); // Reset the state after handling the error
-  //   } catch (e) {
-  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
-  //         email: await SharedPref.getString('email'),
-  //         password: await SharedPref.getString('password'));
-  //
-  //     emit(ErrorState("There was a problem logging you in, please try again."));
-  //     emit(AuthInitial()); // Reset state
-  //   }
-  // }
-
   Future<void> resetPasswordEvent(
       ResetPasswordEvent event, Emitter<AuthState> emit) async {
     try {
@@ -313,7 +150,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(SuccessState(
           "Password reset email sent successfully to ${event.email}.",
           null,
-          null));
+          null,null));
     } on FirebaseAuthException catch (e) {
       // Handle different FirebaseAuth exceptions during password reset
       print("FirebaseAuthException: ${e.code} - ${e.message}");

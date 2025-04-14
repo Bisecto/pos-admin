@@ -60,7 +60,6 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
     businessHours = widget.tenantModel.businessHours;
   }
 
-
   Future<void> updateTenantProfile() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -82,8 +81,12 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
               state: state.text,
               streetAddress: street.text,
               zipCode: zipCode.text),
-          businessHours:
-              businessHours,  // Assuming businessHours is updated through UI
+          businessHours: businessHours,
+          subscriptionPlan: widget.tenantModel.subscriptionPlan,
+          subscriptionStart: widget.tenantModel.subscriptionStart,
+          subscriptionEnd: widget.tenantModel.subscriptionEnd,
+          isSubscriptionActive: widget.tenantModel
+              .isSubscriptionActive, // Assuming businessHours is updated through UI
         );
 
         // Update tenant data in Firestore
@@ -94,7 +97,8 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
         LogActivity logActivity = LogActivity();
         LogModel logModel = LogModel(
             actionType: LogActionType.businessProfileUpdate.toString(),
-            actionDescription: "${widget.userModel.fullname}  updated Business profile from ${widget.tenantModel} to ${updatedTenant}  ",
+            actionDescription:
+                "${widget.userModel.fullname}  updated Business profile from ${widget.tenantModel} to ${updatedTenant}  ",
             performedBy: widget.userModel.fullname,
             userId: widget.userModel.userId);
         logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
@@ -209,22 +213,27 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
                         ],
                       ),
                       const SizedBox(height: 20),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if(widget.userModel.fullname.toLowerCase().contains('humble'))
-                          SizedBox(width:250,child: DatePickerWidget(tenantId: widget.userModel.tenantId.trim())),
-
-
-                          SizedBox( // Ensures CustomTextFormField has a fixed width
+                          if (widget.userModel.fullname
+                              .toLowerCase()
+                              .contains('humble'))
+                            SizedBox(
+                                width: 250,
+                                child: DatePickerWidget(
+                                    tenantId:
+                                        widget.userModel.tenantId.trim())),
+                          SizedBox(
+                            // Ensures CustomTextFormField has a fixed width
                             width: 250,
                             child: CustomTextFormField(
                               controller: vat,
                               hint: '',
                               label: 'Business VAT(%)',
                               textInputType: TextInputType.number,
-                              validator: AppValidator.validateTextfield, width: 250,
+                              validator: AppValidator.validateTextfield,
+                              width: 250,
                             ),
                           ),
                         ],
@@ -299,18 +308,18 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                     Row(
-                       mainAxisAlignment: MainAxisAlignment.start,
-                       children: [
-                         CustomTextFormField(
-                           width: 250,
-                           controller: zipCode,
-                           hint: '',
-                           label: 'Zip Code',
-                           validator: AppValidator.validateTextfield,
-                         ),
-                       ],
-                     )
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          CustomTextFormField(
+                            width: 250,
+                            controller: zipCode,
+                            hint: '',
+                            label: 'Zip Code',
+                            validator: AppValidator.validateTextfield,
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),

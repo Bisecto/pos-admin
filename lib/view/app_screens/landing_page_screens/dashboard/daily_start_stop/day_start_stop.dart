@@ -2,17 +2,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_admin/model/start_stop_model.dart';
+import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_colors.dart';
 import '../../../../../model/log_model.dart';
+import '../../plans/subscription_status.dart';
 import 'daily_start_grid.dart';
 
 class DayStartStopPage extends StatefulWidget {
   final String tenantId;
   final UserModel userModel;
+  final TenantModel tenantModel;
 
   const DayStartStopPage(
-      {Key? key, required this.tenantId, required this.userModel})
+      {Key? key,
+      required this.tenantId,
+      required this.userModel,
+      required this.tenantModel})
       : super(key: key);
 
   @override
@@ -77,6 +83,11 @@ class _DayStartStopPageState extends State<DayStartStopPage> {
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.green),
+            ),
+            const SizedBox(height: 5),
+            SubscriptionStatus(
+              planName: widget.tenantModel.subscriptionPlan,
+              isActive: widget.tenantModel.isSubscriptionActive,
             ),
             const SizedBox(height: 5),
             const Text(

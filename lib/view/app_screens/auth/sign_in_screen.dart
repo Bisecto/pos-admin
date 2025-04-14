@@ -186,6 +186,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             page: LandingPage(
                               tenantModel: state.tenantModel!,
                               userModel: state.userModel!,
+                              plans:state.plans!,
                             ));
                       } else if (state is ErrorState) {
                         MSG.warningSnackBar(context, state.error);

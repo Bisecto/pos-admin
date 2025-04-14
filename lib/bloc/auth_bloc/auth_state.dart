@@ -29,8 +29,9 @@ class SuccessState extends AuthState {
   final String msg;
   TenantModel? tenantModel;
   UserModel? userModel;
+  final List<Plan>? plans;
 
-  SuccessState(this.msg, this.tenantModel,this.userModel);
+  SuccessState(this.msg, this.tenantModel,this.userModel, this.plans);
 }
 
 class CreateUserSuccessState extends AuthState {

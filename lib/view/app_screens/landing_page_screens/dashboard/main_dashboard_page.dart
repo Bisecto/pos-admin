@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_colors.dart';
 import '../../../../model/log_model.dart';
@@ -10,8 +11,9 @@ import 'daily_start_stop/day_start_stop.dart';
 class Dashboard extends StatefulWidget {
   final String tenantId;
   final UserModel userModel;
+  final TenantModel tenantModel;
 
-  Dashboard({required this.tenantId, required this.userModel});
+  Dashboard({required this.tenantId, required this.userModel, required this.tenantModel});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -57,7 +59,7 @@ class _DashboardState extends State<Dashboard> {
                 children: [
                   if(widget.userModel.viewFinance)
                   AllMetricsOverview(tenantId: widget.tenantId,),
-                  DayStartStopPage(tenantId: widget.tenantId.trim(), userModel: widget.userModel,)
+                  DayStartStopPage(tenantId: widget.tenantId.trim(), userModel: widget.userModel, tenantModel: widget.tenantModel,)
 
                 ],
               ),
