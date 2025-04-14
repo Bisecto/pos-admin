@@ -222,11 +222,11 @@ class _SignInScreenState extends State<SignInScreen> {
                                         ),
                                         Image.asset(
                                           AppImages.companyLogo,
-                                          height: 100,
-                                          width: 100,
+                                          height: 150,
+                                          width: 150,
                                         ),
                                         const SizedBox(
-                                          height: 20,
+                                          height: 0,
                                         ),
                                         Form(
                                             key: _formKey,
@@ -357,7 +357,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                             size: 14,
                                             color: AppColors.white),
                                         TextStyles.textHeadings(
-                                            textValue: "Checkpoint Abuja",
+                                            textValue: "nextack".toUpperCase(),
                                             textSize: 20,
                                             textColor: AppColors.orange)
                                       ],

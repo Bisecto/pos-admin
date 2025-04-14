@@ -224,16 +224,16 @@ class _SplashScreenState extends State<SplashScreen> {
                 children: [
                   Image.asset(
                     AppImages.companyLogo,
-                    width: 100,
-                    height: 100,
+                    width: 200,
+                    height: 200,
                   ),
                   SizedBox(
                     height: 20,
                   ),
-                  TextStyles.textHeadings(
-                      textValue: "SALE ON SPOT",
-                      textSize: 20,
-                      textColor: AppColors.white)
+                  // TextStyles.textHeadings(
+                  //     textValue: "SALE ON SPOT",
+                  //     textSize: 20,
+                  //     textColor: AppColors.white)
                 ],
               ),
             ),

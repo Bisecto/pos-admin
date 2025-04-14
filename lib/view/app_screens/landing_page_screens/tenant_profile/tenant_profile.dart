@@ -1,8 +1,16 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/model/user_model.dart';
 import 'package:pos_admin/res/app_enums.dart';
+import 'package:pos_admin/res/app_images.dart';
+import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/utills/app_validator.dart';
 import 'package:pos_admin/view/widgets/app_custom_text.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
@@ -41,10 +49,58 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
   TextEditingController city = TextEditingController();
   TextEditingController street = TextEditingController();
   TextEditingController zipCode = TextEditingController();
+  File? _imageFile;
+  final picker = ImagePicker();
+  Future<void> downloadAndSaveImage(String imageUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      print(response.statusCode);
+      print(response.statusCode);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final bytes = response.bodyBytes;
+
+        // Get app's directory
+        final dir = await getApplicationDocumentsDirectory();
+        final filePath = '${dir.path}/downloaded_image.jpg';
+
+        // Save file
+        final file = File(filePath);
+        await file.writeAsBytes(bytes);
+
+        // Update your _imageFile variable
+        setState(() {
+          _imageFile = file;
+
+        });
+
+        print('Image saved to: $filePath');
+      } else {
+        setState(() {
+          _imageFile = File(AppImages.posTerminal);
+
+        });
+        print('Failed to download image. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error downloading image: $e');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    downloadAndSaveImage(widget.tenantModel.logoUrl);
+
     businessName.text = widget.tenantModel.businessName;
     businessPhoneNumber.text = widget.tenantModel.businessPhoneNumber;
     businessType.text = widget.tenantModel.businessType;
@@ -59,8 +115,16 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
     //address = widget.tenantModel.address;
     businessHours = widget.tenantModel.businessHours;
   }
+  Future<String> uploadImageToStorage(File imageFile) async {
+    final fileName = 'logos/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final ref = FirebaseStorage.instance.ref().child(fileName);
+    final uploadTask = await ref.putFile(imageFile);
+    final downloadUrl = await uploadTask.ref.getDownloadURL();
+    return downloadUrl;
+  }
 
   Future<void> updateTenantProfile() async {
+    print(logoUrl);
     if (_formKey.currentState!.validate()) {
       try {
         // Prepare the updated tenant data
@@ -103,7 +167,7 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
             userId: widget.userModel.userId);
         logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile updated successfully')),
+          const SnackBar(content: Text('Profile updated successfully')),
         );
         // setState(() {
         //   businessName.text = widget.tenantModel.businessName;
@@ -146,7 +210,7 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Business Details',
                   style: TextStyle(
                     fontSize: 24,
@@ -166,7 +230,7 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.1),
                         blurRadius: 10,
-                        offset: Offset(0, 5),
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
@@ -189,6 +253,39 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
                             hint: '',
                             label: 'Phone Number',
                             validator: AppValidator.validateTextfield,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (_imageFile != null)
+                            Image.file(_imageFile!, height: 150, width: 150, fit: BoxFit.contain)
+                          else
+                            const SizedBox(
+                              height: 150,
+                              width: 150,
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () async {
+                              await _pickImage();
+
+                              if (_imageFile != null) {
+                                final uploadedUrl = await uploadImageToStorage(_imageFile!);
+                                setState(() {
+                                  logoUrl = uploadedUrl;
+                                  print(logoUrl);
+                                  print(logoUrl);
+                                  print(logoUrl);
+                                  print(logoUrl);
+                                  print(logoUrl);
+                                });
+                              }
+                            },
+                            child: const Text('Select Image'),
                           ),
                         ],
                       ),
@@ -244,7 +341,7 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
                 const SizedBox(height: 20),
 
                 // Address Section
-                Text(
+                const Text(
                   'Address',
                   style: TextStyle(
                     fontSize: 20,
@@ -262,7 +359,7 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.1),
                         blurRadius: 10,
-                        offset: Offset(0, 5),
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),

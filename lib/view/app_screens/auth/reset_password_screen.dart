@@ -114,7 +114,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                                     .trim()));
                                           }
                                         },
-                                        text: 'Login',
+                                        text: 'Request',
                                         borderColor: AppColors.darkYellow,
                                         bgColor: AppColors.darkYellow,
                                         textColor: AppColors.white,
@@ -139,7 +139,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                   size: 14,
                                   color: AppColors.white),
                               TextStyles.textHeadings(
-                                  textValue: "Checkpoint Abuja",
+                                  textValue: "nextack".toUpperCase(),
                                   textSize: 20,
                                   textColor: AppColors.orange)
                             ],
