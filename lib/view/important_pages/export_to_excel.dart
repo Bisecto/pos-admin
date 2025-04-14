@@ -66,7 +66,7 @@ class ExcelExporter {
       // Add headers to the first row with bold formatting
       for (var i = 0; i < headers.length; i++) {
         final cell = sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0));
-        cell.value = TextCellValue(headers[i]);
+        cell.value = TextCellValue(headers[i].toUpperCase());
 
         // Apply bold formatting to headers
         final cellStyle = CellStyle(
@@ -116,7 +116,7 @@ class ExcelExporter {
             );
           } else {
             // Convert to string for all other types
-            cell.value = TextCellValue(value.toString());
+            cell.value = TextCellValue(value.toString().toUpperCase());
           }
         }
       }

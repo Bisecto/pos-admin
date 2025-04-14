@@ -10,6 +10,7 @@ import '../../../../repository/log_actions.dart';
 import '../../../../res/app_enums.dart';
 import '../../../../utills/app_validator.dart';
 import '../../../important_pages/dialog_box.dart';
+import '../../../important_pages/export_to_excel.dart';
 import '../../../widgets/app_custom_text.dart';
 import '../../../widgets/drop_down.dart';
 import '../../../widgets/form_button.dart';
@@ -303,7 +304,67 @@ class _UserTableScreenState extends State<UserTableScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if(widget.userModel.creatingEditingProfile)
+          Padding(
+            padding: const EdgeInsets.only(top: 0.0),
+            child: GestureDetector(
+              onTap:(){
+                ExcelExporter.exportToExcel(
+                  context: context,
+                  items: widget.userList,
+                  fileName: 'Staff_list',
+                  toJson: (item) => item.toFirestore(),
+                    excludeFields: [
+                      'userId',
+                      'imageUrl',
+                      'tenantId',
+                      'createdAt',
+                      'updatedAt',
+                      'startEndDay',
+                      'viewFinance',
+                      'creatingEditingProfile',
+                      'addingEditingBusinessProfile',
+                      'addingEditingProductsDetails',
+                      'viewingLogs',
+                      'addingEditingBankDetails',
+                      'addingEditingPrinters',
+                      'voidingProducts',
+                      'voidingTableOrder',
+                      'addingEditingTable',
+                    ]
+
+                );
+                // filteredProducts();
+              },
+              child: Container(
+                width: 150,
+                height: 45,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: AppColors.darkYellow),
+                child: const Padding(
+                  padding: EdgeInsets.all(0.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.upload,
+                        color: AppColors.white,
+                      ),
+                      CustomText(
+                        text: "  Export",
+                        size: 18,
+                        color: AppColors.white,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        SizedBox(height: 20,),
         if(widget.userModel.creatingEditingProfile)
 
           Expanded(

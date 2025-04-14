@@ -12,6 +12,7 @@ import '../../../../model/brand_model.dart';
 import '../../../../model/tenant_model.dart';
 import '../../../../model/user_model.dart';
 import '../../../../res/app_colors.dart';
+import '../../../important_pages/export_to_excel.dart';
 import '../../../widgets/app_custom_text.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart' as modalSheet;
 
@@ -183,6 +184,8 @@ class _MainUserScreenState extends State<MainUserScreen> {
                     ],
                   ),
                 ),
+
+
                 if(widget.userModel.creatingEditingProfile)
 
                   Padding(
@@ -251,10 +254,9 @@ class _MainUserScreenState extends State<MainUserScreen> {
                   }
                   if (state is GetUserSuccessState) {
                     return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          height: 40,
-                        ),
+
                         if (filteredUsers.isEmpty)
                           const Center(
                               child: CustomText(
