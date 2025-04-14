@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_admin/model/tenant_model.dart';
+import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
 
 import '../../../../model/plan_model.dart';
@@ -135,11 +136,11 @@ class PlanCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "\$${plan.monthlyPrice}/month",
+              "₦${AppUtils.convertPrice(plan.monthlyPrice)}/month",
               style: const TextStyle(fontSize: 16, color: Colors.white),
             ),
             Text(
-              "\$${plan.yearlyPrice}/year",
+              "₦${AppUtils.convertPrice(plan.yearlyPrice)}/year",
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const Divider(height: 20),

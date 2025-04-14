@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
+import 'package:pos_admin/view/widgets/app_custom_text.dart';
 import '../model/plan_model.dart';
 import '../res/app_colors.dart';
 import '../res/app_images.dart';
@@ -229,10 +230,10 @@ class _SplashScreenState extends State<SplashScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  // TextStyles.textHeadings(
-                  //     textValue: "CHECKPOINT ADMIN POS",
-                  //     textSize: 20,
-                  //     textColor: AppColors.white)
+                  TextStyles.textHeadings(
+                      textValue: "SALE ON SPOT",
+                      textSize: 20,
+                      textColor: AppColors.white)
                 ],
               ),
             ),

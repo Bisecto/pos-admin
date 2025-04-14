@@ -48,11 +48,13 @@ class ExcelExporter {
 
       // Filter fields if needed
       if (includeFields != null && includeFields.isNotEmpty) {
-        fields = fields.where((field) => includeFields.contains(field)).toList();
+        fields =
+            fields.where((field) => includeFields.contains(field)).toList();
       }
 
       if (excludeFields != null && excludeFields.isNotEmpty) {
-        fields = fields.where((field) => !excludeFields.contains(field)).toList();
+        fields =
+            fields.where((field) => !excludeFields.contains(field)).toList();
       }
 
       // Use custom headers if provided, otherwise use field names
@@ -60,12 +62,14 @@ class ExcelExporter {
 
       // Ensure headers and fields have the same length
       if (customHeaders != null && headers.length != fields.length) {
-        throw Exception('Custom headers length must match the number of fields being exported');
+        throw Exception(
+            'Custom headers length must match the number of fields being exported');
       }
 
       // Add headers to the first row with bold formatting
       for (var i = 0; i < headers.length; i++) {
-        final cell = sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0));
+        final cell =
+            sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0));
         cell.value = TextCellValue(headers[i].toUpperCase());
 
         // Apply bold formatting to headers
@@ -86,9 +90,7 @@ class ExcelExporter {
           final field = fields[colIndex];
           final value = itemMap[field];
           final cell = sheet.cell(CellIndex.indexByColumnRow(
-              columnIndex: colIndex,
-              rowIndex: rowIndex + 1
-          ));
+              columnIndex: colIndex, rowIndex: rowIndex + 1));
 
           // Handle different value types
           if (value == null) {
@@ -145,11 +147,10 @@ class ExcelExporter {
           _showLoadingDialog(context);
 
           // Share the file
-          await Share.shareXFiles(
-              [XFile(filePath)],
-              subject: '$fileName Export',
-              text: 'Exported data from your app'
-          ).then((_) {
+          await Share.shareXFiles([XFile(filePath)],
+                  subject: '$fileName Export',
+                  text: 'Exported data from your app')
+              .then((_) {
             // Dismiss loading dialog
             Navigator.of(context, rootNavigator: true).pop();
 

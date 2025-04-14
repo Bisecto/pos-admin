@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_admin/model/category_model.dart';
+import 'package:pos_admin/model/plan_model.dart';
 import 'package:pos_admin/utills/app_navigator.dart';
 import 'package:pos_admin/utills/app_utils.dart';
 import 'package:pos_admin/utills/app_validator.dart';
@@ -34,8 +36,13 @@ import '../../auth/create_new_user.dart';
 class MainUserScreen extends StatefulWidget {
   TenantModel tenantModel;
   UserModel userModel;
+  final List<Plan> plans;
 
-  MainUserScreen({super.key, required this.tenantModel,required this.userModel});
+  MainUserScreen(
+      {super.key,
+      required this.tenantModel,
+      required this.userModel,
+      required this.plans});
 
   @override
   State<MainUserScreen> createState() => _MainUserScreenState();
@@ -184,55 +191,74 @@ class _MainUserScreenState extends State<MainUserScreen> {
                     ],
                   ),
                 ),
-
-
-                if(widget.userModel.creatingEditingProfile)
-
+                if (widget.userModel.creatingEditingProfile)
                   Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      // AppNavigator.pushAndStackPage(context, page: CreateNewUser(tenantModel: widget.tenantModel,));
-                      modalSheet.showMaterialModalBottomSheet(
-                        backgroundColor: Colors.transparent,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20.0),
-                          ),
-                        ),
-                        context: context,
-                        builder: (context) => Padding(
-                          padding: const EdgeInsets.only(top: 100.0),
-                          child: CreateNewUser(tenantModel: widget.tenantModel, userModel: widget.userModel,),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: 150,
-                      height: 45,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: AppColors.darkYellow),
-                      child: const Padding(
-                        padding: EdgeInsets.all(0.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add,
-                              color: AppColors.white,
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: GestureDetector(
+                      onTap: () async {
+                        final currentPlan = widget.plans.firstWhere(
+                          (plan) =>
+                              plan.name.toString().toLowerCase() ==
+                              widget.tenantModel.subscriptionPlan.toLowerCase(),
+                          //orElse: () => null,
+                        );
+                        final currentUsersSnapshot = await FirebaseFirestore
+                            .instance
+                            .collection('Users')
+                            .where('tenantId',
+                                isEqualTo: widget.userModel.tenantId.trim())
+                            .get();
+                        final currentUserCount =
+                            currentUsersSnapshot.docs.length;
+
+                        if (currentUserCount >= currentPlan.maxUsers) {
+                          MSG.warningSnackBar(context,
+                              "Maximum user limit reached for this plan.");
+                          return;
+                        }
+                        modalSheet.showMaterialModalBottomSheet(
+                          backgroundColor: Colors.transparent,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20.0),
                             ),
-                            CustomText(
-                              text: "  User",
-                              size: 18,
-                              color: AppColors.white,
-                            )
-                          ],
+                          ),
+                          context: context,
+                          builder: (context) => Padding(
+                            padding: const EdgeInsets.only(top: 100.0),
+                            child: CreateNewUser(
+                              tenantModel: widget.tenantModel,
+                              userModel: widget.userModel,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 150,
+                        height: 45,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: AppColors.darkYellow),
+                        child: const Padding(
+                          padding: EdgeInsets.all(0.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: AppColors.white,
+                              ),
+                              CustomText(
+                                text: "  User",
+                                size: 18,
+                                color: AppColors.white,
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
+                  )
               ],
             ),
             SizedBox(
@@ -256,7 +282,6 @@ class _MainUserScreenState extends State<MainUserScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         if (filteredUsers.isEmpty)
                           const Center(
                               child: CustomText(
@@ -266,7 +291,8 @@ class _MainUserScreenState extends State<MainUserScreen> {
                         if (filteredUsers.isNotEmpty)
                           Expanded(
                               child: UserTableScreen(
-                            userList: filteredUsers, userModel: widget.userModel,
+                            userList: filteredUsers,
+                            userModel: widget.userModel,
                           )),
                       ],
                     );

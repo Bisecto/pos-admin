@@ -90,7 +90,7 @@ class _PageSelectorState extends State<PageSelector> {
                 case 6:
                   return MainUserScreen(
                     tenantModel: widget.tenantModel,
-                    userModel: widget.userModel,
+                    userModel: widget.userModel,plans: widget.plans,
                   );
                 case 7:
                   return TenantProfilePage(
