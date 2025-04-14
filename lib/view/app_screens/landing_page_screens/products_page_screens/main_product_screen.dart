@@ -1,15 +1,19 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pos_admin/model/category_model.dart';
+import 'package:pos_admin/model/tenant_model.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/products_page_screens/product_table.dart';
 import 'package:pos_admin/view/widgets/drop_down.dart';
 import 'package:pos_admin/view/widgets/form_button.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../model/brand_model.dart';
+import '../../../../model/plan_model.dart';
 import '../../../../model/user_model.dart';
 import '../../../../res/app_colors.dart';
+import '../../../important_pages/export_to_excel.dart';
 import '../../../widgets/app_custom_text.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,8 +24,11 @@ import '../../../important_pages/app_loading_page.dart';
 
 class MainProductScreen extends StatefulWidget {
   UserModel userModel;
+  final TenantModel tenantModel;
+  final List<Plan> plans;
 
-  MainProductScreen({super.key, required this.userModel});
+
+  MainProductScreen({super.key, required this.userModel, required this.tenantModel, required this.plans});
 
   @override
   State<MainProductScreen> createState() => _MainProductScreenState();
@@ -100,6 +107,7 @@ class _MainProductScreenState extends State<MainProductScreen> {
   }
 
   void _addProduct() {
+
     final TextEditingController skuController = TextEditingController();
     final TextEditingController nameController = TextEditingController();
     final TextEditingController quantityController = TextEditingController(text: '0');
@@ -367,12 +375,43 @@ class _MainProductScreenState extends State<MainProductScreen> {
                     ],
                   ),
                 ),
+
                 if(widget.userModel.addingEditingProductsDetails)
 
                   Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: GestureDetector(
-                    onTap: _addProduct,
+                    onTap: () async {
+                      // Find the current plan from the passed plans list
+                      final currentPlan = widget.plans.firstWhere(
+                            (plan) => plan.name.toString().toLowerCase() == widget.tenantModel.subscriptionPlan.toLowerCase(),
+                        //orElse: () => null,
+                      );
+
+                      if (currentPlan == null) {
+                        // Handle edge case: plan not found
+                        MSG.warningSnackBar(context,"Your subscription plan couldn't be verified.");
+                        return;
+                      }
+
+                      final maxProducts = currentPlan.maxProducts;
+
+                      // Get current number of products
+                      final productsSnapshot = await FirebaseFirestore.instance
+                          .collection('Enrolled Entities')
+                          .doc(widget.userModel.tenantId.trim()) // or tenantId if already available
+                          .collection('products')
+                          .get();
+
+                      final currentProductCount = productsSnapshot.size;
+
+                      // Check limit
+                      if (maxProducts == -1 || currentProductCount < maxProducts) {
+                        _addProduct(); // your method to add a product
+                      } else {
+                        _showLimitReachedDialog(context); // show your "limit reached" alert
+                      }
+                    },
                     child: Container(
                       width: 150,
                       height: 45,
@@ -503,8 +542,59 @@ class _MainProductScreenState extends State<MainProductScreen> {
                                   ),
                                 ),
                               ),
-                            )
-
+                            ),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            if(widget.userModel.addingEditingProductsDetails)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: GestureDetector(
+                                  onTap:(){
+                                    ExcelExporter.exportToExcel(
+                                      context: context,
+                                      items: filteredProducts,
+                                      fileName: 'Product_list',
+                                      toJson: (item) => item.toJson(),
+                                      excludeFields: [
+                                        'createdAt',
+                                        'updatedAt',
+                                        'createdBy',
+                                        'updatedBy',
+                                        'brandId',
+                                        'categoryId',
+                                        'productImageUrl',
+                                        'productId',
+                                      ],
+                                    );
+                                   // filteredProducts();
+                                  },
+                                  child: Container(
+                                    width: 150,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: AppColors.darkYellow),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(0.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.upload,
+                                            color: AppColors.white,
+                                          ),
+                                          CustomText(
+                                            text: "  Export",
+                                            size: 18,
+                                            color: AppColors.white,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             // Expanded(
                             //   child: DropDown(
                             //     width: 250,
@@ -573,6 +663,28 @@ class _MainProductScreenState extends State<MainProductScreen> {
       ),
     );
   }
+}
+void _showLimitReachedDialog(context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Limit Reached"),
+      content: const Text("You've reached the maximum number of products allowed for your current subscription plan."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("OK"),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Navigate to subscription upgrade page
+          },
+          child: const Text("Upgrade Plan"),
+        ),
+      ],
+    ),
+  );
 }
 
 // class MainProductScreen extends StatefulWidget {
