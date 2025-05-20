@@ -167,6 +167,7 @@ class _MainTableScreenState extends State<MainTableScreen> {
           .doc(tenantId.trim())
           .collection('Tables');
 
+
       final tablesSnapshot = await tablesCollection.get();
 
       final activeTables = tablesSnapshot.docs.where((doc) {

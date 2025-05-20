@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_admin/model/user_model.dart';
+import 'package:pos_admin/view/important_pages/app_loading_page.dart';
 import 'package:pos_admin/view/widgets/form_input.dart';
 import '../../../../model/activity_model.dart';
 import '../../../../model/log_model.dart';
@@ -47,7 +48,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   int currentPage = 0;
   final int rowsPerPage = 10; // Number of rows per page
   late int totalPages = 0;
-
+bool isLoading=true;
   @override
   void initState() {
     super.initState();
@@ -63,6 +64,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     ordersStream.listen((snapshot) {
       setState(() {
         filteredOrders = snapshot.docs;
+        isLoading=false;
         totalPages = (filteredOrders.length / rowsPerPage).ceil();
       });
     });
@@ -100,362 +102,205 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   @override
   Widget build(BuildContext context) {
     final startIndex = currentPage * rowsPerPage;
-    final endIndex = startIndex + rowsPerPage < filteredOrders.length
+    final endIndex = (startIndex + rowsPerPage < filteredOrders.length)
         ? startIndex + rowsPerPage
         : filteredOrders.length;
 
     return Scaffold(
-        // appBar: AppBar(
-        //   title: Text('Order Management'),
-        // ),
-        appBar: AppBar(
-          title: TextStyles.textHeadings(
-            textValue: 'Invoice',
-            textColor: AppColors.white,
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
+      appBar: AppBar(
+        title: TextStyles.textHeadings(
+          textValue: 'Invoice',
+          textColor: AppColors.white,
         ),
-        backgroundColor: AppColors.scaffoldBackgroundColor,
-        body: Column(children: [
-          // if(!widget.userModel.voidingTableOrder)
-          //   Container(),
-          // if(widget.userModel.voidingTableOrder)
-
-          ...[
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      backgroundColor: AppColors.scaffoldBackgroundColor,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomTextFormField(
+                  controller: searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                  width: 250,
+                  hint: 'Search by ID',
+                  label: 'Search',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.filter_list),
+                  onPressed: () => pickDateRange(context),
+                ),
+              ],
+            ),
+          ),
+          if (dateRange != null)
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomTextFormField(
-                    controller: searchController,
-                    // decoration: InputDecoration(
-                    //   labelText: 'Search by Order ID',
-                    //   suffixIcon: IconButton(
-                    //     icon: const Icon(Icons.clear),
-                    //     onPressed: () {
-                    //       setState(() {
-                    //         searchController.clear();
-                    //         searchQuery = '';
-                    //       });
-                    //     },
-                    //   ),
-                    //   border: const OutlineInputBorder(),
-                    // ),
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
-                    width: 250,
-                    hint: 'Search by ID',
-                    label: 'Search',
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.filter_list),
-                    onPressed: () => pickDateRange(context),
-                  ),
-                ],
-              ),
-            ),
-            if (dateRange != null)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Filtered by date: ${DateFormat('yyyy/MM/dd').format(dateRange!.start)} - ${DateFormat('yyyy/MM/dd').format(dateRange!.end)}',
-                  style: const TextStyle(color: AppColors.white),
-                ),
-              ),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  headingRowColor:
-                      MaterialStateProperty.all<Color>(AppColors.darkYellow),
-                  columns: [
-                    // DataColumn(
-                    //   label: Container(
-                    //     padding: EdgeInsets.all(8.0),
-                    //     child:
-                    //         CustomText(text: 'Order No', color: AppColors.white),
-                    //   ),
-                    // ),DataColumn(
-                    //   label: Container(
-                    //     padding: EdgeInsets.all(8.0),
-                    //     child:
-                    //         CustomText(text: 'Sent To', color: AppColors.white),
-                    //   ),
-                    //),
-                    DataColumn(
-                      label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const CustomText(
-                            text: 'Table Number', color: AppColors.white),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const CustomText(
-                            text: 'Ordered By', color: AppColors.white),
-                      ),
-                    ),
-
-                    if (widget.userModel.viewFinance)
-                      DataColumn(
-                        label: Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: const CustomText(
-                              text: 'Amount Paid', color: AppColors.white),
-                        ),
-                      ),
-                    DataColumn(
-                      label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const CustomText(
-                            text: 'Created At', color: AppColors.white),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const CustomText(
-                            text: 'Updated At', color: AppColors.white),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const CustomText(
-                            text: 'Status', color: AppColors.white),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const CustomText(
-                            text: 'Actions', color: AppColors.white),
-                      ),
-                    ),
-                  ],
-                  rows: filteredOrders
-                      .sublist(startIndex, endIndex)
-                      .map((orderDoc) {
-                    final orderData = orderDoc.data();
-                    final orderId = orderDoc.id;
-                    final createdAt =
-                        (orderData['createdAt'] as Timestamp).toDate();
-                    final statusIndex = orderData['status'] as int;
-
-                    return DataRow(
-                      color: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) {
-                        return states.contains(MaterialState.selected)
-                            ? Colors.purple.withOpacity(0.08)
-                            : null; // Use default value for unselected rows
-                      }),
-                      cells: [
-                        // DataCell(
-                        //   Container(
-                        //     padding: EdgeInsets.all(8.0),
-                        //     child: CustomText(
-                        //         text: orderData['orderCode'],
-                        //         color: AppColors.white),
-                        //   ),
-                        // ),
-                        // DataCell(
-                        //   Container(
-                        //     padding: EdgeInsets.all(8.0),
-                        //     child: CustomText(
-                        //         text: orderData['orderTo'],
-                        //         color: AppColors.white),
-                        //   ),
-                        // ),
-                        DataCell(
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FutureBuilder<String>(
-                              future: getTableName(orderDoc['tableNo']),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const CircularProgressIndicator(); // Show a loading indicator
-                                } else if (snapshot.hasError) {
-                                  return const Text(
-                                      'Error'); // Handle error case
-                                } else {
-                                  return CustomText(
-                                    text: "Table ${snapshot.data}" ?? 'Settled',
-                                    color: AppColors.white,
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-
-                          // Container(
-                          //   padding: const EdgeInsets.all(8.0),
-                          //   child: CustomText(
-                          //     text:
-                          //         "Table ${AppUtils().extractNumbers(orderDoc['tableNo'].toString().isEmpty ? 'TTHHJH' : orderDoc['tableNo'].toString().substring(0, 3))}",
-                          //     color: AppColors.white,
-                          //     weight: FontWeight.bold,
-                          //     size: 16,
-                          //   ),
-                          // ),
-                        ),
-
-                        DataCell(
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FutureBuilder<String>(
-                              future: getUserFullName(orderData['createdBy']),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const CircularProgressIndicator(); // Show a loading indicator
-                                } else if (snapshot.hasError) {
-                                  return const Text(
-                                      'Error'); // Handle error case
-                                } else {
-                                  return CustomText(
-                                    text: snapshot.data ?? 'Unknown',
-                                    color: AppColors.white,
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                        if (widget.userModel.viewFinance)
-                          DataCell(
-                            Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: CustomText(
-                                  text: orderData['amountPaid'] ?? 'NAN',
-                                  color: AppColors.white),
-                            ),
-                          ),
-                        DataCell(
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CustomText(
-                                text: formatDate(orderData['createdAt']),
-                                color: AppColors.white),
-                          ),
-                        ),
-                        DataCell(
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CustomText(
-                                text: formatDate(orderData['updatedAt']),
-                                color: AppColors.white),
-                          ),
-                        ),
-                        DataCell(
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CustomText(
-                                text: getStatusText(statusIndex).toUpperCase(),
-                                color: AppColors.white),
-                          ),
-                        ),
-                        DataCell(
-                          Row(
-                            children: [
-                              // IconButton(
-                              //   icon:
-                              //       Icon(Icons.edit, color: AppColors.darkYellow),
-                              //   onPressed: () async {
-                              //     await fetchOrderDetails(orderId);
-                              //     showEditPopup(
-                              //         context,
-                              //         orderId,
-                              //         orderData['tableNo'],
-                              //         orderData['createdBy']);
-                              //   },
-                              //   tooltip: 'Edit Order',
-                              // ),
-                              // if (getStatusText(statusIndex).toLowerCase() != 'pending')
-                              if (!widget.userModel.voidingTableOrder)
-                                Container(),
-                              if (widget.userModel.voidingTableOrder)
-                                FormButton(
-                                  onPressed: () async {
-                                    await fetchOrderDetails(orderId);
-                                    showEditPopup(
-                                        context,
-                                        orderId,
-                                        orderData['tableNo'],
-                                        orderData['createdBy'],
-                                        statusIndex);
-                                    // await fetchOrderDetails(orderId);
-                                    // showEditPopup(
-                                    //     context,
-                                    //     orderId,
-                                    //     orderData['tableNo'],
-                                    //     orderData['createdBy']);
-                                    // await fetchOrderDetails(orderId);
-                                    // _printReceipt();
-                                  },
-                                  text: "View Order",
-                                  bgColor: AppColors.darkYellow,
-                                  width: 150,
-                                  textColor: AppColors.white,
-                                  borderRadius: 10,
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-
-            // Pagination controls
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(
-                'Page ${currentPage + 1} of $totalPages',
+              child: Text(
+                'Filtered by date: ${DateFormat('yyyy/MM/dd').format(dateRange!.start)} - ${DateFormat('yyyy/MM/dd').format(dateRange!.end)}',
                 style: const TextStyle(color: AppColors.white),
               ),
-              Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.chevron_left, color: AppColors.white),
-                    onPressed: currentPage > 0
-                        ? () {
-                            setState(() {
-                              currentPage--;
-                            });
-                          }
-                        : null,
+            ),
+          if(isLoading)
+            AppLoadingPage(("Fectching Orders...")),
+          if(!isLoading)
+          Expanded(
+            child: Scrollbar(
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingRowColor: MaterialStateProperty.all<Color>(AppColors.darkYellow),
+                    columns: _buildColumns(),
+                    rows: filteredOrders.sublist(startIndex, endIndex).map((orderDoc) {
+                      final orderData = orderDoc.data();
+                      final orderId = orderDoc.id;
+                      final createdAt = (orderData['createdAt'] as Timestamp).toDate();
+                      final statusIndex = orderData['status'] as int;
+
+                      return DataRow(
+                        cells: _buildCells(orderDoc, orderData, orderId, statusIndex),
+                      );
+                    }).toList(),
                   ),
-                  IconButton(
-                    icon:
-                        const Icon(Icons.chevron_right, color: AppColors.white),
-                    onPressed: currentPage < totalPages - 1
-                        ? () {
-                            setState(() {
-                              currentPage++;
-                            });
-                          }
-                        : null,
-                  ),
-                ],
-              )
-            ])
-          ]
-        ]));
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Page ${currentPage + 1} of $totalPages',
+                  style: const TextStyle(color: AppColors.white),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.chevron_left, color: AppColors.white),
+                      onPressed: currentPage > 0
+                          ? () {
+                        setState(() => currentPage--);
+                      }
+                          : null,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right, color: AppColors.white),
+                      onPressed: currentPage < totalPages - 1
+                          ? () {
+                        setState(() => currentPage++);
+                      }
+                          : null,
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
+
+  List<DataColumn> _buildColumns() {
+    return [
+      DataColumn(label: _tableHeader('Table Number')),
+      DataColumn(label: _tableHeader('Ordered By')),
+      if (widget.userModel.viewFinance)
+        DataColumn(label: _tableHeader('Amount Paid')),
+      DataColumn(label: _tableHeader('Created At')),
+      DataColumn(label: _tableHeader('Updated At')),
+      DataColumn(label: _tableHeader('Status')),
+      DataColumn(label: _tableHeader('Actions')),
+    ];
+  }
+
+  List<DataCell> _buildCells(orderDoc, Map orderData, String orderId, int statusIndex) {
+    return [
+      DataCell(
+        _futureTextCell(getTableName(orderDoc['tableNo']), defaultText: 'Table --'),
+      ),
+      DataCell(
+        _futureTextCell(getUserFullName(orderData['createdBy']), defaultText: 'Unknown'),
+      ),
+      if (widget.userModel.viewFinance)
+        DataCell(_textCell(orderData['amountPaid'].toString())),
+      DataCell(_textCell(formatDate(orderData['createdAt']))),
+      DataCell(_textCell(formatDate(orderData['updatedAt']))),
+      DataCell(_textCell(getStatusText(statusIndex).toUpperCase())),
+      DataCell(
+        widget.userModel.voidingTableOrder
+            ? FormButton(
+          onPressed: () async {
+            await fetchOrderDetails(orderId);
+            showEditPopup(
+              context,
+              orderId,
+              orderData['tableNo'],
+              orderData['createdBy'],
+              statusIndex,
+            );
+          },
+          text: "View Order",
+          bgColor: AppColors.darkYellow,
+          width: 150,
+          textColor: AppColors.white,
+          borderRadius: 10,
+        )
+            : Container(),
+      ),
+    ];
+  }
+
+  Widget _tableHeader(String title) => Container(
+    padding: const EdgeInsets.all(8.0),
+    child: CustomText(text: title, color: AppColors.white),
+  );
+
+  Widget _textCell(String text) => Container(
+    padding: const EdgeInsets.all(8.0),
+    child: CustomText(text: text, color: AppColors.white),
+  );
+
+  Widget _futureTextCell(Future<String> future, {required String defaultText}) {
+    return FutureBuilder<String>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
+        } else if (snapshot.hasError) {
+          return const Text('Error', style: TextStyle(color: Colors.red));
+        } else {
+          return CustomText(
+            text: snapshot.data ?? defaultText,
+            color: AppColors.white,
+          );
+        }
+      },
+    );
+  }
+
 
   List<OrderProduct> products = [];
   late OrderModel orderModel;
   String selectedStatus = 'Pending'; // Default status
-  bool isLoading = true;
+  //bool isLoading = true;
 
 //  bool isContainerExpanded = true;
   final List<String> statusOptions = [
@@ -713,7 +558,6 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       }
     }
 
-    // Log the status change
     LogActivity logActivity = LogActivity();
     LogModel logModel = LogModel(
         actionType: LogActionType.orderStatusChange.toString(),
@@ -726,163 +570,12 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
     Navigator.pop(context);
   }
 
-  // Future<void> updateOrderStatus(
-  //     String status, orderId, tableId, createdBy, previousStatusIndex) async {
-  //   final orderRef = FirebaseFirestore.instance
-  //       .collection('Enrolled Entities')
-  //       .doc(widget.tenantId)
-  //       .collection('Orders')
-  //       .doc(orderId);
-  //
-  //   int statusIndex = statusOptions.indexOf(status);
-  //   await orderRef.update({'status': statusIndex});
-  //   if (previousStatusIndex == 4) {
-  //     MSG.warningSnackBar(context,
-  //         'Status is already canceled and its status cannot be changed');
-  //     Navigator.pop(context);
-  //     return;
-  //   } else if (statusIndex == 1) {
-  //     DocumentSnapshot<Map<String, dynamic>> docSnapshot =
-  //         await FirebaseFirestore.instance
-  //             .collection('Enrolled Entities')
-  //             .doc(widget.tenantId.trim())
-  //             .collection('Tables')
-  //             .doc(tableId)
-  //             .get();
-  //
-  //     //if (docSnapshot.exists) {
-  //     // Parse the document data into a TableModel
-  //     // Map<String, dynamic> data = docSnapshot.data()!;
-  //     TableModel retrievedTableModel = TableModel.fromFirestore(docSnapshot);
-  //     DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
-  //         await FirebaseFirestore.instance
-  //             .collection('Users')
-  //             .doc(createdBy.trim())
-  //             .get();
-  //
-  //     //if (docSnapshot.exists) {
-  //     // Parse the document data into a TableModel
-  //     // Map<String, dynamic> data = docSnapshot.data()!;
-  //     UserModel userModel = UserModel.fromFirestore(userDocSnapshot);
-  //     print(userModel.tenantId);
-  //     print(userModel.tenantId);
-  //     print(userModel.tenantId);
-  //     print(userModel.tenantId);
-  //     print(userModel.tenantId);
-  //
-  //     // return tableModel;
-  //     //}
-  //     final tableModel = TableModel(
-  //       activity: ActivityModel(
-  //         attendantId: userModel.userId,
-  //         attendantName: userModel.fullname,
-  //         isActive: true,
-  //         currentOrderId: orderId,
-  //         isMerged: true,
-  //       ),
-  //       tableId: retrievedTableModel.tableId,
-  //       tableName: retrievedTableModel.tableName,
-  //       createdAt: retrievedTableModel.createdAt,
-  //       updatedAt: Timestamp.now(),
-  //     );
-  //
-  //     await FirebaseFirestore.instance
-  //         .collection('Enrolled Entities')
-  //         .doc(widget.tenantId)
-  //         .collection('Tables')
-  //         .doc(retrievedTableModel.tableId)
-  //         .update(tableModel.toFirestore());
-  //   } else if (statusIndex == 4) {
-  //     DocumentSnapshot<Map<String, dynamic>> docSnapshot =
-  //         await FirebaseFirestore.instance
-  //             .collection('Enrolled Entities')
-  //             .doc(widget.tenantId.trim())
-  //             .collection('Tables')
-  //             .doc(tableId)
-  //             .get();
-  //
-  //     //if (docSnapshot.exists) {
-  //     // Parse the document data into a TableModel
-  //     // Map<String, dynamic> data = docSnapshot.data()!;
-  //     TableModel retrievedTableModel = TableModel.fromFirestore(docSnapshot);
-  //
-  //     //}
-  //     final tableModel = TableModel(
-  //       activity: ActivityModel(
-  //         attendantId: '',
-  //         attendantName: '',
-  //         isActive: false,
-  //         currentOrderId: '',
-  //         isMerged: false,
-  //       ),
-  //       tableId: retrievedTableModel.tableId,
-  //       tableName: retrievedTableModel.tableName,
-  //       createdAt: retrievedTableModel.createdAt,
-  //       updatedAt: Timestamp.now(),
-  //     );
-  //
-  //     await FirebaseFirestore.instance
-  //         .collection('Enrolled Entities')
-  //         .doc(widget.tenantId)
-  //         .collection('Tables')
-  //         .doc(retrievedTableModel.tableId)
-  //         .update(tableModel.toFirestore());
-  //
-  //     final DocumentSnapshot<Map<String, dynamic>> orderSnapshot =
-  //         await orderRef.get();
-  //
-  //     //OrderModel orderModel=OrderModel.fromFirestore(orderSnapshot.);
-  //     print(orderSnapshot);
-  //     Map<String, dynamic>? orderData = orderSnapshot.data();
-  //     print(orderData!['products']);
-  //     OrderModel orderModel = OrderModel.fromFirestore(orderData);
-  //     orderModel.products.removeWhere((product) => product.isProductVoid);
-  //     print(orderModel.products);
-  //     VoidedProductsActivity voidedProductsActivity = VoidedProductsActivity();
-  //     VoidModel voidModel = VoidModel(
-  //       voidedBy: widget.userModel.userId,
-  //       orderedBy: orderData['createdBy'],
-  //       fromOrder: orderId,
-  //       products: orderModel.products,
-  //     );
-  //     setState(() {
-  //       //orderProducts = allOrderProducts;
-  //       foodProducts = orderModel.products
-  //           .where((orderProduct) =>
-  //               orderProduct.productType.toLowerCase() == 'food')
-  //           .toList();
-  //       drinksProducts = orderModel.products
-  //           .where((orderProduct) =>
-  //               orderProduct.productType.toLowerCase() == 'drinks')
-  //           .toList();
-  //       shishaProducts = orderModel.products
-  //           .where((orderProduct) =>
-  //               orderProduct.productType.toLowerCase() == 'shisha')
-  //           .toList();
-  //     });
-  //     _printDockets(orderModel.orderId);
-  //     voidedProductsActivity.voidAction(
-  //         widget.userModel.tenantId.trim(), voidModel);
-  //   }
-  //
-  //   LogActivity logActivity = LogActivity();
-  //   LogModel logModel = LogModel(
-  //       actionType: LogActionType.orderStatusChange.toString(),
-  //       actionDescription:
-  //           "${widget.userModel.fullname} change the order status of order Id $orderId to $status",
-  //       performedBy: widget.userModel.fullname,
-  //       userId: widget.userModel.userId);
-  //   logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
-  //   Navigator.pop(context);
-  // }
 
-  // Calculate total order price
   double calculateTotalOrderPrice() {
     return products.fold(
         0, (total, product) => total + (product.price * product.quantity));
   }
 
-  // Calculate total amount to pay (after discount)
   double calculateAmtToPay() {
     return products.fold(0, (total, product) {
       double discountedPrice = product.price * (1 - product.discount / 100);
@@ -1259,12 +952,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
             width: 12,
             styles: const PosStyles(bold: false)),
       ]);
-      // printer.row([
-      //   PosColumn(
-      //       text: "Table: ${widget.tableModel.tableName}",
-      //       width: 12,
-      //       styles: const PosStyles(bold: false)),
-      // ]);
+
       printer.row([
         PosColumn(
             text: "Ticket No: ${orderNo.substring(0, 6).toUpperCase()}",
@@ -1302,65 +990,17 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         printer.row([
           PosColumn(text: product.quantity.toString(), width: 2),
           PosColumn(text: product.productName, width: 10),
-          // PosColumn(text: product.price.toStringAsFixed(2), width: 2),
-          // PosColumn(
-          //   text: (product.price * product.quantity).toStringAsFixed(2),
-          //   width: 2,
-          // ),
+
         ]);
       }
 
       printer.hr();
 
-      // Print Subtotal
-      // final subtotal =
-      //     products.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
-      // printer.row([
-      //   PosColumn(text: 'Subtotal:', width: 8),
-      //   PosColumn(
-      //     text: 'NGN ${subtotal.toStringAsFixed(2)}',
-      //     width: 4,
-      //     styles: PosStyles(align: PosAlign.right),
-      //   ),
-      // ]);
 
-      // Print VAT
-      // final vatAmount = calculateTax(subtotal, widget.tenantModel.vat / 100);
-      // printer.row([
-      //   PosColumn(text: 'VAT(${widget.tenantModel.vat}%):', width: 8),
-      //   PosColumn(
-      //     text: 'NGN ${vatAmount.toStringAsFixed(2)}',
-      //     width: 4,
-      //     styles: PosStyles(align: PosAlign.right),
-      //   ),
-      // ]);
-
-      // Print Total
-      // final total = subtotal + vatAmount;
-      // printer.row([
-      //   PosColumn(
-      //       text: 'Total:',
-      //       width: 8,
-      //       styles: PosStyles(bold: true, fontType: PosFontType.fontA)),
-      //   PosColumn(
-      //     text: 'NGN ${total.toStringAsFixed(2)}',
-      //     width: 4,
-      //     styles: PosStyles(
-      //         align: PosAlign.right, bold: true, fontType: PosFontType.fontA),
-      //   ),
-      // ]);
       printer.beep();
       printer.feed(2);
 
-      // // Print Footer
-      // printer.text(
-      //   '* Thank you *',
-      //   styles: PosStyles(align: PosAlign.center, fontType: PosFontType.fontB),
-      // );
-      // printer.text(
-      //   'Visit us again!',
-      //   styles: PosStyles(align: PosAlign.center, fontType: PosFontType.fontB),
-      // );
+
 
       printer.cut();
       printer.disconnect();

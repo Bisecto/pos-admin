@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:esc_pos_printer/esc_pos_printer.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +7,8 @@ import 'package:flutter/services.dart';
 //import 'package:printing/printing.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http show get;
+import 'package:path_provider/path_provider.dart';
 import 'package:pos_admin/model/void_model.dart';
 import 'package:pos_admin/repository/voided_products_action.dart';
 import 'package:pos_admin/view/app_screens/landing_page_screens/tables_page_screen/order/paginated_item_widget.dart';
@@ -59,15 +63,51 @@ class _TableOrderPageState extends State<TableOrderPage> {
   List<OrderModel> orders = [];
   final Set<String> selectedOrderIds = {};
 
-  late ByteData qrCodeBytes;
-  late Uint8List companyImage;
-
-  Future<void> getImageBytes() async {
-    //setState(()  {
-    qrCodeBytes = await rootBundle.load(AppImages.companyLogo);
-    companyImage = qrCodeBytes.buffer.asUint8List();
-    //});
-  }
+  // late ByteData qrCodeBytes;
+  // late Uint8List companyImage;
+  // File? _imageFile;
+  // Future<void> downloadAndSaveImage(String imageUrl) async {
+  //   try {
+  //     final response = await http.get(Uri.parse(imageUrl));
+  //     print(response.statusCode);
+  //     print(response.statusCode);
+  //     print(response.statusCode);
+  //     if (response.statusCode == 200) {
+  //       final bytes = response.bodyBytes;
+  //
+  //       // Get app's directory
+  //       final dir = await getApplicationDocumentsDirectory();
+  //       final filePath = '${dir.path}/downloaded_image.jpg';
+  //
+  //       // Save file
+  //       final file = File(filePath);
+  //       await file.writeAsBytes(bytes);
+  //
+  //       // Update your _imageFile variable
+  //       setState(() {
+  //         _imageFile = file;
+  //
+  //       });
+  //       getImageBytes();
+  //       print('Image saved to: $filePath');
+  //     } else {
+  //       setState(() {
+  //         _imageFile = File(AppImages.posTerminal);
+  //
+  //       });
+  //       getImageBytes();
+  //       print('Failed to download image. Status code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error downloading image: $e');
+  //   }
+  // }
+  // Future<void> getImageBytes() async {
+  //   if (_imageFile == null) return;
+  //
+  //   final bytes = await _imageFile!.readAsBytes();
+  //   companyImage = bytes;
+  // }
 
   Map<String, Map<String, dynamic>> orderDetailsCache = {};
   bool isLoading = true;
@@ -238,11 +278,11 @@ class _TableOrderPageState extends State<TableOrderPage> {
                     width: AppUtils.deviceScreenSize(context).width / 2,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.darkModeBackgroundColor,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         const BoxShadow(
-                          color: Colors.black26,
+                          color: Colors.white,
                           blurRadius: 10,
                           offset: Offset(0, 2),
                         ),
@@ -259,7 +299,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                 TextStyles.textHeadings(
                                     textValue: 'Order Bill',
                                     textSize: 20,
-                                    textColor: Colors.black,
+                                    textColor: Colors.white,
                                     fontWeight: FontWeight.bold),
                               ],
                             ),
@@ -280,7 +320,8 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                       padding: const EdgeInsets.all(8),
                                       margin: const EdgeInsets.only(bottom: 8),
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: AppColors
+                                            .darkModeBackgroundContainerColor,
                                         borderRadius: BorderRadius.circular(8),
                                         boxShadow: [
                                           BoxShadow(
@@ -305,7 +346,7 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                   style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
-                                                      color: AppColors.black),
+                                                      color: AppColors.white),
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
@@ -313,17 +354,17 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                     text:
                                                         'Price: ₦${product.price.toStringAsFixed(2)}',
                                                     size: 12,
-                                                    color: AppColors.black),
+                                                    color: AppColors.white),
                                                 CustomText(
                                                     text:
                                                         'Discounted: ₦${discountedPrice.toStringAsFixed(2)}',
                                                     size: 12,
-                                                    color: AppColors.black),
+                                                    color: AppColors.white),
                                                 CustomText(
                                                     text:
                                                         'Quantity: ${product.quantity}',
                                                     size: 12,
-                                                    color: AppColors.black),
+                                                    color: AppColors.white),
                                               ],
                                             ),
                                           ),
@@ -332,8 +373,10 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                               //if (product.quantity > 1)
                                               if (!product.isProductVoid) ...[
                                                 IconButton(
-                                                  icon: const Icon(Icons
-                                                      .remove_circle_outline),
+                                                  icon: const Icon(
+                                                      Icons
+                                                          .remove_circle_outline,
+                                                      color: AppColors.white),
                                                   onPressed: () async {
                                                     if (product.quantity > 1) {
                                                       await updateProductQuantity(
@@ -368,9 +411,10 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                           false);
                                                     } else {
                                                       voidProductInOrder(
-                                                          product,
-                                                          orderId,
-                                                          true);
+                                                        product,
+                                                        orderId,
+                                                        true,
+                                                      );
                                                       // removeProductFromOrder(product);
                                                     }
                                                   },
@@ -378,14 +422,16 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                                 // Quantity Display
                                                 //if (product.quantity > 1)
                                                 CustomText(
-                                                  text: "X${product.quantity}",
-                                                  size: 12,
-                                                ),
+                                                    text:
+                                                        "X${product.quantity}",
+                                                    size: 12,
+                                                    color: AppColors.white),
                                                 // Increment Button
                                                 //if (product.quantity > 1)
                                                 IconButton(
                                                   icon: const Icon(
-                                                      Icons.add_circle_outline),
+                                                      Icons.add_circle_outline,
+                                                      color: AppColors.white),
                                                   onPressed: () {
                                                     MSG.warningSnackBar(context,
                                                         ('You cannot increase the qty of this product'));
@@ -440,13 +486,15 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                 children: [
                                   const Text(
                                     "Service charge(5%)",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.white),
                                   ),
                                   Text(
                                     "₦${(0.05 * calculateAmtToPay()).toStringAsFixed(2)}",
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.white),
                                   ),
                                 ],
                               ),
@@ -456,13 +504,15 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                 children: [
                                   const Text(
                                     "Sub Total",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.white),
                                   ),
                                   Text(
                                     "₦${(calculateAmtToPay().toStringAsFixed(2))}",
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.white),
                                   ),
                                 ],
                               ),
@@ -472,13 +522,15 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                 children: [
                                   Text(
                                     "Tax(%${widget.tenantModel.vat})",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.white),
                                   ),
                                   Text(
                                     "₦${calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100).toStringAsFixed(2)}",
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.white),
                                   ),
                                 ],
                               ),
@@ -488,13 +540,15 @@ class _TableOrderPageState extends State<TableOrderPage> {
                                 children: [
                                   const Text(
                                     "Total",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.white),
                                   ),
                                   Text(
                                     "₦${(0.05 * calculateAmtToPay() + calculateTax(calculateAmtToPay(), widget.tenantModel.vat / 100) + calculateAmtToPay()).toStringAsFixed(2)}",
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.white),
                                   ),
                                 ],
                               ),
@@ -584,8 +638,51 @@ class _TableOrderPageState extends State<TableOrderPage> {
     }
   }
 
+  Future<void> resetSingleTable(BuildContext context, String tenantId) async {
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('Enrolled Entities')
+          .doc(tenantId.trim())
+          .collection('Tables')
+          .doc(widget.tableModel.tableId);
+
+      final docSnapshot = await docRef.get();
+
+      if (!docSnapshot.exists) {
+        print("Table with ID ${widget.tableModel.tableId} does not exist.");
+        return;
+      }
+
+      final data = docSnapshot.data()!;
+      final tableName = data['tableName'] as String;
+      final createdAt = data['createdAt'] as Timestamp;
+
+      final defaultTableModel = TableModel(
+        activity: ActivityModel(
+          attendantId: '',
+          attendantName: '',
+          isActive: false,
+          currentOrderId: '',
+          isMerged: false,
+        ),
+        tableId: widget.tableModel.tableId,
+        tableName: tableName,
+        createdAt: createdAt,
+        updatedAt: Timestamp.now(),
+      );
+
+      await docRef.set(defaultTableModel.toFirestore());
+      print("Table ${widget.tableModel.tableId} reset successfully.");
+    } catch (e) {
+      print("Failed to reset table: $e");
+    }
+  }
+
   Future<void> voidProductInOrder(
-      OrderProduct productToVoid, orderId, bool isAll) async {
+    OrderProduct productToVoid,
+    orderId,
+    bool isAll,
+  ) async {
     print('Product to void: ${productToVoid.productId}');
 
     final ordersRef = FirebaseFirestore.instance
@@ -685,7 +782,11 @@ class _TableOrderPageState extends State<TableOrderPage> {
           userId: widget.userModel.userId,
         );
         logActivity.logAction(widget.userModel.tenantId.trim(), logModel);
-
+        if (products.length < 1) {
+          MSG.warningSnackBar(context,
+              ("This is the last item  so we have gto clear the table"));
+          resetSingleTable(context, widget.userModel.tenantId.trim());
+        }
         // Notify user
         Navigator.pop(context);
         Navigator.pop(context);
@@ -865,14 +966,14 @@ class _TableOrderPageState extends State<TableOrderPage> {
     fetchItemCount();
     fetchPrinters();
 
-    getImageBytes();
+    //downloadAndSaveImage(widget.tenantModel.logoUrl);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(0),
@@ -1254,10 +1355,10 @@ class _TableOrderPageState extends State<TableOrderPage> {
             children: [
               Icon(
                 Icons.arrow_back_ios,
-                color: AppColors.canvasColor,
+                color: AppColors.white,
               ),
-              Image.asset(
-                AppImages.companyLogo,
+              Image.network(
+                widget.tenantModel.logoUrl,
                 height: 50,
                 width: 50,
               ),
@@ -1265,10 +1366,13 @@ class _TableOrderPageState extends State<TableOrderPage> {
           ),
         ),
         TextStyles.textHeadings(
-            textValue: widget.tableModel.tableName, textSize: 24),
+            textValue: widget.tableModel.tableName,
+            textSize: 24,
+            textColor: AppColors.white),
         TextStyles.textHeadings(
             textValue:
-                AppUtils.formateSimpleDate(dateTime: DateTime.now().toString()))
+                AppUtils.formateSimpleDate(dateTime: DateTime.now().toString()),
+            textColor: AppColors.white)
       ],
     );
   }

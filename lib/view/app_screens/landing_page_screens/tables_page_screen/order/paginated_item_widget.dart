@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http show get;
 import 'package:image/image.dart' as img;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'dart:typed_data';
 
@@ -109,7 +112,7 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
   @override
   void initState() {
     super.initState();
-    getImageBytes();
+//    downloadAndSaveImage(widget.tenantModel.logoUrl);
     fetchProducts();
 
     if (widget.orderNum == 1) {
@@ -119,12 +122,52 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
     fetchCategories();
   }
 
-  Future<void> getImageBytes() async {
-    //setState(()  {
-    qrCodeBytes = await rootBundle.load(AppImages.companyLogo);
-    companyImage = qrCodeBytes.buffer.asUint8List();
-    //});
-  }
+  File? _imageFile;
+
+  // Future<void> downloadAndSaveImage(String imageUrl) async {
+  //   try {
+  //     final response = await http.get(Uri.parse(imageUrl));
+  //     print(response.statusCode);
+  //     print(response.statusCode);
+  //     print(response.statusCode);
+  //     if (response.statusCode == 200) {
+  //       final bytes = response.bodyBytes;
+  //
+  //       // Get app's directory
+  //       final dir = await getApplicationDocumentsDirectory();
+  //       final filePath = '${dir.path}/downloaded_image.jpg';
+  //
+  //       // Save file
+  //       final file = File(filePath);
+  //       await file.writeAsBytes(bytes);
+  //
+  //       // Update your _imageFile variable
+  //       setState(() {
+  //         _imageFile = file;
+  //
+  //       });
+  //       getImageBytes();
+  //
+  //       print('Image saved to: $filePath');
+  //     } else {
+  //       setState(() {
+  //         _imageFile = File(AppImages.posTerminal);
+  //
+  //       });
+  //       getImageBytes();
+  //
+  //       print('Failed to download image. Status code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error downloading image: $e');
+  //   }
+  // }
+  // Future<void> getImageBytes() async {
+  //   if (_imageFile == null) return;
+  //
+  //   final bytes = await _imageFile!.readAsBytes();
+  //   companyImage = bytes;
+  // }
 
   Query<Map<String, dynamic>> getPaginatedQuery() {
     var query = FirebaseFirestore.instance
@@ -204,13 +247,21 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
       var brand = doc.data();
       return DropdownMenuItem<String>(
         value: doc.id,
-        child: Text(brand['brandName'] ?? 'Unknown Brand'),
+        child: Text(
+          brand['brandName'] ?? 'Unknown Brand',
+          style: TextStyle(color: AppColors.white),
+        ),
       );
     }).toList();
 
     setState(() {
       brandItems = [
-        const DropdownMenuItem(value: null, child: Text("All Brands")),
+        const DropdownMenuItem(
+            value: null,
+            child: Text(
+              "All Brands",
+              style: TextStyle(color: AppColors.white),
+            )),
         ...brandDropdownItems
       ];
     });
@@ -229,13 +280,21 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
       var category = doc.data();
       return DropdownMenuItem<String>(
         value: doc.id,
-        child: Text(category['categoryName'] ?? 'Unknown Category'),
+        child: Text(
+          category['categoryName'] ?? 'Unknown Category',
+          style: TextStyle(color: AppColors.white),
+        ),
       );
     }).toList();
 
     setState(() {
       categoryItems = [
-        const DropdownMenuItem(value: null, child: Text("All Categories")),
+        const DropdownMenuItem(
+            value: null,
+            child: Text(
+              "All Categories",
+              style: TextStyle(color: AppColors.white),
+            )),
         ...categoryDropdownItems
       ];
     });
@@ -448,8 +507,8 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
     // }
   }
 
-  late ByteData qrCodeBytes;
-  late Uint8List companyImage;
+  // late ByteData qrCodeBytes;
+  // late Uint8List companyImage;
 
   void toggleContainer() {
     setState(() {
@@ -496,11 +555,11 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
     final itemWidth = 180;
     final crossAxisCount = (gridWidth / itemWidth).floor().clamp(1, 5);
     return Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.scaffoldBackgroundColor,
         appBar: AppBar(
           elevation: 0,
           automaticallyImplyLeading: false,
-          backgroundColor: AppColors.white,
+          backgroundColor: AppColors.scaffoldBackgroundColor,
           title: Padding(
             padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 10),
             child: CustomTextFormField(
@@ -517,16 +576,23 @@ class _PaginatedProductListState extends State<PaginatedProductList> {
             // Dropdown to filter by Brand
             DropdownButton<String>(
               value: selectedBrandId,
-              hint: const Text("Select Brand"),
+              hint: const Text(
+                "Select Brand",
+                style: TextStyle(color: AppColors.white),
+              ),
               onChanged: (value) {
                 applyFilters(value, selectedCategoryId, searchQuery);
               },
+
               items: brandItems, // Use Firestore-fetched brands
             ),
             // Dropdown to filter by Category
             DropdownButton<String>(
               value: selectedCategoryId,
-              hint: const Text("Select Category"),
+              hint: const Text(
+                "Select Category",
+                style: TextStyle(color: AppColors.white),
+              ),
               onChanged: (value) {
                 applyFilters(selectedBrandId, value, searchQuery);
               },

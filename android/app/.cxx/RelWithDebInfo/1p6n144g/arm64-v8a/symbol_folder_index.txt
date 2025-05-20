@@ -1,0 +1,1 @@
+/Users/precious/StudioProjects/pos_admin/build/app/intermediates/cxx/RelWithDebInfo/1p6n144g/obj/arm64-v8a

@@ -277,11 +277,6 @@ class _TenantProfilePageState extends State<TenantProfilePage> {
                                 final uploadedUrl = await uploadImageToStorage(_imageFile!);
                                 setState(() {
                                   logoUrl = uploadedUrl;
-                                  print(logoUrl);
-                                  print(logoUrl);
-                                  print(logoUrl);
-                                  print(logoUrl);
-                                  print(logoUrl);
                                 });
                               }
                             },

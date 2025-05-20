@@ -1,0 +1,2 @@
+/Users/precious/StudioProjects/pos_admin/android/app/.cxx/RelWithDebInfo/183w2e20/x86_64/CMakeFiles/rebuild_cache.dir
+/Users/precious/StudioProjects/pos_admin/android/app/.cxx/RelWithDebInfo/183w2e20/x86_64/CMakeFiles/edit_cache.dir

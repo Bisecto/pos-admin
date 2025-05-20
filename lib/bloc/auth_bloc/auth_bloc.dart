@@ -261,9 +261,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
         errorMessage = 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-        errorMessage = 'The account already exists for this email.';
+      // } else if (e.code == 'email-already-in-use') {
+      //   print('The account already exists for that email.');
+      //   errorMessage = 'The account already exists for this email.';
       } else if (e.code == 'invalid-email') {
         print('Invalid email provided.');
         errorMessage = 'Invalid email provided.';

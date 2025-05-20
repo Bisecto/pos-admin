@@ -164,10 +164,10 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   )
                 : null,
-            drawer: ExampleSidebarX(controller: _controller),
+            drawer: ExampleSidebarX(controller: _controller, tenantModel: widget.tenantModel,),
             body: Row(
               children: [
-                if (!isSmallScreen) ExampleSidebarX(controller: _controller),
+                if (!isSmallScreen) ExampleSidebarX(controller: _controller, tenantModel: widget.tenantModel,),
                 Expanded(
                   child: Center(
                       child: PageSelector(
@@ -184,9 +184,10 @@ class _LandingPageState extends State<LandingPage> {
 }
 
 class ExampleSidebarX extends StatelessWidget {
+  final TenantModel tenantModel;
   const ExampleSidebarX({
     Key? key,
-    required SidebarXController controller,
+    required SidebarXController controller, required this.tenantModel,
   })  : _controller = controller,
         super(key: key);
 
@@ -261,7 +262,7 @@ class ExampleSidebarX extends StatelessWidget {
                 height: 100,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Image.asset(AppImages.companyLogo),
+                  child: Image.network(tenantModel.logoUrl),
                 ),
               );
             },
